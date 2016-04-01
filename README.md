@@ -1,4 +1,4 @@
-# phyzzy.js
+# phyzzy-js
 A tiny 2d physics simulator. Uses a system of masses and springs to create
 objects that bounce and jiggle.
 
