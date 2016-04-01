@@ -2,7 +2,7 @@
 /*
     Library for 2D spring/mass simulation.
     Draws masses and springs on given canvas.
-    Requires external animation frame request.
+    Requires external loop for simulation
     External drawing can be used to render mesh.
 */
 
@@ -44,22 +44,20 @@ Vect.prototype.sub = function (A) {
     'use strict';
     return new Vect(this.x - A.x, this.y - A.y);
 };
-// find magnitude or square of magnitude
-Vect.prototype.mag = function (sqrt) {
+// find square of magnitude
+Vect.prototype.magSq = function () {
     'use strict';
-    var val = this.x * this.x + this.y * this.y;
-    return sqrt ? Math.sqrt(val) : val; // sqrt: true = return magnitude, false = return magnitude^2
+    return this.x * this.x + this.y * this.y;
+};
+// find magnitude
+Vect.prototype.mag = function () {
+    'use strict';
+    return Math.sqrt(this.magSq);
 };
 // dot product
 Vect.prototype.dot = function (A) {
     'use strict';
     return this.x * A.x + this.y * A.y;
-};
-// calculate distance between current and given vector
-Vect.prototype.dist = function (B, retMag) {
-    'use strict';
-    var v = new Vect(this.x, this.y);
-    return retMag ? v.sub(B).mag(true) : v.sub(B); // retVect: true = return distance, false = return vector
 };
 // find unit vector of current
 Vect.prototype.unit = function () {
@@ -98,12 +96,10 @@ function Spring(r, k, B) {
 }
 
 // Properties of containing area
-function Environment(grav, drag, wallW, wallH) {
+function Environment(grav, drag) {
     'use strict';
     this.grav = grav; // Gravity [m / s^2]
     this.drag = drag; // Drag coefficient [N * s / m]
-    this.wallW = wallW || 'null'; // wall bound width (omit for infinite width)
-    this.wallH = wallH || 'null'; // wall bound height (omit for infinite height)
 }
 
 // Holds a collection of masses and springs
