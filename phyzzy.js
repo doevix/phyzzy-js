@@ -1,6 +1,6 @@
 // phyzzy.js
 /*
-    Set of functions (framework?) for 2D spring/mass simulation.
+    Library for 2D spring/mass simulation.
     Draws masses and springs on given canvas.
     Requires external animation frame request.
     External drawing can be used to render mesh.
