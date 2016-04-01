@@ -80,10 +80,14 @@ function Mass(mass, rad, refl, mu_s, mu_k, P, V) {
     this.mu_s = mu_s; // Static surface friction coefficient [1]
     this.mu_k = mu_k; // Dynamic surface friction coefficient [1]
     this.refl = refl; // Surface reflection (bouncyness) [1]
+    
     this.fixed = false;
+    
+    this.F = new Vect(); // total force applied to mass
     this.P = P;
     this.V = V;
     this.P_old = new Vect(P.x, P.y);
+    
     this.branch = []; // stores the index of other masses the current is connected to (for quicker calculation)
 }
 
@@ -143,7 +147,7 @@ Phyz.prototype.toM = function (px) {
     return px / this.scale;
 };
 // calculates positions of each mass for new frame
-Phyz.prototype.calcMesh = function (env, dt, dt_old) { // Uses Time-Corrected Verlet integration to calculate
+Phyz.prototype.calcMesh = function (env, dt, dt_old) { // Uses Time-Corrected Verlet to calculate new position
     'use strict';
     dt_old = dt_old || dt; // if time correction is not required, dt_old can be omitted
     var i,
@@ -151,8 +155,8 @@ Phyz.prototype.calcMesh = function (env, dt, dt_old) { // Uses Time-Corrected Ve
         n_P = new Vect();
     
     for (i = 0; i < this.mesh.m.length; i += 1) {
-        acc.y = this.mesh.m[i].mass * env.grav;
-        acc = acc.div(this.mesh.m[i].mass);
+        // Calculate acceleration from result force
+        acc = this.mesh.m[i].F.div(this.mesh.m[i].mass);
         // Calculate new position
         n_P = this.mesh.m[i].P.sum(this.mesh.m[i].P.sub(this.mesh.m[i].P_old)).mul(dt / dt_old).sum(acc.mul(dt * dt));
         
