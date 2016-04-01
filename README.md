@@ -2,7 +2,7 @@
 A tiny 2d physics simulator. Uses a system of masses and springs to create
 objects that bounce and jiggle.
 
-This library can draw onto the html5 canvas element however this function can be
+This library can draw onto the html5 canvas element however, this function can be
 omitted completely.
 
 #### Setting up:
