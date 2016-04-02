@@ -130,8 +130,8 @@ Mesh.prototype.addS = function (massA, massB, r, k, B) {
 function Phyz(mesh, scale, viewPort, style) {
     'use strict';
     this.mesh = mesh; // the mesh is generated seperately for preloading or multiple simulations.
-    this.viewer = viewPort || 'null'; // where to display. Null if omitted
-    this.ctx = viewPort !== 'null' ? this.viewer.getContext('2d') : null; // canvas context
+    this.viewer = viewPort || null; // where to display. Null if omitted
+    this.ctx = viewPort !== null ? this.viewer.getContext('2d') : null; // canvas context
     this.scale = scale; // size of 1 meter in pixels
     this.play = false; // false = paused; true = playing
     this.cons = false; // false = select mode; true = construct mode

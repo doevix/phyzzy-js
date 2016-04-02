@@ -10,6 +10,8 @@ var mesh = new Mesh(), // create empty mesh
 
 ph.mesh.addM(0.5, 0.05, 0.7, 0, 0, pos, vel);
 ph.mesh.addM(0.5, 0.05, 0.7, 0, 0, pos.sum(new Vect(0.2, 0)), vel);
+ph.mesh.m[0].F.equ(new Vect(0, 9.81 * ph.mesh.m[0].mass));
+ph.mesh.m[1].F.equ(new Vect(0, 4.38 * ph.mesh.m[1].mass));
 function main() {
     'use strict';
     ph.calcMesh(en, 1 / 60);
