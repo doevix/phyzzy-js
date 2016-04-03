@@ -125,6 +125,47 @@ Mesh.prototype.addS = function (massA, massB, r, k, B) {
     this.m[massA].branch.push(new LinkData(massB, this.s.length - 1));
     this.m[massB].branch.push(new LinkData(massA, this.s.length - 1));
 };
+// Removes a spring from the mesh (removes links in mass's branch array)
+Mesh.prototype.remS = function (idx) {
+    'use strict';
+    var i, j;
+    if (idx < 0 || this.s.length <= idx) { // ensures an inexistant spring won't be removed
+        return false;
+    }
+    this.s.splice(idx, 1); // remove spring from mesh
+    for (i = 0; i < this.m.length; i += 1) { // look through each mass in the mesh
+        for (j = 0; j < this.m[i].branch.length; j += 1) { // look through mass branch array
+            if (this.m[i].branch[j].sIdx === idx) { // remove link if it exists
+                this.m[i].branch.splice(j, 1);
+            } else if (this.m[i].branch[j].sIdx > idx) { // fix index of springs greater than idx
+                this.m[i].branch[j].sIdx -= 1;
+            }
+        }
+    }
+    
+    return true;
+};
+// Removes a mass from the mesh. (removes mass and links to other masses)
+Mesh.prototype.remM = function (idx) {
+    'use strict';
+    var i, j;
+    if (idx < 0 || this.m.length <= idx) { // ensures an inexistant mass won't be removed
+        return false;
+    }
+    for (i = 0; i < this.m[idx].branch.length; i += 1) { // remove any links that connect to the mass
+        this.remS(this.m[idx].branch[i].sIdx);
+    }
+    this.m.splice(idx, 1); // remove the mass
+    for (i = 0; i < this.m.length; i += 0) {// look through each mass in the mesh
+        for (j = 0; j < this.m[i].branch.length; j += 1) { // look through mass branch array
+            if (this.m[i].branch[j].sIdx > idx) {
+                this.m[i].branch[j].sIdx -= 1; // fix index of masses greater than idx
+            }
+        }
+    }
+    
+    return true;
+};
 
 // Phyzzy simulation. Can be used to only calculate mesh, or to calculate 
 function Phyz(mesh, scale, viewPort, style) {
