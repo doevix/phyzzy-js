@@ -90,6 +90,16 @@ function Mass(mass, rad, refl, mu_s, mu_k, P, V) {
     
     this.branch = []; // stores the index of other masses the current is connected to (for quicker calculation)
 }
+// Calculates the current velocity of the mass. In case it is necessary to obtain the velocity of the mass.
+Mass.prototype.calcVel = function (dt) {
+    'use strict';
+    return this.P.sub(this.P_old).div(dt);
+};
+// Verlet integrator to calculate new position.
+Mass.prototype.verlet = function (dt, dt_old) {
+    'use strict';
+    return this.P.sum(this.P.sub(this.P_old)).mul(dt / dt_old).sum(this.F.div(this.mass).mul(dt * dt));
+};
 
 // Connect masses and have own properties
 function Spring(r, k, B) {
@@ -188,19 +198,15 @@ Phyz.prototype.toM = function (px) {
     return px / this.scale;
 };
 // calculates positions of each mass for new frame
-Phyz.prototype.calcMesh = function (env, dt, dt_old) { // Uses Time-Corrected Verlet to calculate new position
+Phyz.prototype.calcMesh = function (env, dt, dt_old) {
     'use strict';
     dt_old = dt_old || dt; // if time correction is not required, dt_old can be omitted
     var i,
-        acc = new Vect(),
         n_P = new Vect();
     
     for (i = 0; i < this.mesh.m.length; i += 1) {
-        // Calculate acceleration from result force
-        acc = this.mesh.m[i].F.div(this.mesh.m[i].mass);
         // Calculate new position
-        n_P = this.mesh.m[i].P.sum(this.mesh.m[i].P.sub(this.mesh.m[i].P_old)).mul(dt / dt_old).sum(acc.mul(dt * dt));
-        
+        n_P.equ(this.mesh.m[i].verlet(dt, dt_old)); // Calculate new position.
         this.mesh.m[i].P_old.equ(this.mesh.m[i].P); // moves current value to become old value for next frame
         this.mesh.m[i].P.equ(n_P); // Sets new position for current frame
     }
