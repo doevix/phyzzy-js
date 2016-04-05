@@ -64,6 +64,15 @@ Vect.prototype.unit = function () {
     'use strict';
     return this.div(this.mag(false));
 };
+// check if vector is equal to another
+Vect.prototype.equChk = function (V) {
+    'use strict';
+    if (V.x === this.x && V.y === this.y) {
+        return true;
+    } else {
+        return false;
+    }
+};
 
 // Stores the masses' links for springing. Contains linked mass's index and spring's index
 function LinkData(linkTo, sIdx) {
@@ -85,20 +94,46 @@ function Mass(mass, rad, refl, mu_s, mu_k, P, V) {
     
     this.F = new Vect(); // total force applied to mass
     this.P = P;
-    this.V = V;
     this.P_old = new Vect(P.x, P.y);
     
     this.branch = []; // stores the index of other masses the current is connected to (for quicker calculation)
 }
+
+/*
+    Basic force calculations for Mass object.
+*/
+// returns the mass's weight vector [N]
+Mass.prototype.W = function (grav, U) {
+    'use strict';
+    return U.mul(this.mass * grav);
+};
+// returns the vector of drag resistence applied to the mass. Note: Dissipating forces should be calculated last.
+Mass.prototype.drag = function (drag, dt, dt_old) {
+    'use strict';
+    var V = this.calcVel(dt),
+        qVel = this.verlet(dt, dt_old, V.mul(-drag)).sub(this.P).div(dt); // checks next step with drag involved.
+    if (this.F.magSq() - V.mul(-drag).magSq() > 0) {
+        return V.mul(-drag);
+    } else {
+        return this.F.mul(-1);
+    }
+    
+};
+
+/*
+    Velocity and position calculations for mass (based on acceleration by forces)
+*/
 // Calculates the current velocity of the mass. In case it is necessary to obtain the velocity of the mass.
 Mass.prototype.calcVel = function (dt) {
     'use strict';
     return this.P.sub(this.P_old).div(dt);
 };
 // Verlet integrator to calculate new position.
-Mass.prototype.verlet = function (dt, dt_old) {
+Mass.prototype.verlet = function (dt, dt_old, F_ex) {
     'use strict';
-    return this.P.sum(this.P.sub(this.P_old)).mul(dt / dt_old).sum(this.F.div(this.mass).mul(dt * dt));
+    dt_old = dt_old || 0;
+    F_ex = F_ex || new Vect(); // can be omitted, but useful if necessary to "predict" a position
+    return this.P.sum(this.P.sub(this.P_old)).mul(dt / dt_old).sum(this.F.sum(F_ex).div(this.mass).mul(dt * dt));
 };
 
 // Connect masses and have own properties
@@ -108,6 +143,12 @@ function Spring(r, k, B) {
     this.k = k; // restitution [N/m]
     this.B = B; // damping
 }
+// returns the spring's compression force [N]
+Spring.prototype.Fk = function (len, scaleRest) {
+    'use strict';
+    scaleRest = scaleRest || 1;
+    return (len - (this.r * scaleRest)) * this.k;
+};
 
 // Properties of containing area
 function Environment(grav, drag) {
@@ -203,9 +244,7 @@ Phyz.prototype.calcMesh = function (env, dt, dt_old) {
     dt_old = dt_old || dt; // if time correction is not required, dt_old can be omitted
     var i,
         n_P = new Vect();
-    
     for (i = 0; i < this.mesh.m.length; i += 1) {
-        // Calculate new position
         n_P.equ(this.mesh.m[i].verlet(dt, dt_old)); // Calculate new position.
         this.mesh.m[i].P_old.equ(this.mesh.m[i].P); // moves current value to become old value for next frame
         this.mesh.m[i].P.equ(n_P); // Sets new position for current frame
