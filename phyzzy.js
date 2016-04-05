@@ -32,7 +32,12 @@ Vect.prototype.mul = function (s) {
 // divides vector by a scalar value
 Vect.prototype.div = function (s) {
     'use strict';
-    return new Vect(this.x / s, this.y / s);
+    if (s !== 0) {
+        return new Vect(this.x / s, this.y / s);
+    } else {
+        return new Vect();
+    }
+    
 };
 // sums vector with another vector
 Vect.prototype.sum = function (A) {
@@ -52,7 +57,7 @@ Vect.prototype.magSq = function () {
 // find magnitude
 Vect.prototype.mag = function () {
     'use strict';
-    return Math.sqrt(this.magSq);
+    return Math.sqrt(this.x * this.x + this.y * this.y);
 };
 // dot product
 Vect.prototype.dot = function (A) {
@@ -62,7 +67,12 @@ Vect.prototype.dot = function (A) {
 // find unit vector of current
 Vect.prototype.unit = function () {
     'use strict';
-    return this.div(this.mag(false));
+    var m = this.mag();
+    if (m > 0) {
+        return this.div(m);
+    } else {
+        return new Vect();
+    }
 };
 // check if vector is equal to another
 Vect.prototype.equChk = function (V) {
@@ -144,10 +154,9 @@ function Spring(r, k, B) {
     this.B = B; // damping
 }
 // returns the spring's compression force [N]
-Spring.prototype.Fk = function (len, scaleRest) {
+Spring.prototype.Fk = function (len) {
     'use strict';
-    scaleRest = scaleRest || 1;
-    return (len - (this.r * scaleRest)) * this.k;
+    return (len - this.r) * this.k;
 };
 
 // Properties of containing area
@@ -169,12 +178,12 @@ Mesh.prototype.addM = function (mass, rad, refl, mu_s, mu_k, P, V) { // redundan
     this.m.push(new Mass(mass, rad, refl, mu_s, mu_k, P, V));
 };
 // Adds a new spring to the mesh
-Mesh.prototype.addS = function (massA, massB, r, k, B) {
+Mesh.prototype.addS = function (idxA, idxB, r, k, B) {
     'use strict';
     this.s.push(new Spring(r, k, B));
     // links the two given masses together
-    this.m[massA].branch.push(new LinkData(massB, this.s.length - 1));
-    this.m[massB].branch.push(new LinkData(massA, this.s.length - 1));
+    this.m[idxA].branch.push(new LinkData(idxB, this.s.length - 1));
+    this.m[idxB].branch.push(new LinkData(idxA, this.s.length - 1));
 };
 // Removes a spring from the mesh (removes links in mass's branch array)
 Mesh.prototype.remS = function (idx) {
@@ -195,6 +204,22 @@ Mesh.prototype.remS = function (idx) {
     }
     
     return true;
+};
+Mesh.prototype.Fs = function (mIdx) {
+    'use strict';
+    var i,
+        mA = this.m[mIdx], // current mass position
+        mB,
+        seg,
+        spr,
+        F = new Vect();
+    for (i = 0; i < mA.branch.length; i += 1) {
+        mB = this.m[mA.branch[i].linkTo]; // connected mass position
+        seg = mB.P.sub(mA.P);
+        spr = this.s[mA.branch[i].sIdx];
+        F.equ(F.sum(seg.unit().mul(spr.Fk(seg.mag()))));
+    }
+    return F;
 };
 // Removes a mass from the mesh. (removes mass and links to other masses)
 Mesh.prototype.remM = function (idx) {
@@ -218,7 +243,7 @@ Mesh.prototype.remM = function (idx) {
     return true;
 };
 
-// Phyzzy simulation. Can be used to only calculate mesh, or to calculate 
+// Phyzzy simulation. Can be used to display mesh, or calculate mesh only.
 function Phyz(mesh, scale, viewPort, style) {
     'use strict';
     this.mesh = mesh; // the mesh is generated seperately for preloading or multiple simulations.
@@ -252,8 +277,23 @@ Phyz.prototype.calcMesh = function (env, dt, dt_old) {
 };
 Phyz.prototype.refreshFrame = function () { // Clears and redraws the mesh
     'use strict';
-    var i;
+    var i, j, idxB,
+        drawnS = [];
     this.ctx.clearRect(0, 0, this.viewer.width, this.viewer.height);
+    for (i = 0; i < this.mesh.m.length; i += 1) {
+        for (j = 0; j < this.mesh.m[i].branch.length; j += 1) {
+            if (drawnS.indexOf(this.mesh.m[i].branch[j].sIdx) < 0) {
+                drawnS.push(this.mesh.m[i].branch[j].sIdx);
+                idxB = this.mesh.m[i].branch[j].linkTo;
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.toPx(this.mesh.m[i].P.x), this.toPx(this.mesh.m[i].P.y));
+                this.ctx.lineTo(this.toPx(this.mesh.m[idxB].P.x), this.toPx(this.mesh.m[idxB].P.y));
+                this.ctx.stroke();
+                this.ctx.closePath();
+            }
+        }
+        
+    }
     for (i = 0; i < this.mesh.m.length; i += 1) {
         this.ctx.beginPath();
         this.ctx.arc(this.toPx(this.mesh.m[i].P.x),
