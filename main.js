@@ -4,17 +4,15 @@
 */
 var mesh = new Mesh(), // create empty mesh
     ph = new Phyz(mesh, 100, document.getElementById('viewPort')),
-    en = new Environment(9.81, 0.01),
+    en = new Environment(9.81, 10),
     pos = new Vect(ph.toM(ph.viewer.width / 2), 0.05),
     vel = new Vect(),
     i,
     v1y,
     v2y;
 
-ph.mesh.addM(0.5, 0.05, 0.7, 0, 0, pos, vel);
-ph.mesh.addM(0.5, 0.05, 0.7, 0, 0, pos.sum(new Vect(0.2, 0)), vel);
-ph.mesh.m[0].F.equ(new Vect(0, 9.81 * ph.mesh.m[0].mass));
-ph.mesh.m[1].F.equ(new Vect(0, 4.38 * ph.mesh.m[1].mass));
+ph.mesh.addM(0.1, 0.05, 0.7, 0, 0, pos, vel);
+ph.mesh.addM(1, 0.05, 0.7, 0, 0, pos.sum(new Vect(0.2, 0)), vel);
 function main() {
     'use strict';
     ph.calcMesh(en, 1 / 60);
