@@ -103,31 +103,29 @@ function Mass(mass, rad, refl, mu_s, mu_k, P, V) {
     this.fixed = false;
     
     this.F = new Vect(); // total force applied to mass
-    this.P = P;
-    this.P_old = new Vect(P.x, P.y);
+    this.Pi = new Vect(P.x, P.y);
+    this.Po = new Vect(P.x, P.y);
     
     this.branch = []; // stores the index of other masses the current is connected to (for quicker calculation)
 }
-
 /*
     Basic force calculations for Mass object.
 */
 // returns the mass's weight vector [N]
-Mass.prototype.W = function (grav, U) {
+Mass.prototype.W = function (grav, U) { // U is the unit vector of the direction of gravity's pull
     'use strict';
     return U.mul(this.mass * grav);
 };
 // returns the vector of drag resistence applied to the mass. Note: Dissipating forces should be calculated last.
-Mass.prototype.drag = function (drag, dt, dt_old) {
+Mass.prototype.drg = function (drag, dt, dt_old) {
     'use strict';
     var V = this.calcVel(dt),
-        qVel = this.verlet(dt, dt_old, V.mul(-drag)).sub(this.P).div(dt); // checks next step with drag involved.
+        qVel = this.verlet(dt, dt_old, V.mul(-drag)).sub(this.Pi).div(dt); // checks next step with drag involved.
     if (this.F.magSq() - V.mul(-drag).magSq() > 0) {
         return V.mul(-drag);
     } else {
         return this.F.mul(-1);
     }
-    
 };
 
 /*
@@ -136,14 +134,14 @@ Mass.prototype.drag = function (drag, dt, dt_old) {
 // Calculates the current velocity of the mass. In case it is necessary to obtain the velocity of the mass.
 Mass.prototype.calcVel = function (dt) {
     'use strict';
-    return this.P.sub(this.P_old).div(dt);
+    return this.Pi.sub(this.Po).div(dt);
 };
 // Verlet integrator to calculate new position.
 Mass.prototype.verlet = function (dt, dt_old, F_ex) {
     'use strict';
     dt_old = dt_old || 0;
     F_ex = F_ex || new Vect(); // can be omitted, but useful if necessary to "predict" a position
-    return this.P.sum(this.P.sub(this.P_old)).mul(dt / dt_old).sum(this.F.sum(F_ex).div(this.mass).mul(dt * dt));
+    return this.Pi.sum(this.Pi.sub(this.Po)).mul(dt / dt_old).sum(this.F.sum(F_ex).div(this.mass).mul(dt * dt));
 };
 
 // Connect masses and have own properties
@@ -215,7 +213,7 @@ Mesh.prototype.Fs = function (mIdx) {
         F = new Vect();
     for (i = 0; i < mA.branch.length; i += 1) {
         mB = this.m[mA.branch[i].linkTo]; // connected mass position
-        seg = mB.P.sub(mA.P);
+        seg = mB.Pi.sub(mA.Pi);
         spr = this.s[mA.branch[i].sIdx];
         F.equ(F.sum(seg.unit().mul(spr.Fk(seg.mag()))));
     }
@@ -242,6 +240,18 @@ Mesh.prototype.remM = function (idx) {
     
     return true;
 };
+// calculates positions of each mass
+Mesh.prototype.calc = function (env, dt, dt_old) {
+    'use strict';
+    dt_old = dt_old || dt; // if time correction is not required, dt_old can be omitted
+    var i,
+        n_P = new Vect();
+    for (i = 0; i < this.m.length; i += 1) {
+        n_P.equ(this.m[i].verlet(dt, dt_old)); // Calculate new position.
+        this.m[i].Po.equ(this.m[i].Pi); // moves current value to become old value
+        this.m[i].Pi.equ(n_P); // Sets new position for current frame
+    }
+};
 
 // Phyzzy simulation. Can be used to display mesh, or calculate mesh only.
 function Phyz(mesh, scale, viewPort, style) {
@@ -263,19 +273,7 @@ Phyz.prototype.toM = function (px) {
     'use strict';
     return px / this.scale;
 };
-// calculates positions of each mass for new frame
-Phyz.prototype.calcMesh = function (env, dt, dt_old) {
-    'use strict';
-    dt_old = dt_old || dt; // if time correction is not required, dt_old can be omitted
-    var i,
-        n_P = new Vect();
-    for (i = 0; i < this.mesh.m.length; i += 1) {
-        n_P.equ(this.mesh.m[i].verlet(dt, dt_old)); // Calculate new position.
-        this.mesh.m[i].P_old.equ(this.mesh.m[i].P); // moves current value to become old value for next frame
-        this.mesh.m[i].P.equ(n_P); // Sets new position for current frame
-    }
-};
-Phyz.prototype.refreshFrame = function () { // Clears and redraws the mesh
+Phyz.prototype.refreshFrame = function () { // Clears and redraws the mesh to the canvas
     'use strict';
     var i, j, idxB,
         drawnS = [];
@@ -286,8 +284,8 @@ Phyz.prototype.refreshFrame = function () { // Clears and redraws the mesh
                 drawnS.push(this.mesh.m[i].branch[j].sIdx);
                 idxB = this.mesh.m[i].branch[j].linkTo;
                 this.ctx.beginPath();
-                this.ctx.moveTo(this.toPx(this.mesh.m[i].P.x), this.toPx(this.mesh.m[i].P.y));
-                this.ctx.lineTo(this.toPx(this.mesh.m[idxB].P.x), this.toPx(this.mesh.m[idxB].P.y));
+                this.ctx.moveTo(this.toPx(this.mesh.m[i].Pi.x), this.toPx(this.mesh.m[i].Pi.y));
+                this.ctx.lineTo(this.toPx(this.mesh.m[idxB].Pi.x), this.toPx(this.mesh.m[idxB].Pi.y));
                 this.ctx.stroke();
                 this.ctx.closePath();
             }
@@ -296,8 +294,8 @@ Phyz.prototype.refreshFrame = function () { // Clears and redraws the mesh
     }
     for (i = 0; i < this.mesh.m.length; i += 1) {
         this.ctx.beginPath();
-        this.ctx.arc(this.toPx(this.mesh.m[i].P.x),
-                this.toPx(this.mesh.m[i].P.y),
+        this.ctx.arc(this.toPx(this.mesh.m[i].Pi.x),
+                this.toPx(this.mesh.m[i].Pi.y),
                 this.toPx(this.mesh.m[i].rad),
                 0,
                 2 * Math.PI,
