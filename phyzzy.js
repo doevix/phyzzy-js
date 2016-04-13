@@ -127,6 +127,18 @@ Mass.prototype.drg = function (drag, dt, dt_old) {
         return this.F.mul(-1);
     }
 };
+// Draws the mass onto canvas.
+Mass.prototype.draw = function (ctx, scale) {
+    'use strict';
+    ctx.beginPath();
+    ctx.arc(this.Pi.x * scale,
+            this.Pi.y * scale,
+            this.rad * scale,
+            0, Math.PI * 2, false);
+    ctx.fill();
+    ctx.closePath();
+};
+
 
 /*
     Velocity and position calculations for mass (based on acceleration by forces)
@@ -140,8 +152,12 @@ Mass.prototype.calcVel = function (dt) {
 Mass.prototype.verlet = function (dt, dt_old, F_ex) {
     'use strict';
     dt_old = dt_old || 0;
-    F_ex = F_ex || new Vect(); // can be omitted, but useful if necessary to "predict" a position
-    return this.Pi.sum(this.Pi.sub(this.Po)).mul(dt / dt_old).sum(this.F.sum(F_ex).div(this.mass).mul(dt * dt));
+    F_ex = F_ex || new Vect(); // can be omitted, but useful if necessary to "predict" a position or apply a field
+    if (!this.fixed) {
+        return this.Pi.sum(this.Pi.sub(this.Po)).mul(dt / dt_old).sum(this.F.sum(F_ex).div(this.mass).mul(dt * dt));
+    } else {
+        return new Vect(this.Pi.x, this.Pi.y);
+    }
 };
 
 // Connect masses and have own properties
@@ -163,6 +179,46 @@ function Environment(grav, drag) {
     this.grav = grav; // Gravity [m / s^2]
     this.drag = drag; // Drag coefficient [N * s / m]
 }
+// Creates a box that contains the mesh.
+function WallBox(x, y, w, h) {
+    'use strict';
+    this.x = x; // origin x
+    this.y = y; // origin y
+    this.w = w; // width
+    this.h = h; // height
+}
+// returns new positions for the bounds
+WallBox.prototype.checkBound = function (m, dt) {
+    'use strict';
+    var v1 = new Vect((m.Pi.x - m.Po.x) / dt, (m.Pi.y - m.Po.y) / dt),
+        v2 = new Vect(),
+        n_Po = new Vect(m.Po.x, m.Po.y),
+        n_Pi = new Vect(m.Pi.x, m.Pi.y),
+        tol = (1 / 2) * m.rad; // minimum distance to consider to prevent zeno-behavior
+    
+    if (m.Pi.y > this.h - m.rad) { // hits bottom of box
+        n_Po.y = this.h - m.rad;
+        v2.y = -m.refl * v1.y;
+        n_Pi.y = (v2.y * dt) + n_Po.y;
+        if (n_Pi.y - n_Po < tol) {
+            n_Pi = n_Po;
+        }
+    } else if (m.Pi.y < this.y + m.rad) { // hits top of box
+        n_Po.y = this.y + m.rad;
+        v2.y = -m.refl * v1.y;
+        n_Pi.y = (v2.y * dt) + n_Po.y;
+    }
+    if (m.Pi.x > this.w - m.rad) { // hits right side of box
+        n_Po.x = this.h - m.rad;
+        v2.x = -m.refl * v1.x;
+        n_Pi.x = v2.x * dt + n_Po.y;
+    } else if (m.Pi.x < this.x + m.rad) { // hits left side of box
+        n_Po.x = this.h - m.rad;
+        v2.x = -m.refl * v1.x;
+        n_Pi.x = v2.x * dt + n_Po.y;
+    }
+    return {Po: n_Po, Pi: n_Pi};
+};
 
 // Holds a collection of masses and springs
 function Mesh() {
@@ -293,15 +349,6 @@ Phyz.prototype.refreshFrame = function () { // Clears and redraws the mesh to th
         
     }
     for (i = 0; i < this.mesh.m.length; i += 1) {
-        this.ctx.beginPath();
-        this.ctx.arc(this.toPx(this.mesh.m[i].Pi.x),
-                this.toPx(this.mesh.m[i].Pi.y),
-                this.toPx(this.mesh.m[i].rad),
-                0,
-                2 * Math.PI,
-                false
-               );
-        this.ctx.fill();
-        this.ctx.closePath();
+        this.mesh.m[i].draw(this.ctx, this.scale);
     }
 };
