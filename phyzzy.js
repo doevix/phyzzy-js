@@ -209,13 +209,13 @@ WallBox.prototype.checkBound = function (m, dt) {
         n_Pi.y = (v2.y * dt) + n_Po.y;
     }
     if (m.Pi.x > this.w - m.rad) { // hits right side of box
-        n_Po.x = this.h - m.rad;
+        n_Po.x = this.w - m.rad;
         v2.x = -m.refl * v1.x;
-        n_Pi.x = v2.x * dt + n_Po.y;
+        n_Pi.x = v2.x * dt + n_Po.x;
     } else if (m.Pi.x < this.x + m.rad) { // hits left side of box
-        n_Po.x = this.h - m.rad;
+        n_Po.x = this.x + m.rad;
         v2.x = -m.refl * v1.x;
-        n_Pi.x = v2.x * dt + n_Po.y;
+        n_Pi.x = v2.x * dt + n_Po.x;
     }
     return {Po: n_Po, Pi: n_Pi};
 };
