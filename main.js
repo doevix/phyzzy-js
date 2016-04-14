@@ -16,6 +16,9 @@ Mass.prototype.applyCol = function (n_V) {
     if (!this.Po.equChk(n_V.Po)) {
         this.Po.equ(n_V.Po);
     }
+    if (n_V.F.y === 0) {
+        this.F.y = 0;
+    }
 };
 
 var mesh = new Mesh(), // create empty mesh
@@ -24,25 +27,24 @@ var mesh = new Mesh(), // create empty mesh
     colBox = new WallBox(0, 0, ph.toM(ph.viewer.width), ph.toM(ph.viewer.height)),
     pos = new Vect(ph.toM(ph.viewer.width / 2), 0.05),
     vel = new Vect(),
-    dt = 1 / 60,
-    dt_old = 1 / 60,
-    i,
-    v1y,
-    v2y;
+    d = new Date(),
+    dt_i = 1 / 50,
+    dt_o = 1 / 50,
+    i;
     
-ph.mesh.addM(0.5, 0.05, 0.7, 0, 0, pos, vel);
+ph.mesh.addM(0.5, 0.05, 0.8, 0, 0, pos, vel);
 ph.mesh.addM(0.5, 0.05, 0.7, 0, 0, pos, vel);
 ph.mesh.m[1].fixed = true;
+ph.mesh.m[0].Po = ph.mesh.m[0].Po.sub(new Vect(0.03, 0));
 function frame(timeStamp) {
     'use strict';
     for (i = 0; i < ph.mesh.m.length; i += 1) {
         ph.mesh.applyForce(i, en);
     }
-    ph.mesh.calc(en, dt, dt_old);
+    ph.mesh.calc(en, dt_i, dt_o);
     for (i = 0; i < ph.mesh.m.length; i += 1) {
-        ph.mesh.m[i].applyCol(colBox.checkBound(ph.mesh.m[i], dt));
+        ph.mesh.m[i].applyCol(colBox.checkBound(ph.mesh.m[i], dt_i));
     }
-    
     ph.refreshFrame();
     window.requestAnimationFrame(frame);
 }
