@@ -32,7 +32,7 @@ var mesh = new Mesh(), // create empty mesh
     dt_o = 1 / 50,
     i;
     
-ph.mesh.addM(0.5, 0.05, 0.8, 0, 0, pos, vel);
+ph.mesh.addM(0.1, 0.05, 0.8, 0, 0, pos, vel);
 ph.mesh.addM(0.5, 0.05, 0.7, 0, 0, pos, vel);
 ph.mesh.m[1].fixed = true;
 ph.mesh.m[0].Po = ph.mesh.m[0].Po.sub(new Vect(0.03, 0));
@@ -43,7 +43,7 @@ function frame(timeStamp) {
     }
     ph.mesh.calc(en, dt_i, dt_o);
     for (i = 0; i < ph.mesh.m.length; i += 1) {
-        ph.mesh.m[i].applyCol(colBox.checkBound(ph.mesh.m[i], dt_i));
+        ph.mesh.m[i].applyCol(colBox.checkBound(ph.mesh.m[i], dt_i, en.grav));
     }
     ph.refreshFrame();
     window.requestAnimationFrame(frame);

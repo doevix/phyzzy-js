@@ -188,35 +188,35 @@ function WallBox(x, y, w, h) {
     this.h = h; // height
 }
 // returns new positions for the bounds
-WallBox.prototype.checkBound = function (m, dt) {
+WallBox.prototype.checkBound = function (m, dt, g) {
     'use strict';
     var v1 = new Vect((m.Pi.x - m.Po.x) / dt, (m.Pi.y - m.Po.y) / dt),
         v2 = new Vect(),
+        v,
         n_m = Object.create(m), // makes a temporary instance of the input mass to modify.
         n_Po = new Vect(m.Po.x, m.Po.y),
-        n_Pi = new Vect(m.Pi.x, m.Pi.y),
-        tol = m.rad + 0.05; // minimum distance to consider to prevent chattering
+        n_Pi = new Vect(m.Pi.x, m.Pi.y);
     // hits bottom of box
     if (m.Pi.y > this.h - m.rad) {
-        n_m.Po.y = this.h - m.rad;
+        n_m.Pi.y = this.h - m.rad;
         v2.y = -m.refl * v1.y;
-        n_m.Pi.y = (v2.y * dt) + n_m.Po.y;
+        n_m.Po.y = n_m.Pi.y - (v2.y * dt);
     // hits top of box
     } else if (m.Pi.y < this.y + m.rad) {
-        n_m.Po.y = this.y + m.rad;
+        n_m.Pi.y = this.y + m.rad;
         v2.y = -m.refl * v1.y;
-        n_m.Pi.y = (v2.y * dt) + n_m.Po.y;
+        n_m.Po.y = n_m.Pi.y - (v2.y * dt);
     }
     // hits right side of box
     if (m.Pi.x > this.w - m.rad) {
-        n_m.Po.x = this.w - m.rad;
+        n_m.Pi.x = this.w - m.rad;
         v2.x = -m.refl * v1.x;
-        n_m.Pi.x = v2.x * dt + n_m.Po.x;
+        n_m.Po.x = n_m.Pi.x - (v2.x * dt);
     // hits left side of box
     } else if (m.Pi.x < this.x + m.rad) {
         n_m.Po.x = this.x + m.rad;
         v2.x = -m.refl * v1.x;
-        n_m.Pi.x = v2.x * dt + n_m.Po.x;
+        n_m.Po.x = n_m.Pi.x - (v2.x * dt);
     }
     return n_m;
 };
