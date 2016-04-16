@@ -16,9 +16,6 @@ Mass.prototype.applyCol = function (n_V) {
     if (!this.Po.equChk(n_V.Po)) {
         this.Po.equ(n_V.Po);
     }
-    if (n_V.F.y === 0) {
-        this.F.y = 0;
-    }
 };
 
 var mesh = new Mesh(), // create empty mesh
@@ -43,7 +40,7 @@ function frame(timeStamp) {
     }
     ph.mesh.calc(en, dt_i, dt_o);
     for (i = 0; i < ph.mesh.m.length; i += 1) {
-        ph.mesh.m[i].applyCol(colBox.checkBound(ph.mesh.m[i], dt_i, en.grav));
+        ph.mesh.m[i].applyCol(colBox.checkBound(ph.mesh.m[i], dt_i));
     }
     ph.refreshFrame();
     window.requestAnimationFrame(frame);

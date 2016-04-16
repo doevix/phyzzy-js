@@ -103,8 +103,8 @@ function Mass(mass, rad, refl, mu_s, mu_k, P, V) {
     this.fixed = false;
     
     this.F = new Vect(); // total force applied to mass
-    this.Pi = new Vect(P.x, P.y);
-    this.Po = new Vect(P.x, P.y);
+    this.Pi = Object.create(P); // Create mass with Velocity of 0
+    this.Po = Object.create(P);
     
     this.branch = []; // stores the index of other masses the current is connected to (for quicker calculation)
 }
@@ -127,18 +127,6 @@ Mass.prototype.drg = function (drag, dt, dt_old) {
         return this.F.mul(-1);
     }
 };
-// Draws the mass onto canvas.
-Mass.prototype.draw = function (ctx, scale) {
-    'use strict';
-    ctx.beginPath();
-    ctx.arc(this.Pi.x * scale,
-            this.Pi.y * scale,
-            this.rad * scale,
-            0, Math.PI * 2, false);
-    ctx.fill();
-    ctx.closePath();
-};
-
 
 /*
     Velocity and position calculations for mass (based on acceleration by forces)
@@ -158,6 +146,20 @@ Mass.prototype.verlet = function (dt, dt_old, F_ex) {
     } else {
         return new Vect(this.Pi.x, this.Pi.y);
     }
+};
+/*
+    Other functions for mass
+*/
+// Draws the mass onto canvas.
+Mass.prototype.draw = function (ctx, scale) {
+    'use strict';
+    ctx.beginPath();
+    ctx.arc(this.Pi.x * scale,
+            this.Pi.y * scale,
+            this.rad * scale,
+            0, Math.PI * 2, false);
+    ctx.fill();
+    ctx.closePath();
 };
 
 // Connect masses and have own properties
@@ -179,7 +181,8 @@ function Environment(grav, drag) {
     this.grav = grav; // Gravity [m / s^2]
     this.drag = drag; // Drag coefficient [N * s / m]
 }
-// Creates a box that contains the mesh.
+
+// Creates a box that contains the mesh and limits the area.
 function WallBox(x, y, w, h) {
     'use strict';
     this.x = x; // origin x
@@ -188,7 +191,7 @@ function WallBox(x, y, w, h) {
     this.h = h; // height
 }
 // returns new positions for the bounds
-WallBox.prototype.checkBound = function (m, dt, g) {
+WallBox.prototype.checkBound = function (m, dt) {
     'use strict';
     var v1 = new Vect((m.Pi.x - m.Po.x) / dt, (m.Pi.y - m.Po.y) / dt),
         v2 = new Vect(),
@@ -310,13 +313,38 @@ Mesh.prototype.calc = function (env, dt, dt_old) {
         this.m[i].Pi.equ(n_P); // Sets new position for current frame
     }
 };
+Mesh.prototype.drawM = function (ctx, scale) {
+    'use strict';
+    var i;
+    for (i = 0; i < this.m.length; i += 1) {
+        this.m[i].draw(ctx, scale);
+    }
+};
+Mesh.prototype.drawS = function (ctx, scale) {
+    'use strict';
+    var i, j, idxB,
+        drawnS = [];
+    for (i = 0; i < this.m.length; i += 1) {
+        for (j = 0; j < this.m[i].branch.length; j += 1) {
+            if (drawnS.indexOf(this.m[i].branch[j].sIdx) < 0) {
+                drawnS.push(this.m[i].branch[j].sIdx);
+                idxB = this.m[i].branch[j].linkTo;
+                ctx.beginPath();
+                ctx.moveTo(this.m[i].Pi.x * scale, this.m[i].Pi.y * scale);
+                ctx.lineTo(this.m[idxB].Pi.x * scale, this.m[idxB].Pi.y * scale);
+                ctx.stroke();
+                ctx.closePath();
+            }
+        }
+    }
+};
 
 // Phyzzy simulation. Can be used to display mesh, or calculate mesh only.
 function Phyz(mesh, scale, viewPort, style) {
     'use strict';
     this.mesh = mesh; // the mesh is generated seperately for preloading or multiple simulations.
     this.viewer = viewPort || null; // where to display. Null if omitted
-    this.ctx = viewPort !== null ? this.viewer.getContext('2d') : null; // canvas context
+    this.ctx = this.viewer.getContext('2d') || null; // canvas context
     this.scale = scale; // size of 1 meter in pixels
     this.play = false; // false = paused; true = playing
     this.cons = false; // false = select mode; true = construct mode
@@ -333,24 +361,7 @@ Phyz.prototype.toM = function (px) {
 };
 Phyz.prototype.refreshFrame = function () { // Clears and redraws the mesh to the canvas
     'use strict';
-    var i, j, idxB,
-        drawnS = [];
     this.ctx.clearRect(0, 0, this.viewer.width, this.viewer.height);
-    for (i = 0; i < this.mesh.m.length; i += 1) {
-        for (j = 0; j < this.mesh.m[i].branch.length; j += 1) {
-            if (drawnS.indexOf(this.mesh.m[i].branch[j].sIdx) < 0) {
-                drawnS.push(this.mesh.m[i].branch[j].sIdx);
-                idxB = this.mesh.m[i].branch[j].linkTo;
-                this.ctx.beginPath();
-                this.ctx.moveTo(this.toPx(this.mesh.m[i].Pi.x), this.toPx(this.mesh.m[i].Pi.y));
-                this.ctx.lineTo(this.toPx(this.mesh.m[idxB].Pi.x), this.toPx(this.mesh.m[idxB].Pi.y));
-                this.ctx.stroke();
-                this.ctx.closePath();
-            }
-        }
-        
-    }
-    for (i = 0; i < this.mesh.m.length; i += 1) {
-        this.mesh.m[i].draw(this.ctx, this.scale);
-    }
+    this.mesh.drawS(this.ctx, this.scale);
+    this.mesh.drawM(this.ctx, this.scale);
 };
