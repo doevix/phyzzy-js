@@ -74,6 +74,15 @@ Vect.prototype.unit = function () {
         return new Vect();
     }
 };
+// project current vector on other.
+Vect.prototype.pjt  = function (A) {
+    'use strict';
+    if (A.magSq > 0) { // A(A*B)/(|A|^2)
+        return A.mul(A.dot(this)).div(A.magSq());
+    } else {
+        return new Vect();
+    }
+};
 // check if vector is equal to another
 Vect.prototype.equChk = function (V) {
     'use strict';
@@ -126,6 +135,11 @@ Mass.prototype.drg = function (drag, dt, dt_old) {
     } else {
         return this.F.mul(-1);
     }
+};
+// returns the vector of surface friction applied to the mass. Note: Dissipatingn froces should be calculated last.
+Mass.prototype.frc  = function (U, dt) {
+    'use strict';
+    var tol = 0.0001;
 };
 
 /*
@@ -313,6 +327,7 @@ Mesh.prototype.calc = function (env, dt, dt_old) {
         this.m[i].Pi.equ(n_P); // Sets new position for current frame
     }
 };
+// draws the set of masses that are part of the mesh
 Mesh.prototype.drawM = function (ctx, scale) {
     'use strict';
     var i;
@@ -320,6 +335,7 @@ Mesh.prototype.drawM = function (ctx, scale) {
         this.m[i].draw(ctx, scale);
     }
 };
+// draws the set of springs that are part of the mesh
 Mesh.prototype.drawS = function (ctx, scale) {
     'use strict';
     var i, j, idxB,
