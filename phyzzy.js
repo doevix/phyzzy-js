@@ -2,8 +2,8 @@
 /*
     Library for 2D spring/mass simulation.
     Draws masses and springs on given canvas.
-    Requires external loop for simulation
-    External drawing can be used to render mesh.
+    Requires external loop for simulation.
+    Rendering to canvas is optional.
 */
 
 // Vector object with vector math
@@ -101,7 +101,7 @@ function LinkData(linkTo, sIdx) {
 }
 
 // Have mass and obey laws given (inputs P & V MUST be Vect() objects)
-function Mass(mass, rad, refl, mu_s, mu_k, P, V) {
+function Mass(mass, rad, refl, mu_s, mu_k, P) {
     'use strict';
     this.mass = mass; // Mass [kg]
     this.rad = rad; // Radius [m]
@@ -136,10 +136,9 @@ Mass.prototype.drg = function (drag, dt, dt_old) {
         return this.F.mul(-1);
     }
 };
-// returns the vector of surface friction applied to the mass. Note: Dissipatingn froces should be calculated last.
+// returns the vector of surface friction applied to the mass. Note: Dissipating forces should be calculated last.
 Mass.prototype.frc  = function (U, dt) {
     'use strict';
-    var tol = 0.0001;
 };
 
 /*
@@ -158,7 +157,7 @@ Mass.prototype.verlet = function (dt, dt_old, F_ex) {
     if (!this.fixed) {
         return this.Pi.sum(this.Pi.sub(this.Po)).mul(dt / dt_old).sum(this.F.sum(F_ex).div(this.mass).mul(dt * dt));
     } else {
-        return new Vect(this.Pi.x, this.Pi.y);
+        return Object.create(this.Pi);
     }
 };
 /*
@@ -210,10 +209,9 @@ WallBox.prototype.checkBound = function (m, dt) {
     var v1 = new Vect((m.Pi.x - m.Po.x) / dt, (m.Pi.y - m.Po.y) / dt),
         v2 = new Vect(),
         v,
-        n_m = Object.create(m), // makes a temporary instance of the input mass to modify.
-        n_Po = new Vect(m.Po.x, m.Po.y),
-        n_Pi = new Vect(m.Pi.x, m.Pi.y);
+        n_m = Object.create(m); // makes a temporary instance of the input mass to modify.
     // hits bottom of box
+    
     if (m.Pi.y > this.h - m.rad) {
         n_m.Pi.y = this.h - m.rad;
         v2.y = -m.refl * v1.y;
@@ -231,7 +229,7 @@ WallBox.prototype.checkBound = function (m, dt) {
         n_m.Po.x = n_m.Pi.x - (v2.x * dt);
     // hits left side of box
     } else if (m.Pi.x < this.x + m.rad) {
-        n_m.Po.x = this.x + m.rad;
+        n_m.Pi.x = this.x + m.rad;
         v2.x = -m.refl * v1.x;
         n_m.Po.x = n_m.Pi.x - (v2.x * dt);
     }
@@ -245,9 +243,9 @@ function Mesh() {
     this.s = []; // spring array
 }
 // Adds a new mass to the mesh
-Mesh.prototype.addM = function (mass, rad, refl, mu_s, mu_k, P, V) { // redundant, but useful for clarity
+Mesh.prototype.addM = function (mass, rad, refl, mu_s, mu_k, P) { // redundant, but useful for clarity
     'use strict';
-    this.m.push(new Mass(mass, rad, refl, mu_s, mu_k, P, V));
+    this.m.push(new Mass(mass, rad, refl, mu_s, mu_k, P));
 };
 // Adds a new spring to the mesh
 Mesh.prototype.addS = function (idxA, idxB, r, k, B) {
@@ -269,12 +267,14 @@ Mesh.prototype.remS = function (idx) {
         for (j = 0; j < this.m[i].branch.length; j += 1) { // look through mass branch array
             if (this.m[i].branch[j].sIdx === idx) { // remove link if it exists
                 this.m[i].branch.splice(j, 1);
-            } else if (this.m[i].branch[j].sIdx > idx) { // fix index of springs greater than idx
-                this.m[i].branch[j].sIdx -= 1;
+            }
+            for (j = 0; j < this.m[i].branch.length; j += 1) {
+                if (this.m[i].branch[j].sIdx > idx) { // fix index of springs greater than idx
+                    this.m[i].branch[j].sIdx -= 1;
+                }
             }
         }
     }
-    
     return true;
 };
 // Calculates force applied by spring that links two masses.
@@ -305,14 +305,18 @@ Mesh.prototype.remM = function (idx) {
         this.remS(this.m[idx].branch[i].sIdx);
     }
     this.m.splice(idx, 1); // remove the mass
-    for (i = 0; i < this.m.length; i += 0) {// look through each mass in the mesh
+    for (i = 0; i < this.m.length; i += 1) {// look through each mass in the mesh
         for (j = 0; j < this.m[i].branch.length; j += 1) { // look through mass branch array
-            if (this.m[i].branch[j].sIdx > idx) {
-                this.m[i].branch[j].sIdx -= 1; // fix index of masses greater than idx
+            if (this.m[i].branch[j].linkTo === idx) {
+                this.m[i].branch.splice(j, 1); // fix index of masses greater than idx
+            }
+        }
+        for (j = 0; j < this.m[i].branch.length; j += 1) { // look through mass branch array
+            if (this.m[i].branch[j].linkTo > idx) {
+                this.m[i].branch[j].linkTo -= 1; // fix index of masses greater than idx
             }
         }
     }
-    
     return true;
 };
 // calculates positions of each mass
@@ -356,14 +360,13 @@ Mesh.prototype.drawS = function (ctx, scale) {
 };
 
 // Phyzzy simulation. Can be used to display mesh, or calculate mesh only.
-function Phyz(mesh, scale, viewPort, style) {
+function Phyz(mesh, viewPort, scale) {
     'use strict';
     this.mesh = mesh; // the mesh is generated seperately for preloading or multiple simulations.
     this.viewer = viewPort || null; // where to display. Null if omitted
     this.ctx = this.viewer.getContext('2d') || null; // canvas context
     this.scale = scale; // size of 1 meter in pixels
     this.play = false; // false = paused; true = playing
-    this.cons = false; // false = select mode; true = construct mode
 }
 // converts meters to pixels according to scale
 Phyz.prototype.toPx = function (mt) {
@@ -375,7 +378,7 @@ Phyz.prototype.toM = function (px) {
     'use strict';
     return px / this.scale;
 };
-Phyz.prototype.refreshFrame = function () { // Clears and redraws the mesh to the canvas
+Phyz.prototype.refreshFrame = function (x, y, w, h) { // Clears and redraws the mesh to the canvas
     'use strict';
     this.ctx.clearRect(0, 0, this.viewer.width, this.viewer.height);
     this.mesh.drawS(this.ctx, this.scale);

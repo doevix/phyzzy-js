@@ -19,29 +19,38 @@ Mass.prototype.applyCol = function (n_V) {
 };
 
 var mesh = new Mesh(), // create empty mesh
-    ph = new Phyz(mesh, 100, document.getElementById('viewPort')),
+    ph = new Phyz(mesh, document.getElementById('viewPort'), 100),
     en = new Environment(9.81, 10),
     colBox = new WallBox(0, 0, ph.toM(ph.viewer.width), ph.toM(ph.viewer.height)),
     pos = new Vect(ph.toM(ph.viewer.width / 2), 0.05),
     vel = new Vect(),
-    d = new Date(),
     dt_i = 1 / 50,
     dt_o = 1 / 50,
     i;
-    
-ph.mesh.addM(0.1, 0.05, 0.8, 0, 0, pos, vel);
-ph.mesh.addM(0.5, 0.05, 0.7, 0, 0, pos, vel);
-ph.mesh.m[1].fixed = true;
-ph.mesh.m[0].Po = ph.mesh.m[0].Po.sub(new Vect(0.03, 0));
-function frame(timeStamp) {
+
+ph.mesh.addM(0.5, 0.05, 0.75, 0, 0, new Vect(1, 1));
+ph.mesh.addM(0.5, 0.05, 0.75, 0, 0, new Vect(1, 2));
+ph.mesh.addM(0.5, 0.05, 0.75, 0, 0, new Vect(2, 1));
+ph.mesh.addM(0.5, 0.05, 0.75, 0, 0, new Vect(2, 2));
+
+ph.mesh.addS(0, 1, 1, 100, 0);
+ph.mesh.addS(1, 2, 1, 100, 0);
+ph.mesh.addS(2, 3, 1, 100, 0);
+ph.mesh.addS(0, 3, 1, 100, 0);
+ph.mesh.addS(2, 0, 1, 100, 0);
+ph.mesh.addS(1, 3, 1, 100, 0);
+
+ph.mesh.remM(3);
+
+function frame() {
     'use strict';
     for (i = 0; i < ph.mesh.m.length; i += 1) {
         ph.mesh.applyForce(i, en);
     }
-    ph.mesh.calc(en, dt_i, dt_o);
     for (i = 0; i < ph.mesh.m.length; i += 1) {
         ph.mesh.m[i].applyCol(colBox.checkBound(ph.mesh.m[i], dt_i));
     }
+    ph.mesh.calc(en, dt_i, dt_o);
     ph.refreshFrame();
     window.requestAnimationFrame(frame);
 }
