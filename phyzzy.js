@@ -6,15 +6,6 @@
     Rendering to canvas is optional.
 */
 
-
-
-// Stores the masses' links for springing. Contains linked mass's index and spring's index
-function LinkData(linkTo, sIdx) {
-    'use strict';
-    this.linkTo = linkTo;
-    this.sIdx = sIdx;
-}
-
 // Have mass and obey laws given (inputs P & V MUST be Vect() objects)
 function Mass(mass, rad, refl, mu_s, mu_k, P) {
     'use strict';
@@ -52,7 +43,7 @@ Mass.prototype.drg = function (drag, dt, dt_old) {
     }
 };
 // applies effects upon collision against a surface
-Mass.prototype.srf  = function (U, dt) {
+Mass.prototype.col = function (U, dt) {
     'use strict';
 };
 
@@ -161,6 +152,13 @@ WallBox.prototype.checkBound = function (m, dt) {
     }
     return n_m;
 };
+
+// Stores the masses' links for springing. Contains linked mass's index and spring's index
+function LinkData(linkTo, sIdx) {
+    'use strict';
+    this.linkTo = linkTo;
+    this.sIdx = sIdx;
+}
 
 // Holds a collection of masses and springs
 function Mesh() {
@@ -285,7 +283,7 @@ Mesh.prototype.drawS = function (ctx, scale) {
         }
     }
 };
-// User interaction. Holds pointer characteristics and applies actions given by the mouse. Compatible with touch screens (hopefully)
+// User interaction. Holds pointer actions. Compatible with touch screens (hopefully)
 function User() {
     'use strict';
     this.pointer_Coord = new Vect(); // coordinate of pointer
@@ -293,7 +291,7 @@ function User() {
     this.pointer_Down = false;
     this.sel = -1; // indicates index of what is selected by pointer
     this.hov = -1; // indicates index of what the pointer is hovering over
-    this.mS_latch = false; // indicates whether a spring or a mass is affected by the pointer (false: mass true: spring)
+    this.mS_latch = false; // indicates whether a spring or a mass is affected (false: mass true: spring)
 }
 User.prototype.actionCheck = function (element) {
     'use strict';
