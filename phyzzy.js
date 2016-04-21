@@ -136,8 +136,8 @@ Mass.prototype.drg = function (drag, dt, dt_old) {
         return this.F.mul(-1);
     }
 };
-// returns the vector of surface friction applied to the mass. Note: Dissipating forces should be calculated last.
-Mass.prototype.frc  = function (U, dt) {
+// applies effects upon collision against a surface
+Mass.prototype.srf  = function (U, dt) {
     'use strict';
 };
 
@@ -148,6 +148,12 @@ Mass.prototype.frc  = function (U, dt) {
 Mass.prototype.calcVel = function (dt) {
     'use strict';
     return this.Pi.sub(this.Po).div(dt);
+};
+// Calculates Po vector for an implicit velocity.
+Mass.prototype.calcPo = function (V, dt) {
+    'use strict';
+    //  n_m.Po.x = n_m.Pi.x - (v2.x * dt);
+    return this.Pi.sub(V.mul(dt));
 };
 // Verlet integrator to calculate new position.
 Mass.prototype.verlet = function (dt, dt_old, F_ex) {
@@ -176,16 +182,22 @@ Mass.prototype.draw = function (ctx, scale) {
 };
 
 // Connect masses and have own properties
-function Spring(r, k, B) {
+function Spring(r, k, B, w) {
     'use strict';
     this.r = r; // restlength [m]
     this.k = k; // restitution [N/m]
     this.B = B; // damping
+    this.w = w || 0.015;
 }
 // returns the spring's compression force [N]
 Spring.prototype.Fk = function (len) {
     'use strict';
     return (len - this.r) * this.k;
+};
+
+Spring.prototype.Fd = function (m1, m2, dt) {
+    'use strict';
+    return m1.calcVel(dt).sub(m2.calcVel).pjt(m2.Pi.sub(m1.Pi));
 };
 
 // Properties of containing area
@@ -207,11 +219,10 @@ function WallBox(x, y, w, h) {
 WallBox.prototype.checkBound = function (m, dt) {
     'use strict';
     var v1 = new Vect((m.Pi.x - m.Po.x) / dt, (m.Pi.y - m.Po.y) / dt),
-        v2 = new Vect(),
+        v2 = m.calcVel(dt),
         v,
         n_m = Object.create(m); // makes a temporary instance of the input mass to modify.
     // hits bottom of box
-    
     if (m.Pi.y > this.h - m.rad) {
         n_m.Pi.y = this.h - m.rad;
         v2.y = -m.refl * v1.y;
@@ -352,11 +363,25 @@ Mesh.prototype.drawS = function (ctx, scale) {
                 ctx.beginPath();
                 ctx.moveTo(this.m[i].Pi.x * scale, this.m[i].Pi.y * scale);
                 ctx.lineTo(this.m[idxB].Pi.x * scale, this.m[idxB].Pi.y * scale);
+                ctx.lineWidth = this.s[this.m[i].branch[j].sIdx].w * scale;
                 ctx.stroke();
                 ctx.closePath();
             }
         }
     }
+};
+// User interaction. Holds pointer characteristics and applies actions given by the mouse. Compatible with touch screens (hopefully)
+function User() {
+    'use strict';
+    this.pointer_Coord = new Vect(); // coordinate of pointer
+    this.pointer_Veloc = new Vect(); // velocity vector
+    this.pointer_Down = false;
+    this.sel = -1; // indicates index of what is selected by pointer
+    this.hov = -1; // indicates index of what the pointer is hovering over
+    this.mS_latch = false; // indicates whether a spring or a mass is affected by the pointer (false: mass true: spring)
+}
+User.prototype.actionCheck = function (element) {
+    'use strict';
 };
 
 // Phyzzy simulation. Can be used to display mesh, or calculate mesh only.
@@ -378,7 +403,11 @@ Phyz.prototype.toM = function (px) {
     'use strict';
     return px / this.scale;
 };
-Phyz.prototype.refreshFrame = function (x, y, w, h) { // Clears and redraws the mesh to the canvas
+Phyz.prototype.updateMesh = function () {
+    'use strict';
+};
+// Clears and redraws the mesh to the canvas
+Phyz.prototype.refreshFrame = function (x, y, w, h) {
     'use strict';
     this.ctx.clearRect(0, 0, this.viewer.width, this.viewer.height);
     this.mesh.drawS(this.ctx, this.scale);
