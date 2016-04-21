@@ -20,6 +20,30 @@ Vect.prototype.clr = function (A) {
     this.x = 0;
     this.y = 0;
 };
+// mutating sum
+Vect.prototype.sumTo = function (A) {
+    'use strict';
+    this.x += A.x;
+    this.y += A.y;
+};
+// mutating subtraction
+Vect.prototype.subTo = function (A) {
+    'use strict';
+    this.x -= A.x;
+    this.y -= A.y;
+};
+// mutating multiplication
+Vect.prototype.mulTo = function (A) {
+    'use strict';
+    this.x *= A.x;
+    this.y *= A.y;
+};
+// mutating division
+Vect.prototype.divTo = function (A) {
+    'use strict';
+    this.x /= A.x;
+    this.y /= A.y;
+};
 // multiplies vector by a scalar value
 Vect.prototype.mul = function (s) {
     'use strict';

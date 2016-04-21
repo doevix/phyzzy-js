@@ -67,8 +67,8 @@ Mesh.prototype.Fs = function (mIdx) {
     for (i = 0; i < mA.branch.length; i += 1) {
         mB = this.m[mA.branch[i].linkTo]; // connected mass position
         seg = mB.Pi.sub(mA.Pi);
-        spr = this.s[mA.branch[i].sIdx];
-        F.equ(F.sum(seg.unit().mul(spr.Fk(seg.mag()))));
+        spr = this.s[mA.branch[i].sIdx]; // spring that connects masses
+        F.sumTo(seg.unit().mul(spr.Fk(seg.mag())));
     }
     return F;
 };
