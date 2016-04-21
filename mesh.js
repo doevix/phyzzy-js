@@ -99,6 +99,20 @@ Mesh.prototype.remM = function (idx) {
     return true;
 };
 
+// applies basic forces.
+Mesh.prototype.applyForce = function (en) { // applies basic forces
+        var i, W, S;
+        for (i = 0; i < this.m.length; i += 1) {
+            if (!this.m[i].fixed) { // only applies forces if masses are free to move
+                W = this.m[i].W(en.grav, en.bounds.gdir); // get weight
+                S = this.Fs(i); // get spring pull
+                this.m[i].F.equ(W.sum(S));
+            } else {
+                this.m[i].F.equ = new Vect();
+            }
+        }
+    };
+
 // calculates positions of each mass
 Mesh.prototype.calc = function (env, dt, dt_old) {
     'use strict';

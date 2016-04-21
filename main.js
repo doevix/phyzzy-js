@@ -11,21 +11,12 @@ requirejs(['phyzzy', 'vector', 'obj', 'mesh'], function (phyzzy, vector, obj, me
 
 function main() {
     'use strict';
-    Mesh.prototype.applyForce = function (en) {
-        var i, W, S;
-        for (i = 0; i < this.m.length; i += 1) {
-            W = this.m[i].W(en.grav, en.bounds.gdir);
-            S = this.Fs(i);
-            this.m[i].F.equ(W.sum(S));
-        }
-    };
     
     var mesh = new Mesh(), // create empty mesh
         ph = new Phyz(document.getElementById('viewPort'), 100),
         colBox = new WallBox(0, 0, ph.toM(ph.viewer.width), ph.toM(ph.viewer.height), new Vect(0, 1)),
         en = new Environment(9.81, 10, colBox),
         pos = new Vect(ph.toM(ph.viewer.width / 2), 0.05),
-        vel = new Vect(),
         dt_i = 1 / 50,
         dt_o = 1 / 50,
         i;
@@ -42,7 +33,7 @@ function main() {
     mesh.addS(2, 0, 1, 100, 0.4);
     mesh.addS(1, 3, 1, 100, 0.4);
 
-    mesh.remM(3);
+    // mesh.remM(3);
 
 
     function frame() {

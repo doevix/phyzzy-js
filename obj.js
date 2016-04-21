@@ -30,6 +30,7 @@ Mass.prototype.W = function (grav, U) { // U is the unit vector of the direction
     'use strict';
     return U.mul(this.mass * grav);
 };
+
 // returns the vector of drag resistence applied to the mass. Note: Dissipating forces should be calculated last.
 Mass.prototype.drg = function (drag, dt, dt_old) {
     'use strict';
@@ -41,6 +42,7 @@ Mass.prototype.drg = function (drag, dt, dt_old) {
         return this.F.mul(-1);
     }
 };
+
 // applies a sudden change in current and last positions
 Mass.prototype.modMov = function (n_m) {
     'use strict';
@@ -60,12 +62,14 @@ Mass.prototype.calcVel = function (dt) {
     'use strict';
     return this.Pi.sub(this.Po).div(dt);
 };
+
 // Calculates Po vector for an implicit velocity.
 Mass.prototype.calcPo = function (V, dt) {
     'use strict';
     //  n_m.Po.x = n_m.Pi.x - (v2.x * dt);
     return this.Pi.sub(V.mul(dt));
 };
+
 // Verlet integrator to calculate new position.
 Mass.prototype.verlet = function (dt, dt_old, F_ex) {
     'use strict';
@@ -77,6 +81,7 @@ Mass.prototype.verlet = function (dt, dt_old, F_ex) {
         return Object.create(this.Pi);
     }
 };
+
 /*
     Other functions for mass
 */
@@ -100,11 +105,13 @@ function Spring(r, k, B, w) {
     this.B = B; // damping
     this.w = w || 0.015;
 }
+
 // returns the spring's compression force [N]
 Spring.prototype.Fk = function (len) {
     'use strict';
     return (len - this.r) * this.k;
 };
+
 // returns the spring's damping force [N]
 Spring.prototype.Fd = function (m1, m2, dt) {
     'use strict';
@@ -119,6 +126,13 @@ function Environment(grav, drag, bounds) {
     this.bounds = bounds || null;
 }
 
+/*
+    Bounds.
+    Note: if a custom bounding is to be used, a gdir vector and a checkBound property MUST be declared.
+    gdir must be a unit vector
+    checkBound must have an input mass and dt. Must also return a copy of the input mass.
+*/
+
 // Creates a box that contains the mesh and limits the area.
 function WallBox(x, y, w, h, gdir) {
     'use strict';
@@ -126,8 +140,9 @@ function WallBox(x, y, w, h, gdir) {
     this.y = y; // origin y
     this.w = w; // width
     this.h = h; // height
-    this.gdir = gdir || new Vect(); // direction of gravity
+    this.gdir = gdir.unit() || new Vect(); // direction of gravity
 }
+
 // returns new positions for the bounds
 WallBox.prototype.checkBound = function (m, dt) {
     'use strict';
