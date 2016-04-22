@@ -26,10 +26,17 @@ Mesh.prototype.addM = function (mass, rad, refl, mu_s, mu_k, P) { // redundant, 
 // Adds a new spring to the mesh
 Mesh.prototype.addS = function (idxA, idxB, r, k, B) {
     'use strict';
-    this.s.push(new Spring(r, k, B));
-    // links the two given masses together
-    this.m[idxA].branch.push(new LinkData(idxB, this.s.length - 1));
-    this.m[idxB].branch.push(new LinkData(idxA, this.s.length - 1));
+    if (this.m[idxA].branch.indexOf(idxB) < 0 && this.m[idxB].branch.indexOf(idxA) < 0) {
+        // only adds a new spring when two masses haven't been linked yet
+        this.s.push(new Spring(r, k, B));
+        // links the two given masses together
+        this.m[idxA].branch.push(new LinkData(idxB, this.s.length - 1));
+        this.m[idxB].branch.push(new LinkData(idxA, this.s.length - 1));
+        return true;
+    } else {
+        // returns false if there is already a spring connecting the masses.
+        return false;
+    }
 };
 
 // Removes a spring from the mesh (removes links in mass's branch array)
@@ -101,16 +108,17 @@ Mesh.prototype.remM = function (idx) {
 
 // applies basic forces.
 Mesh.prototype.applyForce = function (en) { // applies basic forces
-        var i, W, S;
-        for (i = 0; i < this.m.length; i += 1) {
-            if (!this.m[i].fixed) { // only applies forces if masses are free to move
-                W = this.m[i].W(en.grav, en.bounds.gdir); // get weight
-                S = this.Fs(i); // get spring pull
-                this.m[i].F.equ(W.sum(S));
-            } else {
-                this.m[i].F.equ = new Vect();
-            }
+        'use strict';
+    var i, W, S;
+    for (i = 0; i < this.m.length; i += 1) {
+        if (!this.m[i].fixed) { // only applies forces if masses are free to move
+            W = this.m[i].W(en.grav, en.bounds.gdir); // get weight
+            S = this.Fs(i); // get spring pull
+            this.m[i].F.equ(W.sum(S));
+        } else {
+            this.m[i].F.equ = new Vect();
         }
+    }
     };
 
 // calculates positions of each mass
