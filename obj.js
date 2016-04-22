@@ -75,9 +75,9 @@ Mass.prototype.verlet = function (dt, dt_old, F_ex) {
     'use strict';
     dt_old = dt_old || 0;
     F_ex = F_ex || new Vect(); // can be omitted, but useful if necessary to "predict" a position or apply a field
-    if (!this.fixed) {
+    if (!this.fixed) { // if free to move: Pi = Pi + (Pi - Po)*(dt_i/dt_o) + (F/m)*(dt^2)
         return this.Pi.sum(this.Pi.sub(this.Po)).mul(dt / dt_old).sum(this.F.sum(F_ex).div(this.mass).mul(dt * dt));
-    } else {
+    } else { // if fixed: simply return the value.
         return Object.create(this.Pi);
     }
 };
