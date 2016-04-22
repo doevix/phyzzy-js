@@ -16,7 +16,6 @@ function main() {
         ph = new Phyz(document.getElementById('viewPort'), 100),
         colBox = new WallBox(0, 0, ph.toM(ph.viewer.width), ph.toM(ph.viewer.height), new Vect(0, 1)),
         en = new Environment(9.81, 10, colBox),
-        pos = new Vect(ph.toM(ph.viewer.width / 2), 0.05),
         dt_i = 1 / 50,
         dt_o = 1 / 50,
         i;
