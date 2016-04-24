@@ -124,7 +124,7 @@ function Environment(grav, drag, bounds) {
     'use strict';
     this.grav = grav; // Gravity [m / s^2]
     this.drag = drag; // Drag coefficient [N * s / m]
-    this.bounds = bounds || null;
+    this.bounds = bounds || new Space();
 }
 
 /*
@@ -133,7 +133,14 @@ function Environment(grav, drag, bounds) {
     gdir must be a unit vector
     checkBound must have an input mass and dt. Must also return a copy of the input mass.
 */
-
+// creates an empty boundless space. Used when no bounds are selected.
+function Space () {
+    'use strict';
+    this.gdir = new Vect();
+};
+Space.prototype.checkBound = function (m) {
+    return m;
+};
 // Creates a box that contains the mesh and limits the area.
 function WallBox(x, y, w, h, gdir) {
     'use strict';

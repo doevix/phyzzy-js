@@ -9,11 +9,14 @@ function main() {
     
     var mesh = new Mesh(), // create empty mesh
         ph = new Phyz(document.getElementById('viewPort'), 100),
+        user = new User(ph.scale), // add user functions
         colBox = new WallBox(0, 0, ph.toM(ph.viewer.width), ph.toM(ph.viewer.height), new Vect(0, 1)),
         en = new Environment(9.81, 10, colBox),
         dt_i = 1 / 50,
         dt_o = 1 / 50,
         i;
+
+    ph.interactSet(user); // enable user functions
 
     mesh.addM(0.5, 0.05, 0.75, 0, 0, new Vect(1, 1));
     mesh.addM(0.5, 0.05, 0.75, 0, 0, new Vect(1, 2));
@@ -27,7 +30,7 @@ function main() {
     mesh.addS(2, 0, 1, 100, 0.4);
     mesh.addS(1, 3, 1, 100, 0.4);
 
-    // mesh.remM(3);
+    mesh.remM(3);
 
 
     function frame() {
@@ -36,6 +39,10 @@ function main() {
         }
         ph.updateMesh(mesh, en, dt_i, dt_o);
         ph.refreshFrame(mesh, true);
+        ph.checkHov(user, mesh);
+        ph.ctx.fillText(user.pointer_Coord.display(), 5, 10);
+        ph.ctx.fillText(user.pointer_Down, 5, 20);
+        ph.ctx.fillText(user.hov, 5, 30);
         window.requestAnimationFrame(frame);
     }
     

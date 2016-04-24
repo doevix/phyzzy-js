@@ -3,18 +3,33 @@
     Main control of simulation. Manages and simulates mass and spring movement.
 */
 
-// User interaction. Holds pointer actions. Compatible with touch screens (hopefully)
-function User() {
+// User interaction. Holds pointer actions. Requires external event handler.
+function User(scale) {
     'use strict';
+    this.scale = scale || 1; // size of 1 meter in pixels
     this.pointer_Coord = new Vect(); // coordinate of pointer
-    this.pointer_Veloc = new Vect(); // velocity vector
+    this.coord_Last = new Vect(); // last coordinate of pointer
     this.pointer_Down = false;
     this.sel = -1; // indicates index of what is selected by pointer
     this.hov = -1; // indicates index of what the pointer is hovering over
     this.mS_latch = false; // indicates whether a spring or a mass is affected (false: mass true: spring)
 }
-User.prototype.actionCheck = function (element) {
+// Updates the pointer coordinates uses vector input.
+User.prototype.moveEvent = function (e) {
     'use strict';
+    var n_coord = new Vect(e.clientX, e.clientY);
+    // this.coord_Last.equ(this.pointer_Coord);
+    this.pointer_Coord.equ(n_coord.div(this.scale));
+};
+// Creates action on mouse down.
+User.prototype.downEvent = function (e) {
+    'use strict';
+    this.pointer_Down = true;
+};
+// Creates action on mouse up.
+User.prototype.upEvent = function (e) {
+    'use strict';
+    this.pointer_Down = false;
 };
 
 // Simulator interface. Can be used to display mesh, or calculate mesh only.
@@ -43,11 +58,33 @@ Phyz.prototype.updateMesh = function (mesh, en, dt_i, dt_o) {
     mesh.coll(en, dt_i);
 };
 // Clears and redraws the mesh to the canvas 
-Phyz.prototype.refreshFrame = function (mesh, clrF) {
+Phyz.prototype.refreshFrame = function (mesh, clrF, debug) {
     'use strict';
     if (clrF) { // clearing optional by setting clrF as true
         this.ctx.clearRect(0, 0, this.viewer.width, this.viewer.height);
     }
     mesh.drawS(this.ctx, this.scale);
     mesh.drawM(this.ctx, this.scale);
+};
+// User interaction: attaches events to a user object.
+Phyz.prototype.interactSet = function (user) {
+    'use strict';
+    this.viewer.onmousemove = function (e) {
+        user.moveEvent(e);
+    };
+    this.viewer.onmousedown = function (e) {
+        user.downEvent(e);
+    };
+    this.viewer.onmouseup = function (e) {
+        user.upEvent(e);
+    };
+};
+Phyz.prototype.checkHov = function (user, mesh) {
+    'use strict';
+    var i;
+    for (i = 0; i < mesh.m.length; i += 1) {
+        if (mesh.m[i].Pi.compare(user.pointer_Coord , mesh.m[i].rad + 0.05)) {
+            user.hov = i;
+        }
+    }
 };

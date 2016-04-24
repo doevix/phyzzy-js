@@ -112,3 +112,17 @@ Vect.prototype.equChk = function (V) {
         return false;
     }
 };
+// compares if a coordinate is within the bounds of another according to a boundary radius
+Vect.prototype.compare = function (A, rad) {
+    'use strict';
+    if (Math.abs(this.x - A.x) <= rad && Math.abs(this.y - A.y) <= rad) {
+        return true;
+    } else {
+        return false;
+    }
+};
+// returns a string that displays the vector's components
+Vect.prototype.display = function () {
+    'use strict';
+    return '(' + this.x + ',' + this.y + ')';
+};
