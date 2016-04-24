@@ -137,8 +137,9 @@ function Environment(grav, drag, bounds) {
 function Space () {
     'use strict';
     this.gdir = new Vect();
-};
+}
 Space.prototype.checkBound = function (m) {
+    'use strict';
     return m;
 };
 // Creates a box that contains the mesh and limits the area.

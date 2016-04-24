@@ -108,7 +108,7 @@ Mesh.prototype.remM = function (idx) {
 
 // applies basic forces.
 Mesh.prototype.applyForce = function (en) { // applies basic forces
-        'use strict';
+    'use strict';
     var i, W, S;
     for (i = 0; i < this.m.length; i += 1) {
         if (!this.m[i].fixed) { // only applies forces if masses are free to move
@@ -119,7 +119,7 @@ Mesh.prototype.applyForce = function (en) { // applies basic forces
             this.m[i].F.equ = new Vect();
         }
     }
-    };
+};
 
 // calculates positions of each mass
 Mesh.prototype.calc = function (env, dt, dt_old) {
