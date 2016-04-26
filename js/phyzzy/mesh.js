@@ -164,12 +164,42 @@ Mesh.prototype.drawS = function (ctx, scale) {
                 drawnS.push(this.m[i].branch[j].sIdx);
                 idxB = this.m[i].branch[j].linkTo;
                 ctx.beginPath();
-                ctx.moveTo(this.m[i].Pi.x * scale, this.m[i].Pi.y * scale);
-                ctx.lineTo(this.m[idxB].Pi.x * scale, this.m[idxB].Pi.y * scale);
-                ctx.lineWidth = this.s[this.m[i].branch[j].sIdx].w * scale;
+                ctx.moveTo( // Math.floor() is used to optimize canvas drawing.
+                    Math.floor(this.m[i].Pi.x * scale),
+                    Math.floor(this.m[i].Pi.y * scale)
+                );
+                ctx.lineTo(
+                    Math.floor(this.m[idxB].Pi.x * scale),
+                    Math.floor(this.m[idxB].Pi.y * scale)
+                );
+                ctx.lineWidth = Math.floor(this.s[this.m[i].branch[j].sIdx].w * scale);
                 ctx.stroke();
                 ctx.closePath();
             }
         }
     }
+};
+
+
+/*
+    Shape generation for quick testing.
+*/
+// Creates a box with braces
+Mesh.prototype.generateBox = function (mass, rad, refl, mus, muk, k, b, x, y, w, h) {
+    'use strict';
+    var i,
+        wid = Math.abs(x - w),
+        hig = Math.abs(y - h);
+    this.addM(mass, rad, refl, mus, muk, new Vect(x, y));
+    this.addM(mass, rad, refl, mus, muk, new Vect(x, h));
+    this.addM(mass, rad, refl, mus, muk, new Vect(w, y));
+    this.addM(mass, rad, refl, mus, muk, new Vect(w, h));
+
+    this.addS(this.m.length - 4, this.m.length - 3, Math.abs(hig), k, b);
+    this.addS(this.m.length - 4, this.m.length - 2, Math.abs(wid), k, b);
+    this.addS(this.m.length - 1, this.m.length - 3, Math.abs(wid), k, b);
+    this.addS(this.m.length - 1, this.m.length - 2, Math.abs(hig), k, b);
+
+    this.addS(this.m.length - 4, this.m.length - 1, Math.sqrt(wid * wid + hig * hig), k, b);
+    this.addS(this.m.length - 3, this.m.length - 2, Math.sqrt(wid * wid + hig * hig), k, b);
 };

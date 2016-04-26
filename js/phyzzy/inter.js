@@ -4,9 +4,8 @@
 */
 
 // User interaction. Holds pointer actions. Requires external event handler.
-function User(scale) {
+function User() {
     'use strict';
-    this.scale = scale || 1; // size of 1 meter in pixels
     this.pointer_Coord = new Vect(); // coordinate of pointer
     this.coord_Last = new Vect(); // last coordinate of pointer
     this.pointer_Down = false;
@@ -19,7 +18,7 @@ User.prototype.moveEvent = function (e) {
     'use strict';
     var n_coord = new Vect(e.clientX, e.clientY);
     // this.coord_Last.equ(this.pointer_Coord);
-    this.pointer_Coord.equ(n_coord.div(this.scale));
+    this.pointer_Coord.equ(n_coord);
 };
 // Creates action on mouse down.
 User.prototype.downEvent = function (e) {
@@ -82,9 +81,11 @@ Phyz.prototype.interactSet = function (user) {
 Phyz.prototype.checkHov = function (user, mesh) {
     'use strict';
     var i;
+        user.hov = -1;
     for (i = 0; i < mesh.m.length; i += 1) {
-        if (mesh.m[i].Pi.compare(user.pointer_Coord , mesh.m[i].rad + 0.05)) {
+        if (mesh.m[i].Pi.compare(user.pointer_Coord.div(this.scale), mesh.m[i].rad + 0.05)) {
             user.hov = i;
+            user.mS_latch = false;
         }
     }
 };

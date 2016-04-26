@@ -90,9 +90,9 @@ Mass.prototype.verlet = function (dt, dt_old, F_ex) {
 Mass.prototype.draw = function (ctx, scale) {
     'use strict';
     ctx.beginPath();
-    ctx.arc(this.Pi.x * scale,
-            this.Pi.y * scale,
-            this.rad * scale,
+    ctx.arc(Math.floor(this.Pi.x * scale),
+            Math.floor(this.Pi.y * scale),
+            Math.floor(this.rad * scale),
             0, Math.PI * 2, false);
     ctx.fill();
     ctx.closePath();
