@@ -23,11 +23,10 @@ function main() {
     mesh.generateBox(0.5, 0.05, 0.75, 0, 0, 100, 0.4, 0.7, 2, 4.3, 3);
 
     mesh.m[5].mass = 10;
+    mesh.m[1].mass = 20;
 
     function frame() {
-        for (i = 0; i < mesh.m.length; i += 1) {
-            mesh.applyForce(en);
-        }
+        mesh.applyForce(en, dt_i);
         ph.updateMesh(mesh, en, dt_i, dt_o);
         ph.refreshFrame(mesh, true);
         ph.checkHov(user, mesh);

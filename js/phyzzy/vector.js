@@ -15,7 +15,7 @@ Vect.prototype.equ = function (A) {
     this.y = A.y;
 };
 // resets vector to zero
-Vect.prototype.clr = function (A) {
+Vect.prototype.clr = function () {
     'use strict';
     this.x = 0;
     this.y = 0;

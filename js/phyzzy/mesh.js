@@ -107,16 +107,19 @@ Mesh.prototype.remM = function (idx) {
 };
 
 // applies basic forces.
-Mesh.prototype.applyForce = function (en) { // applies basic forces
+Mesh.prototype.applyForce = function (en, dt) { // applies basic forces
     'use strict';
-    var i, W, S;
+    var i, W, S, R;
     for (i = 0; i < this.m.length; i += 1) {
         if (!this.m[i].fixed) { // only applies forces if masses are free to move
             W = this.m[i].W(en.grav, en.bounds.gdir); // get weight
             S = this.Fs(i); // get spring pull
-            this.m[i].F.equ(W.sum(S).sum(this.m[i].drg(en.drag, 1 / 50)));
+            
+            this.m[i].F.equ(W.sum(S)); // sum forces to F
+            this.m[i].F_res.equ(this.m[i].drg(en.drag, dt)); // add resistive forces to F_res
         } else {
-            this.m[i].F.equ = new Vect();
+            this.m[i].F.clr();
+            this.m[i].F_res.clr();
         }
     }
 };
@@ -126,7 +129,8 @@ Mesh.prototype.calc = function (env, dt, dt_old) {
     'use strict';
     dt_old = dt_old || dt; // if time correction is not required, dt_old can be omitted
     var i,
-        n_P = new Vect();
+        n_P = new Vect(),
+        decel;
     for (i = 0; i < this.m.length; i += 1) {
         n_P.equ(this.m[i].verlet(dt, dt_old)); // Calculate new position.
         this.m[i].Po.equ(this.m[i].Pi); // moves current value to become old value

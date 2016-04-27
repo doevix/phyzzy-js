@@ -18,6 +18,7 @@ function Mass(mass, rad, refl, mu_s, mu_k, P) {
     this.fixed = false;
     
     this.F = new Vect(); // total force applied to mass
+    this.F_res = new Vect(); // resistive force applied to mass.
     this.Pi = Object.create(P); // Create mass with Velocity of 0
     this.Po = Object.create(P);
     
@@ -66,15 +67,32 @@ Mass.prototype.calcPo = function (V, dt) {
 };
 
 // Verlet integrator to calculate new position.
-Mass.prototype.verlet = function (dt, dt_old, a) {
+Mass.prototype.verlet = function (dt, dt_old) {
     'use strict';
     dt_old = dt_old || 0;
-    var accel = a || this.F.div(this.mass); // accelerates with given value, or uses forces if omitted
-    if (!this.fixed) { // if free to move: Pi = Pi + (Pi - Po)*(dt_i/dt_o) + (accel)*(dt^2)
-        return this.Pi.sum(this.Pi.sub(this.Po)).mul(dt / dt_old).sum(accel.mul(dt * dt));
+    var accel = this.F.div(this.mass), // acceleration of forces
+        decel = this.F_res.div(this.mass), // deceleration of resistive forces
+        n_P,
+        n_Pr,
+        dist1,
+        dist2;
+    
+    if (!this.fixed) { // if free to move: Pi+1 = Pi + (Pi - Po)*(dt_i/dt_o) + (accel)*(dt^2)
+        n_P = this.Pi.sum(this.Pi.sub(this.Po)).mul(dt / dt_old).sum(accel.mul(dt * dt));
+        n_Pr = this.Pi.sum(this.Pi.sub(this.Po)).mul(dt / dt_old).sum(accel.sum(decel).mul(dt * dt));
+        
+        dist1 = this.Po.sub(n_P).mag(); // distance between Po and new P without drag
+        dist2 = n_P.sub(n_Pr).mag(); // distance between new P and new P with drag
+        
+        if (dist2 >= dist1) { // if drag force makes mass go backwards, stop
+            n_P = Object.create(this.Pi);
+        } else {
+            n_P = n_Pr;
+        }
     } else { // if fixed: simply return the value.
-        return Object.create(this.Pi);
+        n_P = Object.create(this.Pi);
     }
+    return n_P;
 };
 
 /*
@@ -83,11 +101,11 @@ Mass.prototype.verlet = function (dt, dt_old, a) {
 // Draws the mass onto canvas.
 Mass.prototype.draw = function (ctx, scale) {
     'use strict';
+    var X = this.Pi.x * scale,
+        Y = this.Pi.y * scale,
+        R = this.rad * scale;
     ctx.beginPath();
-    ctx.arc(Math.floor(this.Pi.x * scale),
-            Math.floor(this.Pi.y * scale),
-            Math.floor(this.rad * scale),
-            0, Math.PI * 2, false);
+    ctx.arc(X.toFixed(2), Y.toFixed(2), R.toFixed(2), 0, Math.PI * 2, false);
     ctx.fill();
     ctx.closePath();
 };
@@ -128,7 +146,7 @@ function Environment(grav, drag, bounds) {
     checkBound must have an input mass and dt. Must also return a copy of the input mass.
 */
 // creates an empty boundless space. Used when no bounds are selected.
-function Space () {
+function Space() {
     'use strict';
     this.gdir = new Vect();
 }
