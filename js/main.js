@@ -22,6 +22,8 @@ function main() {
     mesh.generateBox(0.5, 0.05, 0.75, 0, 0, 100, 0.4, 1, 1, 3, 3);
     mesh.generateBox(0.5, 0.05, 0.75, 0, 0, 100, 0.4, 0.7, 2, 4.3, 3);
 
+    mesh.m[5].mass = 10;
+
     function frame() {
         for (i = 0; i < mesh.m.length; i += 1) {
             mesh.applyForce(en);

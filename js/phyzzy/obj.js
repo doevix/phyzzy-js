@@ -33,15 +33,9 @@ Mass.prototype.W = function (grav, U) { // U is the unit vector of the direction
 };
 
 // returns the vector of drag resistence applied to the mass. Note: Dissipating forces should be calculated last.
-Mass.prototype.drg = function (drag, dt, dt_old) {
+Mass.prototype.drg = function (drag, dt) {
     'use strict';
-    var V = this.calcVel(dt),
-        qVel = this.verlet(dt, dt_old, V.mul(-drag)).sub(this.Pi).div(dt); // checks next step with drag involved.
-    if (this.F.magSq() - V.mul(-drag).magSq() > 0) {
-        return V.mul(-drag);
-    } else {
-        return this.F.mul(-1);
-    }
+    return this.calcVel(dt).mul(-drag);
 };
 
 // applies a sudden change in current and last positions
@@ -72,12 +66,12 @@ Mass.prototype.calcPo = function (V, dt) {
 };
 
 // Verlet integrator to calculate new position.
-Mass.prototype.verlet = function (dt, dt_old, F_ex) {
+Mass.prototype.verlet = function (dt, dt_old, a) {
     'use strict';
     dt_old = dt_old || 0;
-    F_ex = F_ex || new Vect(); // can be omitted, but useful if necessary to "predict" a position or apply a field
-    if (!this.fixed) { // if free to move: Pi = Pi + (Pi - Po)*(dt_i/dt_o) + (F/m)*(dt^2)
-        return this.Pi.sum(this.Pi.sub(this.Po)).mul(dt / dt_old).sum(this.F.sum(F_ex).div(this.mass).mul(dt * dt));
+    var accel = a || this.F.div(this.mass); // accelerates with given value, or uses forces if omitted
+    if (!this.fixed) { // if free to move: Pi = Pi + (Pi - Po)*(dt_i/dt_o) + (accel)*(dt^2)
+        return this.Pi.sum(this.Pi.sub(this.Po)).mul(dt / dt_old).sum(accel.mul(dt * dt));
     } else { // if fixed: simply return the value.
         return Object.create(this.Pi);
     }
@@ -159,6 +153,7 @@ WallBox.prototype.checkBound = function (m, dt) {
         v2 = m.calcVel(dt),
         v,
         n_m = Object.create(m); // makes a temporary instance of the input mass to modify.
+
     // hits bottom of box
     if (m.Pi.y > this.h - m.rad) {
         n_m.Pi.y = this.h - m.rad;

@@ -114,7 +114,7 @@ Mesh.prototype.applyForce = function (en) { // applies basic forces
         if (!this.m[i].fixed) { // only applies forces if masses are free to move
             W = this.m[i].W(en.grav, en.bounds.gdir); // get weight
             S = this.Fs(i); // get spring pull
-            this.m[i].F.equ(W.sum(S));
+            this.m[i].F.equ(W.sum(S).sum(this.m[i].drg(en.drag, 1 / 50)));
         } else {
             this.m[i].F.equ = new Vect();
         }
