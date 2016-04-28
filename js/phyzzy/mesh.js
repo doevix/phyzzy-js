@@ -26,7 +26,7 @@ Mesh.prototype.addM = function (mass, rad, refl, mu_s, mu_k, P) { // redundant, 
 // Adds a new spring to the mesh
 Mesh.prototype.addS = function (idxA, idxB, r, k, B) {
     'use strict';
-    if (this.m[idxA].branch.indexOf(idxB) < 0 && this.m[idxB].branch.indexOf(idxA) < 0) {
+    if (this.m[idxA].branch.indexOf(idxB) < 0 && this.m[idxB].branch.indexOf(idxA) < 0 && idxA !== idxB) {
         // only adds a new spring when two masses haven't been linked yet
         this.s.push(new Spring(r, k, B));
         // links the two given masses together
@@ -160,22 +160,22 @@ Mesh.prototype.drawM = function (ctx, scale) {
 // draws the set of springs that are part of the mesh (canvas API)
 Mesh.prototype.drawS = function (ctx, scale) {
     'use strict';
-    var i, j, idxB,
+    var i, j, idxB, x1, y1, x2, y2,
         drawnS = [];
     for (i = 0; i < this.m.length; i += 1) {
         for (j = 0; j < this.m[i].branch.length; j += 1) {
             if (drawnS.indexOf(this.m[i].branch[j].sIdx) < 0) {
                 drawnS.push(this.m[i].branch[j].sIdx);
                 idxB = this.m[i].branch[j].linkTo;
+
+                x1 = this.m[i].Pi.x * scale;
+                y1 = this.m[i].Pi.y * scale;
+                x2 = this.m[idxB].Pi.x * scale;
+                y2 = this.m[idxB].Pi.y * scale;
+
                 ctx.beginPath();
-                ctx.moveTo( // Math.floor() is used to optimize canvas drawing.
-                    Math.floor(this.m[i].Pi.x * scale),
-                    Math.floor(this.m[i].Pi.y * scale)
-                );
-                ctx.lineTo(
-                    Math.floor(this.m[idxB].Pi.x * scale),
-                    Math.floor(this.m[idxB].Pi.y * scale)
-                );
+                ctx.moveTo(x1.toFixed(2), y1.toFixed(2));
+                ctx.lineTo(x2.toFixed(2), y2.toFixed(2));
                 ctx.lineWidth = Math.floor(this.s[this.m[i].branch[j].sIdx].w * scale);
                 ctx.stroke();
                 ctx.closePath();
@@ -206,4 +206,24 @@ Mesh.prototype.generateBox = function (mass, rad, refl, mus, muk, k, b, x, y, w,
 
     this.addS(this.m.length - 4, this.m.length - 1, Math.sqrt(wid * wid + hig * hig), k, b);
     this.addS(this.m.length - 3, this.m.length - 2, Math.sqrt(wid * wid + hig * hig), k, b);
+};
+
+Mesh.prototype.generateBlob = function (n, x, y, w, h) {
+    'use strict';
+    var i, pos, f,
+        randIdx1, randIdx2;
+    for (i = 0; i < n; i += 1) {
+        pos = new Vect(Math.random() * (w - x) + x, Math.random() * (h - x) + x);
+        this.addM(Math.random() * 10 + 0.5,
+                  Math.random() * 0.08 + 0.05,
+                  0.75, 0, 0, pos);
+    }
+
+    f = n * 2;
+
+    for (i = 0; i < f; i += 1) {
+        randIdx1 = Math.floor(Math.random() * n) + this.m.length - n;
+        randIdx2 = Math.floor(Math.random() * n) + this.m.length - n;
+        this.addS(randIdx1, randIdx2, Math.random() * 4, Math.random() * 100, Math.random() * 0.5, Math.random() * 0.02);
+    }
 };

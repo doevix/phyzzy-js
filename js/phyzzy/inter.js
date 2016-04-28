@@ -14,10 +14,13 @@ function User() {
     this.mS_latch = false; // indicates whether a spring or a mass is affected (false: mass true: spring)
 }
 // Updates the pointer coordinates uses vector input.
-User.prototype.moveEvent = function (e) {
+User.prototype.moveEvent = function (e, v) {
     'use strict';
+    // capture
     var n_coord = new Vect(e.clientX, e.clientY);
-    // this.coord_Last.equ(this.pointer_Coord);
+    // correct
+    n_coord.subTo(new Vect(v.offsetLeft, v.offsetTop));
+    // set
     this.pointer_Coord.equ(n_coord);
 };
 // Creates action on mouse down.
@@ -68,8 +71,9 @@ Phyz.prototype.refreshFrame = function (mesh, clrF, debug) {
 // User interaction: attaches events to a user object.
 Phyz.prototype.interactSet = function (user) {
     'use strict';
+    var v = this.viewer;
     this.viewer.onmousemove = function (e) {
-        user.moveEvent(e);
+        user.moveEvent(e, v);
     };
     this.viewer.onmousedown = function (e) {
         user.downEvent(e);
@@ -81,7 +85,7 @@ Phyz.prototype.interactSet = function (user) {
 Phyz.prototype.checkHov = function (user, mesh) {
     'use strict';
     var i;
-        user.hov = -1;
+    user.hov = -1;
     for (i = 0; i < mesh.m.length; i += 1) {
         if (mesh.m[i].Pi.compare(user.pointer_Coord.div(this.scale), mesh.m[i].rad + 0.05)) {
             user.hov = i;
