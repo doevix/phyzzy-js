@@ -27,7 +27,7 @@ Mesh.prototype.addM = function (mass, rad, refl, mu_s, mu_k, P) { // redundant, 
 Mesh.prototype.addS = function (idxA, idxB, r, k, B) {
     'use strict';
     if (this.m[idxA].branch.indexOf(idxB) < 0 && this.m[idxB].branch.indexOf(idxA) < 0 && idxA !== idxB) {
-        // only adds a new spring when two masses haven't been linked yet
+        // only adds a new spring when two masses haven't been linked yet and when they are two unique masses
         this.s.push(new Spring(r, k, B));
         // links the two given masses together
         this.m[idxA].branch.push(new LinkData(idxB, this.s.length - 1));
@@ -70,6 +70,7 @@ Mesh.prototype.Fs = function (mIdx) {
         mB,
         seg,
         spr,
+        spd,
         F = new Vect();
     for (i = 0; i < mA.branch.length; i += 1) {
         mB = this.m[mA.branch[i].linkTo]; // connected mass position
@@ -107,43 +108,40 @@ Mesh.prototype.remM = function (idx) {
 };
 
 // applies basic forces.
-Mesh.prototype.applyForce = function (en, dt) { // applies basic forces
+Mesh.prototype.applyForce = function (en) { // applies basic forces
     'use strict';
     var i, W, S, R;
     for (i = 0; i < this.m.length; i += 1) {
         if (!this.m[i].fixed) { // only applies forces if masses are free to move
             W = this.m[i].W(en.grav, en.bounds.gdir); // get weight
             S = this.Fs(i); // get spring pull
-            
-            this.m[i].F.equ(W.sum(S)); // sum forces to F
-            this.m[i].F_res.equ(this.m[i].drg(en.drag, dt)); // add resistive forces to F_res
+            R = this.m[i].drg(en.drag, en.dt_i); // get air resistence
+            this.m[i].F.equ(W.sum(S).sum(R)); // sum forces to F
         } else {
             this.m[i].F.clr();
-            this.m[i].F_res.clr();
         }
     }
 };
 
 // calculates positions of each mass
-Mesh.prototype.calc = function (env, dt, dt_old) {
+Mesh.prototype.calc = function (dt_i, dt_o) {
     'use strict';
-    dt_old = dt_old || dt; // if time correction is not required, dt_old can be omitted
     var i,
         n_P = new Vect(),
         decel;
     for (i = 0; i < this.m.length; i += 1) {
-        n_P.equ(this.m[i].verlet(dt, dt_old)); // Calculate new position.
+        n_P.equ(this.m[i].verlet(dt_i, dt_o)); // Calculate new position.
         this.m[i].Po.equ(this.m[i].Pi); // moves current value to become old value
         this.m[i].Pi.equ(n_P); // Sets new position for current frame
     }
 };
 
 // applies collisions
-Mesh.prototype.coll = function (env, dt) {
+Mesh.prototype.coll = function (env) {
     'use strict';
     var n_m, i;
     for (i = 0; i < this.m.length; i += 1) {
-        n_m = env.bounds.checkBound(this.m[i], dt);
+        n_m = env.bounds.checkBound(this.m[i], env.dt_i);
         this.m[i].modMov(n_m);
     }
 };

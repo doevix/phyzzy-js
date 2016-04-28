@@ -53,11 +53,12 @@ Phyz.prototype.toM = function (px) {
     return px / this.scale;
 };
 // updates the mesh for the next frame (mutates mesh)
-Phyz.prototype.updateMesh = function (mesh, en, dt_i, dt_o) {
+Phyz.prototype.updateMesh = function (mesh, en) {
     'use strict';
     var i;
-    mesh.calc(en, dt_i, dt_o);
-    mesh.coll(en, dt_i);
+    mesh.applyForce(en);
+    mesh.calc(en.dt_i, en.dt_o);
+    mesh.coll(en);
 };
 // Clears and redraws the mesh to the canvas 
 Phyz.prototype.refreshFrame = function (mesh, clrF, debug) {

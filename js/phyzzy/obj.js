@@ -18,7 +18,6 @@ function Mass(mass, rad, refl, mu_s, mu_k, P) {
     this.fixed = false;
     
     this.F = new Vect(); // total force applied to mass
-    this.F_res = new Vect(); // resistive force applied to mass.
     this.Pi = Object.create(P); // Create mass with Velocity of 0
     this.Po = Object.create(P);
     
@@ -67,28 +66,12 @@ Mass.prototype.calcPo = function (V, dt) {
 };
 
 // Verlet integrator to calculate new position.
-Mass.prototype.verlet = function (dt, dt_old) {
+Mass.prototype.verlet = function (dt_i, dt_o) {
     'use strict';
-    dt_old = dt_old || 0;
-    var accel = this.F.div(this.mass), // acceleration of forces
-        decel = this.F_res.div(this.mass), // deceleration of resistive forces
-        n_P,
-        n_Pr,
-        dist1,
-        dist2;
-    
+    var accel = this.F.div(this.mass),
+        n_P;
     if (!this.fixed) { // if free to move: Pi+1 = Pi + (Pi - Po)*(dt_i/dt_o) + (accel)*(dt^2)
-        n_P = this.Pi.sum(this.Pi.sub(this.Po)).mul(dt / dt_old).sum(accel.mul(dt * dt));
-        n_Pr = this.Pi.sum(this.Pi.sub(this.Po)).mul(dt / dt_old).sum(accel.sum(decel).mul(dt * dt));
-        
-        dist1 = this.Po.sub(n_P).mag(); // distance between Po and new P without drag
-        dist2 = n_P.sub(n_Pr).mag(); // distance between new P and new P with drag
-        
-        if (dist2 >= dist1) { // if drag force makes mass go backwards, stop
-            n_P = Object.create(this.Pi);
-        } else {
-            n_P = n_Pr;
-        }
+        n_P = this.Pi.sum(this.Pi.sub(this.Po)).mul(dt_i / dt_o).sum(accel.mul(dt_i * dt_i));
     } else { // if fixed: simply return the value.
         n_P = Object.create(this.Pi);
     }
@@ -126,18 +109,31 @@ Spring.prototype.Fk = function (len) {
 };
 
 // returns the spring's damping force [N]
-Spring.prototype.Fd = function (m1, m2, dt) {
+Spring.prototype.Fd = function (spd) {
     'use strict';
-    return m1.calcVel(dt).sub(m2.calcVel).pjt(m2.Pi.sub(m1.Pi));
+    return -this.B * spd;
 };
-
+/*
+    Environment.
+    Contains the universal properties of the mesh's 'universe' along with the time that has passed and any wall boundaries that
+    it may contain.
+*/
 // Properties of containing area
-function Environment(grav, drag, bounds) {
+function Environment(grav, drag, init_dt, bounds) {
     'use strict';
     this.grav = grav; // Gravity [m / s^2]
     this.drag = drag; // Drag coefficient [N * s / m]
     this.bounds = bounds || new Space();
+
+    this.dt_i = init_dt; // current step time [s]
+    this.dt_o = init_dt; // previous step time [s]
 }
+// Changes the step time.
+Environment.prototype.dtSet = function (dt_n) {
+    'use strict';
+    this.dt_o = this.dt_i; // move current value to older value
+    this.dt_i = this.dt_n; // set new value
+};
 
 /*
     Bounds.
