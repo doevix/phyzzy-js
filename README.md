@@ -23,7 +23,7 @@ methods all together.
 #### obj.js
 This library contains the elements used to simulate, mainly being the mass and spring which
 are the main pieces of what makes a mesh. Also contains the environment and containers that act
-as walls in case the user does preferres a finite space to work in.
+as walls in case the user preferres a finite space to work in.
 
 #### vector.js
 Library for vector object and used throughout the the previous libraries. Contains properties and

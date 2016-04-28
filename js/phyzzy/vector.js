@@ -124,6 +124,7 @@ Vect.prototype.compare = function (A, rad) {
 // returns a string that displays the vector's components
 Vect.prototype.display = function () {
     'use strict';
+    // check if integer before printing. Otherwise, print decimal with 2 decimal places.
     var X = this.x % 1 === 0 ? this.x : this.x.toFixed(2),
         Y = this.y % 1 === 0 ? this.y : this.y.toFixed(2);
     return '(' + X + ',' + Y + ')';
