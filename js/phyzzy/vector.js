@@ -52,12 +52,7 @@ Vect.prototype.mul = function (s) {
 // divides vector by a scalar value
 Vect.prototype.div = function (s) {
     'use strict';
-    if (s !== 0) {
-        return new Vect(this.x / s, this.y / s);
-    } else {
-        return new Vect();
-    }
-    
+    return s !== 0 ? new Vect(this.x / s, this.y / s) : new Vect();    
 };
 // sums vector with another vector
 Vect.prototype.sum = function (A) {
@@ -87,45 +82,26 @@ Vect.prototype.dot = function (A) {
 // find unit vector of current
 Vect.prototype.unit = function () {
     'use strict';
-    var m = this.mag();
-    if (m > 0) {
-        return this.div(m);
-    } else {
-        return new Vect();
-    }
+    return this.mag() > 0 ? this.div(this.mag()) : new Vect();
 };
 // project current vector on other.
 Vect.prototype.pjt  = function (A) {
     'use strict';
-    if (A.magSq > 0) { // A(A*B)/(|A|^2)
-        return A.mul(A.dot(this)).div(A.magSq());
-    } else {
-        return new Vect();
-    }
+    return A.magSq > 0 ? A.mul(A.dot(this)).div(A.magSq()) : new Vect();
 };
 // check if vector is equal to another
 Vect.prototype.equChk = function (V) {
     'use strict';
-    if (V.x === this.x && V.y === this.y) {
-        return true;
-    } else {
-        return false;
-    }
+    return V.x === this.x && V.y === this.y;
 };
 // compares if a coordinate is within the bounds of another according to a boundary radius
 Vect.prototype.compare = function (A, rad) {
     'use strict';
-    if (Math.abs(this.x - A.x) <= rad && Math.abs(this.y - A.y) <= rad) {
-        return true;
-    } else {
-        return false;
-    }
+    return Math.abs(this.x - A.x) <= rad && Math.abs(this.y - A.y) <= rad;
 };
 // returns a string that displays the vector's components
 Vect.prototype.display = function () {
     'use strict';
     // check if integer before printing. Otherwise, print decimal with 2 decimal places.
-    var X = this.x % 1 === 0 ? this.x : this.x.toFixed(2),
-        Y = this.y % 1 === 0 ? this.y : this.y.toFixed(2);
-    return '(' + X + ',' + Y + ')';
+    return '(' + this.x.toFixed(2) + ',' + this.y.toFixed(2) + ')';
 };
