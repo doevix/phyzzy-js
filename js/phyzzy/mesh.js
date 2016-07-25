@@ -42,7 +42,7 @@ Mesh.prototype.addS = function (idxA, idxB, r, k, B) {
 // Removes a spring from the mesh (removes links in mass's branch array)
 Mesh.prototype.remS = function (idx) {
     'use strict';
-    var i, j;
+    let i, j;
     if (idx < 0 || this.s.length <= idx) { // ensures an inexistant spring won't be removed
         return false;
     }
@@ -65,7 +65,7 @@ Mesh.prototype.remS = function (idx) {
 // Calculates force applied by spring that links two masses.
 Mesh.prototype.Fs = function (mIdx) {
     'use strict';
-    var i,
+    let i,
         mA = this.m[mIdx], // current mass position
         mB,
         seg,
@@ -84,7 +84,7 @@ Mesh.prototype.Fs = function (mIdx) {
 // Removes a mass from the mesh. (removes mass and links to other masses)
 Mesh.prototype.remM = function (idx) {
     'use strict';
-    var i, j;
+    let i, j;
     if (idx < 0 || this.m.length <= idx) { // ensures an inexistant mass won't be removed
         return false;
     }
@@ -110,7 +110,7 @@ Mesh.prototype.remM = function (idx) {
 // applies basic forces.
 Mesh.prototype.applyForce = function (en) { // applies basic forces
     'use strict';
-    var i, W, S, R;
+    let i, W, S, R;
     for (i = 0; i < this.m.length; i += 1) {
         if (!this.m[i].fixed) { // only applies forces if masses are free to move
             W = this.m[i].W(en.grav, en.bounds.gdir); // get weight
@@ -126,7 +126,7 @@ Mesh.prototype.applyForce = function (en) { // applies basic forces
 // calculates positions of each mass
 Mesh.prototype.calc = function (dt_i, dt_o) {
     'use strict';
-    var i,
+    let i,
         n_P = new Vect(),
         decel;
     for (i = 0; i < this.m.length; i += 1) {
@@ -139,7 +139,7 @@ Mesh.prototype.calc = function (dt_i, dt_o) {
 // applies collisions
 Mesh.prototype.coll = function (env) {
     'use strict';
-    var n_m, i;
+    let n_m, i;
     for (i = 0; i < this.m.length; i += 1) {
         n_m = env.bounds.checkBound(this.m[i], env.dt_i);
         this.m[i].modMov(n_m);
@@ -149,7 +149,7 @@ Mesh.prototype.coll = function (env) {
 // draws the set of masses that are part of the mesh (canvas API)
 Mesh.prototype.drawM = function (ctx, scale) {
     'use strict';
-    var i;
+    let i;
     for (i = 0; i < this.m.length; i += 1) {
         this.m[i].draw(ctx, scale);
     }
@@ -158,7 +158,7 @@ Mesh.prototype.drawM = function (ctx, scale) {
 // draws the set of springs that are part of the mesh (canvas API)
 Mesh.prototype.drawS = function (ctx, scale) {
     'use strict';
-    var i, j, idxB, x1, y1, x2, y2,
+    let i, j, idxB, x1, y1, x2, y2,
         drawnS = [];
     for (i = 0; i < this.m.length; i += 1) {
         for (j = 0; j < this.m[i].branch.length; j += 1) {
@@ -189,7 +189,7 @@ Mesh.prototype.drawS = function (ctx, scale) {
 // Creates a box with braces
 Mesh.prototype.generateBox = function (mass, rad, refl, mus, muk, k, b, x, y, w, h) {
     'use strict';
-    var i,
+    let i,
         wid = Math.abs(x - w),
         hig = Math.abs(y - h);
     this.addM(mass, rad, refl, mus, muk, new Vect(x, y));
@@ -208,7 +208,7 @@ Mesh.prototype.generateBox = function (mass, rad, refl, mus, muk, k, b, x, y, w,
 
 Mesh.prototype.generateBlob = function (n, x, y, w, h) {
     'use strict';
-    var i, pos, f,
+    let i, pos, f,
         randIdx1, randIdx2;
     for (i = 0; i < n; i += 1) {
         pos = new Vect(Math.random() * (w - x) + x, Math.random() * (h - x) + x);
