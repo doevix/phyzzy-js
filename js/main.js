@@ -20,7 +20,7 @@ function main() {
 
     function frame() {
         ph.updateMesh(mesh, en);
-        ph.refreshFrame(mesh, true);
+        ph.refreshFrame(mesh, true, user);
         ph.checkHov(user, mesh);
 
         ph.ctx.fillText(user.pointer_Coord.display(), 5, 10);

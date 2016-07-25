@@ -68,8 +68,8 @@ Mass.prototype.calcPo = function (V, dt) {
 // Verlet integrator to calculate new position.
 Mass.prototype.verlet = function (dt_i, dt_o) {
     'use strict';
-    const accel = this.F.div(this.mass),
-        n_P;
+    const accel = this.F.div(this.mass);
+    let n_P;
     if (!this.fixed) { // if free to move: Pi+1 = Pi + (Pi - Po)*(dt_i/dt_o) + (accel)*(dt^2)
         n_P = this.Pi.sum(this.Pi.sub(this.Po)).mul(dt_i / dt_o).sum(accel.mul(dt_i * dt_i));
     } else { // if fixed: simply return the value.
@@ -163,8 +163,8 @@ function WallBox(x, y, w, h, gdir) {
 // returns new positions for the bounds
 WallBox.prototype.checkBound = function (m, dt) {
     'use strict';
-    var v1 = new Vect((m.Pi.x - m.Po.x) / dt, (m.Pi.y - m.Po.y) / dt),
-        v2 = m.calcVel(dt),
+    const v1 = new Vect((m.Pi.x - m.Po.x) / dt, (m.Pi.y - m.Po.y) / dt);
+    let v2 = m.calcVel(dt),
         v,
         n_m = Object.create(m); // makes a temporary instance of the input mass to modify.
 

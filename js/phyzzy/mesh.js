@@ -126,62 +126,72 @@ Mesh.prototype.applyForce = function (en) { // applies basic forces
 // calculates positions of each mass
 Mesh.prototype.calc = function (dt_i, dt_o) {
     'use strict';
-    let i,
-        n_P = new Vect(),
-        decel;
-    for (i = 0; i < this.m.length; i += 1) {
-        n_P.equ(this.m[i].verlet(dt_i, dt_o)); // Calculate new position.
-        this.m[i].Po.equ(this.m[i].Pi); // moves current value to become old value
-        this.m[i].Pi.equ(n_P); // Sets new position for current frame
+    let n_P = new Vect(), decel;
+    for (let m of this.m) {
+        n_P.equ(m.verlet(dt_i, dt_o)); // Calculate new position.
+        m.Po.equ(m.Pi); // moves current value to become old value
+        m.Pi.equ(n_P); // Sets new position for current frame
     }
 };
 
 // applies collisions
 Mesh.prototype.coll = function (env) {
     'use strict';
-    let n_m, i;
-    for (i = 0; i < this.m.length; i += 1) {
-        n_m = env.bounds.checkBound(this.m[i], env.dt_i);
-        this.m[i].modMov(n_m);
+    let n_m;
+    for (let m of this.m) {
+        n_m = env.bounds.checkBound(m, env.dt_i);
+        m.modMov(n_m);
     }
 };
 
 // draws the set of masses that are part of the mesh (canvas API)
-Mesh.prototype.drawM = function (ctx, scale) {
+Mesh.prototype.drawM = function (ctx, scale, hov) {
     'use strict';
-    let i;
-    for (i = 0; i < this.m.length; i += 1) {
-        this.m[i].draw(ctx, scale);
+    for (let mass of this.m) {
+        mass.draw(ctx, scale);
+    }
+    if (hov >= 0) {
+        ctx.beginPath();
+        ctx.arc(
+            this.m[hov].Pi.x * scale,
+            this.m[hov].Pi.y * scale,
+            this.m[hov].rad * scale + 5,
+            0, Math.PI * 2, false
+        );
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#00FF44';
+        ctx.stroke();
+        ctx.closePath();
     }
 };
 
 // draws the set of springs that are part of the mesh (canvas API)
 Mesh.prototype.drawS = function (ctx, scale) {
     'use strict';
-    let i, j, idxB, x1, y1, x2, y2,
+    let idxB, x1, y1, x2, y2,
         drawnS = [];
-    for (i = 0; i < this.m.length; i += 1) {
-        for (j = 0; j < this.m[i].branch.length; j += 1) {
-            if (drawnS.indexOf(this.m[i].branch[j].sIdx) < 0) {
-                drawnS.push(this.m[i].branch[j].sIdx);
-                idxB = this.m[i].branch[j].linkTo;
+    for (let m of this.m) {
+        for (let b of m.branch) {
+            if (drawnS.indexOf(b.sIdx) < 0) {
+                drawnS.push(b.sIdx);
+                idxB = b.linkTo;
 
-                x1 = this.m[i].Pi.x * scale;
-                y1 = this.m[i].Pi.y * scale;
+                x1 = m.Pi.x * scale;
+                y1 = m.Pi.y * scale;
                 x2 = this.m[idxB].Pi.x * scale;
                 y2 = this.m[idxB].Pi.y * scale;
 
                 ctx.beginPath();
                 ctx.moveTo(x1.toFixed(2), y1.toFixed(2));
                 ctx.lineTo(x2.toFixed(2), y2.toFixed(2));
-                ctx.lineWidth = Math.floor(this.s[this.m[i].branch[j].sIdx].w * scale);
+                ctx.lineWidth = Math.floor(this.s[b.sIdx].w * scale);
+                ctx.strokeStyle = '#005555';
                 ctx.stroke();
                 ctx.closePath();
             }
         }
     }
 };
-
 
 /*
     Shape generation for quick testing.

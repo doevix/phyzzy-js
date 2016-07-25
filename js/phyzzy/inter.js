@@ -55,19 +55,18 @@ Phyz.prototype.toM = function (px) {
 // updates the mesh for the next frame (mutates mesh)
 Phyz.prototype.updateMesh = function (mesh, en) {
     'use strict';
-    var i;
     mesh.applyForce(en);
     mesh.calc(en.dt_i, en.dt_o);
     mesh.coll(en);
 };
 // Clears and redraws the mesh to the canvas 
-Phyz.prototype.refreshFrame = function (mesh, clrF, debug) {
+Phyz.prototype.refreshFrame = function (mesh, clrF, user) {
     'use strict';
     if (clrF) { // clearing optional by setting clrF as true
         this.ctx.clearRect(0, 0, this.viewer.width, this.viewer.height);
     }
     mesh.drawS(this.ctx, this.scale);
-    mesh.drawM(this.ctx, this.scale);
+    mesh.drawM(this.ctx, this.scale, user.hov);
 };
 // User interaction: attaches events to a user object.
 Phyz.prototype.interactSet = function (user) {

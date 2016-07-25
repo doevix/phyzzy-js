@@ -103,5 +103,5 @@ Vect.prototype.compare = function (A, rad) {
 Vect.prototype.display = function () {
     'use strict';
     // check if integer before printing. Otherwise, print decimal with 2 decimal places.
-    return '(' + this.x.toFixed(2) + ',' + this.y.toFixed(2) + ')';
+    return '(' + this.x.toFixed(2) + ', ' + this.y.toFixed(2) + ')';
 };
