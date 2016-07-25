@@ -68,7 +68,7 @@ Mass.prototype.calcPo = function (V, dt) {
 // Verlet integrator to calculate new position.
 Mass.prototype.verlet = function (dt_i, dt_o) {
     'use strict';
-    var accel = this.F.div(this.mass),
+    const accel = this.F.div(this.mass),
         n_P;
     if (!this.fixed) { // if free to move: Pi+1 = Pi + (Pi - Po)*(dt_i/dt_o) + (accel)*(dt^2)
         n_P = this.Pi.sum(this.Pi.sub(this.Po)).mul(dt_i / dt_o).sum(accel.mul(dt_i * dt_i));
@@ -84,7 +84,7 @@ Mass.prototype.verlet = function (dt_i, dt_o) {
 // Draws the mass onto canvas.
 Mass.prototype.draw = function (ctx, scale) {
     'use strict';
-    var X = this.Pi.x * scale,
+    const X = this.Pi.x * scale,
         Y = this.Pi.y * scale,
         R = this.rad * scale;
     ctx.beginPath();
