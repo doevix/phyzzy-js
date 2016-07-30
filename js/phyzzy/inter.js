@@ -93,3 +93,8 @@ Phyz.prototype.checkHov = function (user, mesh) {
         }
     }
 };
+
+module.exports = {
+    Phyz: Phyz,
+    User: User
+}

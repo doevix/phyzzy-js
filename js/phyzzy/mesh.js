@@ -26,12 +26,14 @@ Mesh.prototype.addM = function (mass, rad, refl, mu_s, mu_k, P) { // redundant, 
 // Adds a new spring to the mesh
 Mesh.prototype.addS = function (idxA, idxB, r, k, B) {
     'use strict';
-    if (this.m[idxA].branch.indexOf(idxB) < 0 && this.m[idxB].branch.indexOf(idxA) < 0 && idxA !== idxB) {
+    if (this.m[idxA].branch.indexOf(idxB) < 0 
+        && this.m[idxB].branch.indexOf(idxA) < 0
+        && idxA !== idxB) {
         // only adds a new spring when two masses haven't been linked yet and when they are two unique masses
         this.s.push(new Spring(r, k, B));
         // links the two given masses together
-        this.m[idxA].branch.push(new LinkData(idxB, this.s.length - 1));
-        this.m[idxB].branch.push(new LinkData(idxA, this.s.length - 1));
+        this.m[idxA].branch.push({linkTo: idxB, sIdx: this.s.length - 1});
+        this.m[idxB].branch.push({linkTo: idxA, sIdx: this.s.length - 1});
         return true;
     } else {
         // returns false if there is already a spring connecting the masses.
@@ -47,14 +49,17 @@ Mesh.prototype.remS = function (idx) {
         return false;
     }
     this.s.splice(idx, 1); // remove spring from mesh
-    for (i = 0; i < this.m.length; i += 1) { // look through each mass in the mesh
-        for (j = 0; j < this.m[i].branch.length; j += 1) { // look through mass branch array
-            if (this.m[i].branch[j].sIdx === idx) { // remove link if it exists
-                this.m[i].branch.splice(j, 1);
+
+    // TODO: Change the following into a more functional solution.
+    // Removes links from mass branches.
+    for (let m of this.m) { // look through each mass in the mesh
+        for (j = 0; j < m.branch.length; j += 1) { // look through mass branch array
+            if (m.branch[j].sIdx === idx) { // remove link if it exists
+                m.branch.splice(j, 1);
             }
-            for (j = 0; j < this.m[i].branch.length; j += 1) {
-                if (this.m[i].branch[j].sIdx > idx) { // fix index of springs greater than idx
-                    this.m[i].branch[j].sIdx -= 1;
+            for (let b of m.branch) {
+                if (b.sIdx > idx) { // fix index of springs greater than idx
+                    b.sIdx -= 1;
                 }
             }
         }
@@ -76,7 +81,7 @@ Mesh.prototype.Fs = function (mIdx) {
         mB = this.m[mA.branch[i].linkTo]; // connected mass position
         seg = mB.Pi.sub(mA.Pi);
         spr = this.s[mA.branch[i].sIdx]; // spring that connects masses
-        F.sumTo(seg.unit().mul(spr.Fk(seg.mag())));
+        F.sumTo(seg.unit().mul(spr.Fk(seg.mag()))); // force calculation
     }
     return F;
 };
@@ -234,4 +239,8 @@ Mesh.prototype.generateBlob = function (n, x, y, w, h) {
         randIdx2 = Math.floor(Math.random() * n) + this.m.length - n;
         this.addS(randIdx1, randIdx2, Math.random() * 4, Math.random() * 100, Math.random() * 0.5, Math.random() * 0.02);
     }
+};
+
+module.exports = {
+    Mesh: Mesh
 };

@@ -192,3 +192,11 @@ WallBox.prototype.checkBound = function (m, dt) {
     }
     return n_m;
 };
+
+module.exports = {
+    Mass: Mass,
+    Spring: Spring,
+    Environment: Environment,
+    WallBox: WallBox,
+    Space: Space
+}

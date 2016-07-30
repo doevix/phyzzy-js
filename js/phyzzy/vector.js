@@ -32,7 +32,7 @@ Vect.prototype.subTo = function (A) {
     this.x -= A.x;
     this.y -= A.y;
 };
-// mutating multiplication
+// mutating scale
 Vect.prototype.mulTo = function (A) {
     'use strict';
     this.x *= A.x;
@@ -104,4 +104,8 @@ Vect.prototype.display = function () {
     'use strict';
     // check if integer before printing. Otherwise, print decimal with 2 decimal places.
     return '(' + this.x.toFixed(2) + ', ' + this.y.toFixed(2) + ')';
+};
+
+module.exports = {
+    Vect: Vect
 };
