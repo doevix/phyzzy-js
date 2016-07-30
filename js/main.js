@@ -11,12 +11,12 @@ function main() {
         ph = new Phyz(document.getElementById('viewPort'), 100),
         user = new User(), // add user functions
         colBox = new WallBox(0, 0, ph.toM(ph.viewer.width), ph.toM(ph.viewer.height), new Vect(0, 1)),
-        en = new Environment(0, 5, 1 / 50, colBox),
+        en = new Environment(9.81, 0.1, 1 / 50, colBox),
         i;
 
     ph.interactSet(user); // enable user functions
 
-    mesh.generateBlob(20, 0.05, 0.05, 5, 5);
+    mesh.generateBox(0.5, 0.05, 0.8, 0.8, 0.6, 100, 10000, 2, 2, 3, 3);
 
     function frame() {
         ph.updateMesh(mesh, en);
