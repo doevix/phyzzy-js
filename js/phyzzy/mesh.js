@@ -68,7 +68,7 @@ Mesh.prototype.remS = function (idx) {
 };
 
 // Calculates force applied by spring that links two masses.
-Mesh.prototype.Fs = function (mIdx) {
+Mesh.prototype.Fs = function (mIdx, dt) {
     'use strict';
     let i,
         mA = this.m[mIdx], // current mass position
@@ -76,12 +76,16 @@ Mesh.prototype.Fs = function (mIdx) {
         seg,
         spr,
         spd,
-        F = new Vect();
+        F = new Vect(),
+        pVel;
     for (i = 0; i < mA.branch.length; i += 1) {
         mB = this.m[mA.branch[i].linkTo]; // connected mass position
+
+        pVel = mB.calcVel(dt).sub(mA.calcVel(dt)).pjt(seg);
         seg = mB.Pi.sub(mA.Pi);
         spr = this.s[mA.branch[i].sIdx]; // spring that connects masses
         F.sumTo(seg.unit().mul(spr.Fk(seg.mag()))); // force calculation
+        F.sumTo(spr.Fd(pVel));
     }
     return F;
 };

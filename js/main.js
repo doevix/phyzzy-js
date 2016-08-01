@@ -16,7 +16,7 @@ function main() {
 
     ph.interactSet(user); // enable user functions
 
-    mesh.generateBox(0.5, 0.05, 0.8, 0.8, 0.6, 100, 10000, 2, 2, 3, 3);
+    mesh.generateBox(0.5, 0.05, 0.8, 0.8, 0.6, 100, 1, 2, 2, 3, 3);
 
     function frame() {
         ph.updateMesh(mesh, en);

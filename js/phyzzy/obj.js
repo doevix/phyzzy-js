@@ -109,9 +109,9 @@ Spring.prototype.Fk = function (len) {
 };
 
 // returns the spring's damping force [N]
-Spring.prototype.Fd = function (spd) {
+Spring.prototype.Fd = function (pVel) {
     'use strict';
-    return -this.B * spd;
+    return pVel.mul(this.B);
 };
 /*
     Environment.
