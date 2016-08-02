@@ -22,14 +22,14 @@ const Integrator = state => ({
             state.Pi.sub(state.Po) // Pi - Po
             .sum(accel.mul(dt * dt)) // + accel * dt * dt
         )
-        state.Po.equ(Pi)
+        state.Po.equ(state.Pi)
         state.Pi.equ(Pi_1)
     }
 })
 const Mass = (mass, rad, refl, mu_s, mu_k, P) => {
     let state = {
-        Pi: Object.create(P),
-        Po: Object.create(P),
+        Pi: new Vect(P.x, P.y),
+        Po: new Vect(P.x, P.y),
         mass,
         rad,
         refl,
