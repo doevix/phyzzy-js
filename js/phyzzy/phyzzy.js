@@ -12,6 +12,23 @@ const AddToMesh = state => ({
     addS: spring => state.s.push(spring)
 })
 
+const CanvasDraw = state => ({
+    draw: ctx => {
+        state.m.forEach(mass => {
+            ctx.beginPath()
+            ctx.arc(
+                mass.Pi.x * state.scale,
+                mass.Pi.y * state.scale,
+                mass.rad * state.scale,
+                0, Math.PI * 2, false
+                )
+            ctx.fill()
+            ctx.closePath()
+        })
+        
+    }
+})
+
 const Integrator = state => ({
     verlet: dt => {
         // Pi+1 = Pi + (Pi - Po) + (accel)*(dt^2)
@@ -28,7 +45,8 @@ const Phyzzy = (scale) => {
     return Object.assign(
         {},
         state,
-        AddToMesh(state)
+        AddToMesh(state),
+        CanvasDraw(state)
     )
 }
 
