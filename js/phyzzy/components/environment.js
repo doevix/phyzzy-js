@@ -8,20 +8,29 @@ const calcVel = (Pi, Po, dt) => Pi.sub(Po).div(dt)
 // calculate previous position from velocity
 const calcPo = (Pi, vel, dt) => Pi.sub(V.mul(dt))
 
+// Basic forces that environment acts on masses
 const ForceCalc = state => ({
     weight: mass => state.gravity.mul(mass.mass),
     drag: mass => calcVel(mass.Pi, mass.Po, dt).mul(-state.drag)
 })
 
-const Environment = (gravity, drag) => {
+// Wall collisions
+const BoundCalc = state => ({
+    // mutates mass position and returns friction force
+    boundaryHit: mass => new Vect(0, 0)
+})
+
+const Environment = (gravity, drag, boundary) => {
     let state = {
         gravity: new Vect(gravity.x, gravity.y),
-        drag
+        drag,
+        boundary
     }
     return Object.assign(
         {},
         state,
-        ForceCalc(state)
+        ForceCalc(state),
+        BoundCalc(state)
     )
 }
 
