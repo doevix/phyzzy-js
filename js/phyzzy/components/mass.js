@@ -3,7 +3,7 @@ mass.js
 Generates a Mass object.
 */
 'use strict'
-Vect = require('./js/vector.js')
+const Vect = require('./vector.js')
 // calculate velocity from previous position
 const calcVel = (Pi, Po, dt) => Pi.sub(Po).div(dt)
 // calculate previous position from velocity
