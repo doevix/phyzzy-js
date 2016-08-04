@@ -4,7 +4,7 @@
 'use strict'
 const ForceCalc = state => ({
     springing: (mass1, mass2) => {
-        // calculate springing from mass1 to mass2
+        // calculate springing force from mass1 to mass2
         const seg12 = state.mass1.Pi.sub(state.mass2.Pi)
         return seg12.unit().mul(
             state.stiffness * (seg12.mag() - state.restlength)
@@ -16,9 +16,12 @@ const ForceCalc = state => ({
     }
 })
 
-const Spring = (prop) => {
-    let state = {}
-    Object.assign(state, prop)
+const Spring = (restlength, stiffness, damping) => {
+    let state = {
+        restlength,
+        stiffness,
+        damping
+    }
     return Object.assign(
         {},
         state,
