@@ -7,7 +7,7 @@ const Mass = require('./components/mass.js')
 // wrapper to avoid 'new' keyword
 const Vector = (x, y) => new Vect(x, y)
 
-const IteratorFactory = array => {
+const Iter = array => {
     // creates an iterator from array.
     let nextIndex = 0
     return {
@@ -25,7 +25,7 @@ const AddToMesh = state => ({
 })
 
 const CanvasDraw = state => ({
-    draw: ctx => {
+    draw: (ctx, colorM) => {
         state.m.forEach(mass => {
             ctx.beginPath()
             ctx.arc (
@@ -34,6 +34,7 @@ const CanvasDraw = state => ({
                 mass.rad * state.scale,
                 0, Math.PI * 2, false
             )
+            ctx.fillStyle = colorM || '#000000'
             ctx.fill()
             ctx.closePath()
         })
@@ -57,7 +58,7 @@ const CanvasHighlight = state => ({
 
 const Integrator = state => ({
     verlet: (forces, dt) => {
-        const forcesIter = IteratorFactory(forces)
+        const forcesIter = Iter(forces)
         state.m.forEach(mass => {
             // Pi+1 = Pi + (Pi - Po) + (accel)*(dt^2)
             let accel = forcesIter.next().value.div(mass.mass)
@@ -69,8 +70,8 @@ const Integrator = state => ({
 })
 
 const Collider = state => ({
-    wallHit: collCoord => {
-        const collCoordIter = IteratorFactory(collCoord)
+    collision: collCoord => {
+        const collCoordIter = Iter(collCoord)
         state.m.forEach(mass => {
             let cC_current = collCoordIter.next().value
             if (!mass.Po.equChk(cC_current.Po) || !mass.Pi.equChk(cC_current.Pi)) {

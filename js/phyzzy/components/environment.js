@@ -3,6 +3,8 @@
 'use strict'
 const Vect = require('./vector.js')
 
+let tol = 1e-3
+
 // calculate velocity from previous position
 const calcVel = (Pi, Po, dt) => Pi.sub(Po).div(dt)
 // calculate previous position from velocity
@@ -11,7 +13,7 @@ const calcPo = (Pi, vel, dt) => Pi.sub(vel.mul(dt))
 // Basic forces that environment acts on masses
 const ForceCalc = state => ({
     weight: mass => state.gravity.mul(mass.mass),
-    drag: (mass, dt) => calcVel(mass.Pi, mass.Po, dt).mul(-state.drag)
+    drag: (mass, dt) => calcVel(mass.Pi, mass.Po, dt).mul(-state.drag),
 })
 
 // Wall collisions
@@ -23,12 +25,41 @@ const BoundCalc = state => ({
         const n_Po = new Vect(mass.Po.x, mass.Po.y)
 
         if (n_Pi.y > state.boundary.h - mass.rad) {
+            // h boundary hit
             n_Pi.equ({x: n_Pi.x, y: state.boundary.h - mass.rad})
             vel.equ({x: vel.x, y: -mass.refl * vel.y})
-            n_Po.equ(calcPo(mass.Pi, vel, dt))
+            n_Po.equ({x: n_Po.x, y: n_Po.y - vel.y * dt})
+        } else if (n_Pi.y < state.boundary.y + mass.rad) {
+            // y boundary hit
+            n_Pi.equ({x: n_Pi.x, y: state.boundary.y + mass.rad})
+            vel.equ({x: vel.x, y: -mass.refl * vel.y})
+            n_Po.equ({x: n_Po.x, y: n_Po.y - vel.y * dt})
         }
-        
+        if (n_Pi.x > state.boundary.w - mass.rad) {
+            // w boundary hit
+            n_Pi.equ({x: state.boundary.w - mass.rad, y: n_Pi.y})
+            vel.equ({x: -mass.refl * vel.x, y: vel.y})
+            n_Po.equ({x: n_Po.x - vel.x * dt, y: n_Po.y})
+        } else if (n_Pi.x < state.boundary.x + mass.rad) {
+            // x boundary hit
+            n_Pi.equ({x: state.boundary.x + mass.rad, y: n_Pi.y})
+            vel.equ({x: -mass.refl * vel.x, y: vel.y})
+            n_Po.equ({x: n_Po.x - vel.x * dt, y: n_Po.y})
+        }
         return {Pi: n_Pi, Po: n_Po}
+    },
+    friction: (mass, force, dt) => {
+        let friction = new Vect(0, 0)
+        let vel = calcVel(mass.Pi, mass.Po, dt)
+        if (mass.Pi.y > state.boundary.h - mass.rad - tol && Math.abs(vel.x) > 1e-2) {
+            friction.sumTo({
+                x: -mass.mu_k * Math.abs(force.y) * Math.sign(vel.x),
+                y: -force.y
+            })
+            if (mass.Po.compare(mass.Pi, tol)) mass.Po.x = mass.Pi.x
+            console.log(vel)
+        }
+        return friction
     }
 })
 

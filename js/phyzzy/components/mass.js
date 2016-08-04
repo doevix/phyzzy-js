@@ -26,16 +26,12 @@ const Integrator = state => ({
         state.Pi.equ(Pi_1)
     }
 })
-const Mass = (mass, rad, refl, mu_s, mu_k, P) => {
+const Mass = (prop, Pi, Po) => {
     let state = {
-        Pi: new Vect(P.x, P.y),
-        Po: new Vect(P.x, P.y),
-        mass,
-        rad,
-        refl,
-        mu_s,
-        mu_k
+        Pi: new Vect(Pi.x, Pi.y),
+        Po: new Vect(Po.x, Po.y),
     }
+    Object.assign(state, prop)
     return Object.assign(
         {},
         state,
