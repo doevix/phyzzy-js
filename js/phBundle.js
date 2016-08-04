@@ -11,7 +11,7 @@ const ctx = viewport.getContext('2d')
 const ph = Phyzzy(100)
 const env = Environment({x: 0, y: 9.81}, 0.1, {x: 0, y: 0, w: 5, h: 5})
 const m1 = Mass(
-        {mass: 0.8, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.6},
+        {mass: 0.5, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
         {x: 2.5, y: 0.05},
         {x: 2.4, y: 0.05}
     )
@@ -29,7 +29,7 @@ const frame = () => {
         return f.sum(env.friction(mass, f, delta))
     }), delta)
     ctx.fillStyle = '#000000'
-    ctx.fillText(m1.Pi.sub(m1.Po).div(delta).display(), 5, 495)
+    ctx.fillText(m1.Pi.sub(m1.Po).div(delta).display(5), 5, 495)
 
     window.requestAnimationFrame(frame)
 }
@@ -89,14 +89,15 @@ const BoundCalc = state => ({
     friction: (mass, force, dt) => {
         let friction = new Vect(0, 0)
         let vel = calcVel(mass.Pi, mass.Po, dt)
-        if (mass.Pi.y > state.boundary.h - mass.rad - tol && Math.abs(vel.x) > 1e-2) {
-            friction.sumTo({
-                x: -mass.mu_k * Math.abs(force.y) * Math.sign(vel.x),
-                y: -force.y
-            })
-            if (mass.Po.compare(mass.Pi, tol)) mass.Po.x = mass.Pi.x
-            console.log(vel)
+        if (mass.Pi.y > state.boundary.h - mass.rad - tol) {
+            if (Math.abs(vel.x) > tol) {
+                friction.sumTo({
+                    x: -mass.mu_k * Math.abs(force.y) * Math.sign(vel.x),
+                    y: -force.y
+                })
+            }
         }
+        if (Math.abs(mass.Po.x - mass.Pi.x) < tol) mass.Po.x = mass.Pi.x
         return friction
     }
 })
@@ -246,9 +247,9 @@ class Vect {
         return Math.abs(this.x - A.x) <= rad && Math.abs(this.y - A.y) <= rad
     }
     // returns a string that displays the vector's components
-    display () {
+    display (fix) {
         // check if integer before printing. Otherwise, print decimal with 2 decimal places.
-        return '(' + this.x.toFixed(2) + ', ' + this.y.toFixed(2) + ')'
+        return '(' + this.x.toFixed(fix) + ', ' + this.y.toFixed(fix) + ')'
     }
 }
 

@@ -83,9 +83,9 @@ class Vect {
         return Math.abs(this.x - A.x) <= rad && Math.abs(this.y - A.y) <= rad
     }
     // returns a string that displays the vector's components
-    display () {
+    display (fix) {
         // check if integer before printing. Otherwise, print decimal with 2 decimal places.
-        return '(' + this.x.toFixed(2) + ', ' + this.y.toFixed(2) + ')'
+        return '(' + this.x.toFixed(fix) + ', ' + this.y.toFixed(fix) + ')'
     }
 }
 
