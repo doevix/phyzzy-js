@@ -3,24 +3,23 @@
 'use strict'
 const Vect = require('./vector.js')
 
-let tol = 1e-3
+let tol = require('./utils.js').tol
 
 // calculate velocity from previous position
-const calcVel = (Pi, Po, dt) => Pi.sub(Po).div(dt)
-// calculate previous position from velocity
-const calcPo = (Pi, vel, dt) => Pi.sub(vel.mul(dt))
+const calcVel = require('./utils.js').calcVel
+
 
 // Basic forces that environment acts on masses
 const ForceCalc = state => ({
     weight: mass => state.gravity.mul(mass.mass),
-    drag: (mass, dt) => calcVel(mass.Pi, mass.Po, dt).mul(-state.drag),
+    drag: (mass, dt) => mass.vel(dt).mul(-state.drag),
 })
 
 // Wall collisions
 const BoundCalc = state => ({
     // calculates collisions against wall and friction on surface
     boundaryHit: (mass, dt) => {
-        const vel = calcVel(mass.Pi, mass.Po, dt)
+        const vel = mass.vel(dt)
         const n_Pi = new Vect(mass.Pi.x, mass.Pi.y)
         const n_Po = new Vect(mass.Po.x, mass.Po.y)
 
@@ -50,7 +49,7 @@ const BoundCalc = state => ({
     },
     friction: (mass, force, dt) => {
         let friction = new Vect(0, 0)
-        let vel = calcVel(mass.Pi, mass.Po, dt)
+        let vel = mass.vel(dt)
         if (mass.Pi.y > state.boundary.h - mass.rad - tol) {
             if (Math.abs(vel.x) > tol) {
                 friction.sumTo({

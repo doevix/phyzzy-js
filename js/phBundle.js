@@ -5,19 +5,26 @@ const Phyzzy = require('./phyzzy/phyzzy.js')
 const Mass = require('./phyzzy/components/mass.js')
 const Environment = require('./phyzzy/components/environment.js')
 
+
 const viewport = document.getElementById('viewport')
 const ctx = viewport.getContext('2d')
-
-const ph = Phyzzy(100)
-const env = Environment({x: 0, y: 9.81}, 0.1, {x: 0, y: 0, w: 5, h: 5})
-const m1 = Mass(
-        {mass: 0.5, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
-        {x: 2.5, y: 0.05},
-        {x: 2.4, y: 0.05}
-    )
 let delta = 1 / 50 // step frequency
 
+const ph = Phyzzy(100)
+const env = Environment(
+    {x: 0, y: 9.81},
+    0.1,
+    {x: 0, y: 0, w: viewport.width / ph.scale, h: viewport.height / ph.scale}
+)
+const m1 = Mass(
+        {mass: 0.5, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
+        {x: viewport.width / 2 / ph.scale, y: 0.05},
+        {x: 2.4, y: 0.05}
+    )
+
+
 ph.addM(m1)
+
 
 const frame = () => {
     ctx.clearRect(0, 0, viewport.width, viewport.height)
@@ -25,9 +32,11 @@ const frame = () => {
     
     ph.collision(ph.m.map(mass => env.boundaryHit(mass, delta) ))
     ph.verlet(ph.m.map(mass => {
-        let f = env.weight(mass).sum(env.drag(mass, delta))
+        let f = env.weight(mass)
+                .sum(env.drag(mass, delta))
         return f.sum(env.friction(mass, f, delta))
     }), delta)
+
     ctx.fillStyle = '#000000'
     ctx.fillText(m1.Pi.sub(m1.Po).div(delta).display(5), 5, 495)
 
@@ -35,30 +44,29 @@ const frame = () => {
 }
 
 frame();
-},{"./phyzzy/components/environment.js":2,"./phyzzy/components/mass.js":3,"./phyzzy/phyzzy.js":5}],2:[function(require,module,exports){
+},{"./phyzzy/components/environment.js":2,"./phyzzy/components/mass.js":3,"./phyzzy/phyzzy.js":6}],2:[function(require,module,exports){
 // Environment library
 // Defines space where mesh exists and applies forces upon them.
 'use strict'
 const Vect = require('./vector.js')
 
-let tol = 1e-3
+let tol = require('./utils.js').tol
 
 // calculate velocity from previous position
-const calcVel = (Pi, Po, dt) => Pi.sub(Po).div(dt)
-// calculate previous position from velocity
-const calcPo = (Pi, vel, dt) => Pi.sub(vel.mul(dt))
+const calcVel = require('./utils.js').calcVel
+
 
 // Basic forces that environment acts on masses
 const ForceCalc = state => ({
     weight: mass => state.gravity.mul(mass.mass),
-    drag: (mass, dt) => calcVel(mass.Pi, mass.Po, dt).mul(-state.drag),
+    drag: (mass, dt) => mass.vel(dt).mul(-state.drag),
 })
 
 // Wall collisions
 const BoundCalc = state => ({
     // calculates collisions against wall and friction on surface
     boundaryHit: (mass, dt) => {
-        const vel = calcVel(mass.Pi, mass.Po, dt)
+        const vel = mass.vel(dt)
         const n_Pi = new Vect(mass.Pi.x, mass.Pi.y)
         const n_Po = new Vect(mass.Po.x, mass.Po.y)
 
@@ -88,7 +96,7 @@ const BoundCalc = state => ({
     },
     friction: (mass, force, dt) => {
         let friction = new Vect(0, 0)
-        let vel = calcVel(mass.Pi, mass.Po, dt)
+        let vel = mass.vel(dt)
         if (mass.Pi.y > state.boundary.h - mass.rad - tol) {
             if (Math.abs(vel.x) > tol) {
                 friction.sumTo({
@@ -117,35 +125,18 @@ const Environment = (gravity, drag, boundary) => {
 }
 
 module.exports = Environment
-},{"./vector.js":4}],3:[function(require,module,exports){
+},{"./utils.js":4,"./vector.js":5}],3:[function(require,module,exports){
 /*
 mass.js
 Generates a Mass object.
 */
 'use strict'
 const Vect = require('./vector.js')
-// calculate velocity from previous position
-const calcVel = (Pi, Po, dt) => Pi.sub(Po).div(dt)
-// calculate previous position from velocity
-const calcPo = (Pi, vel, dt) => Pi.sub(V.mul(dt))
 
-const ForceCalc = state => ({
-    weight: grav => grav.mul(state.mass),
-    drag: (coef, dt) => calcVel(state.Pi, state.Po, dt).mul(-coef)
+const Velocity = state => ({
+    vel: dt => state.Pi.sub(state.Po).div(dt)
 })
 
-const Integrator = state => ({
-    // Pi+1 = Pi + (Pi - Po) + (accel)*(dt^2)
-    update: (F, dt) => {
-        let accel = F.div(state.mass)
-        let Pi_1 = state.Pi.sum( // Pi +
-            state.Pi.sub(state.Po) // Pi - Po
-            .sum(accel.mul(dt * dt)) // + accel * dt * dt
-        )
-        state.Po.equ(state.Pi)
-        state.Pi.equ(Pi_1)
-    }
-})
 const Mass = (prop, Pi, Po) => {
     let state = {
         Pi: new Vect(Pi.x, Pi.y),
@@ -155,13 +146,29 @@ const Mass = (prop, Pi, Po) => {
     return Object.assign(
         {},
         state,
-        ForceCalc(state),
-        Integrator(state)
+        Velocity(state)
     )
 }
 
 module.exports = Mass
-},{"./vector.js":4}],4:[function(require,module,exports){
+},{"./vector.js":5}],4:[function(require,module,exports){
+// utilities for phyzzy
+
+'use strict'
+
+const tol = 1e-3
+
+// calculate velocity from previous position
+const calcVel = (Pi, Po, dt) => Pi.sub(Po).div(dt)
+// calculate previous position from velocity
+const calcPo = (Pi, vel, dt) => Pi.sub(vel.mul(dt))
+
+module.exports = {
+    tol,
+    calcVel,
+    calcPo
+}
+},{}],5:[function(require,module,exports){
 //vector.js
 /*
     Vector library
@@ -254,7 +261,7 @@ class Vect {
 }
 
 module.exports = Vect
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 // phyzzy.js
 // Engine. Manages, simulates, and draws mesh to canvas.
 'use strict'
@@ -358,4 +365,4 @@ const Phyzzy = (scale) => {
 }
 
 module.exports = Phyzzy
-},{"./components/mass.js":3,"./components/vector.js":4}]},{},[1]);
+},{"./components/mass.js":3,"./components/vector.js":5}]},{},[1]);
