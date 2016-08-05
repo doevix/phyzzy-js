@@ -1,5 +1,6 @@
 // phyzzy.js
-// Engine. Manages, simulates, and draws mesh to canvas.
+// Engine.
+// Manages, simulates, and draws mesh to canvas.
 'use strict'
 
 const Vect = require('./components/vector.js')
@@ -7,22 +8,12 @@ const Mass = require('./components/mass.js')
 // wrapper to avoid 'new' keyword
 const Vector = (x, y) => new Vect(x, y)
 
-const Iter = array => {
-    // creates an iterator from array.
-    let nextIndex = 0
-    return {
-        next: () => {
-            return nextIndex < array.length ?
-            {value: array[nextIndex++], done: false} :
-            {done: true}
-        }
-    }
-}
-
 const AddToMesh = state => ({
     addM: mass => state.m.push(mass),
     addS: (mass1, mass2, spring) => {
+        // links two masses with a spring
         if (mass1 !== mass2) {
+            // cannot link a mass to itself
             mass1.branch.push({m: mass2, s: spring})
             mass2.branch.push({m: mass1, s: spring})
         }
@@ -30,7 +21,7 @@ const AddToMesh = state => ({
 })
 
 const CanvasDraw = state => ({
-    draw: (ctx, colorM) => {
+    drawMass: (ctx, colorM) => {
         state.m.forEach(mass => {
             ctx.beginPath()
             ctx.arc (
@@ -42,6 +33,14 @@ const CanvasDraw = state => ({
             ctx.fillStyle = colorM || '#000000'
             ctx.fill()
             ctx.closePath()
+        })
+    },
+    drawSpring: (ctx, colorS) => {
+        state.m.forEach(mass => {
+            mass.branch.forEach(b => {
+                beginPath()
+                closePath()
+            })
         })
     }
 })

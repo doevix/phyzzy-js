@@ -1,13 +1,10 @@
+// environment.js
 // Environment library
 // Defines space where mesh exists and applies forces upon them.
 'use strict'
 const Vect = require('./vector.js')
 
-let tol = require('./utils.js').tol
-
-// calculate velocity from previous position
-const calcVel = require('./utils.js').calcVel
-
+let tol = 1e-3
 
 // Basic forces that environment acts on masses
 const ForceCalc = state => ({

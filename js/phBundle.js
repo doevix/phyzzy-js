@@ -17,20 +17,30 @@ const env = Environment(
     {x: 0, y: 0, w: viewport.width / ph.scale, h: viewport.height / ph.scale}
 )
 const m1 = Mass(
-        {mass: 0.8, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
+        {mass: 0.5, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
         {x: viewport.width / 2 / ph.scale, y: 0.05},
         {x: 2.4, y: 0.05}
     )
 const m2 = Mass(
-        {mass: 0.8, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
+        {mass: 0.5, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
         {x: viewport.width / 2 / ph.scale, y: 0.05},
         {x: 2.6, y: 0.05}
     )
-const s1 = Spring(3, 10, 0)
+const m3 = Mass(
+        {mass: 0.5, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
+        {x: viewport.width / 2 / ph.scale, y: 0.05},
+        {x: 2.6, y: 0.1}
+    )
+const s1 = Spring(1, 100, 0)
+const s2 = Spring(1, 100, 0)
+const s3 = Spring(1, 100, 0)
 
 ph.addM(m1)
 ph.addM(m2)
+ph.addM(m3)
 ph.addS(m1, m2, s1)
+ph.addS(m2, m3, s2)
+ph.addS(m3, m1, s3)
 
 const frame = () => {
     ctx.clearRect(0, 0, viewport.width, viewport.height)
@@ -51,17 +61,14 @@ const frame = () => {
 }
 
 frame();
-},{"./phyzzy/components/environment.js":2,"./phyzzy/components/mass.js":3,"./phyzzy/components/spring.js":4,"./phyzzy/phyzzy.js":7}],2:[function(require,module,exports){
+},{"./phyzzy/components/environment.js":2,"./phyzzy/components/mass.js":3,"./phyzzy/components/spring.js":4,"./phyzzy/phyzzy.js":6}],2:[function(require,module,exports){
+// environment.js
 // Environment library
 // Defines space where mesh exists and applies forces upon them.
 'use strict'
 const Vect = require('./vector.js')
 
-let tol = require('./utils.js').tol
-
-// calculate velocity from previous position
-const calcVel = require('./utils.js').calcVel
-
+let tol = 1e-3
 
 // Basic forces that environment acts on masses
 const ForceCalc = state => ({
@@ -132,11 +139,11 @@ const Environment = (gravity, drag, boundary) => {
 }
 
 module.exports = Environment
-},{"./utils.js":5,"./vector.js":6}],3:[function(require,module,exports){
-/*
-mass.js
-Generates a Mass object.
-*/
+},{"./vector.js":5}],3:[function(require,module,exports){
+// mass.js
+// Mass library
+// Generates a Mass object.
+
 'use strict'
 const Vect = require('./vector.js')
 
@@ -172,10 +179,11 @@ const Mass = (prop, Pi, Po) => {
 }
 
 module.exports = Mass
-},{"./vector.js":6}],4:[function(require,module,exports){
+},{"./vector.js":5}],4:[function(require,module,exports){
 // spring.js
-// links two masses together for springing
-// Spring must be referenced upon creation
+// Spring library
+// Links two masses together for springing.
+// Spring must be referenced upon creation.
 'use strict'
 const ForceCalc = state => ({
     springing: (pos1, pos2) => {
@@ -203,23 +211,6 @@ const Spring = (restlength, stiffness, damping) => {
 
 module.exports = Spring
 },{}],5:[function(require,module,exports){
-// utilities for phyzzy
-
-'use strict'
-
-const tol = 1e-3
-
-// calculate velocity from previous position
-const calcVel = (Pi, Po, dt) => Pi.sub(Po).div(dt)
-// calculate previous position from velocity
-const calcPo = (Pi, vel, dt) => Pi.sub(vel.mul(dt))
-
-module.exports = {
-    tol,
-    calcVel,
-    calcPo
-}
-},{}],6:[function(require,module,exports){
 //vector.js
 /*
     Vector library
@@ -312,9 +303,10 @@ class Vect {
 }
 
 module.exports = Vect
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 // phyzzy.js
-// Engine. Manages, simulates, and draws mesh to canvas.
+// Engine.
+// Manages, simulates, and draws mesh to canvas.
 'use strict'
 
 const Vect = require('./components/vector.js')
@@ -322,22 +314,12 @@ const Mass = require('./components/mass.js')
 // wrapper to avoid 'new' keyword
 const Vector = (x, y) => new Vect(x, y)
 
-const Iter = array => {
-    // creates an iterator from array.
-    let nextIndex = 0
-    return {
-        next: () => {
-            return nextIndex < array.length ?
-            {value: array[nextIndex++], done: false} :
-            {done: true}
-        }
-    }
-}
-
 const AddToMesh = state => ({
     addM: mass => state.m.push(mass),
     addS: (mass1, mass2, spring) => {
+        // links two masses with a spring
         if (mass1 !== mass2) {
+            // cannot link a mass to itself
             mass1.branch.push({m: mass2, s: spring})
             mass2.branch.push({m: mass1, s: spring})
         }
@@ -421,4 +403,4 @@ const Phyzzy = (scale) => {
 }
 
 module.exports = Phyzzy
-},{"./components/mass.js":3,"./components/vector.js":6}]},{},[1]);
+},{"./components/mass.js":3,"./components/vector.js":5}]},{},[1]);

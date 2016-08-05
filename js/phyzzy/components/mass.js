@@ -1,7 +1,7 @@
-/*
-mass.js
-Generates a Mass object.
-*/
+// mass.js
+// Mass library
+// Generates a Mass object.
+
 'use strict'
 const Vect = require('./vector.js')
 

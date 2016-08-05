@@ -1,6 +1,7 @@
 // spring.js
-// links two masses together for springing
-// Spring must be referenced upon creation
+// Spring library
+// Links two masses together for springing.
+// Spring must be referenced upon creation.
 'use strict'
 const ForceCalc = state => ({
     springing: (pos1, pos2) => {
