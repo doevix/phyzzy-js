@@ -21,7 +21,12 @@ const Iter = array => {
 
 const AddToMesh = state => ({
     addM: mass => state.m.push(mass),
-    addS: spring => state.s.push(spring)
+    addS: (mass1, mass2, spring) => {
+        if (mass1 !== mass2) {
+            mass1.branch.push({m: mass2, s: spring})
+            mass2.branch.push({m: mass1, s: spring})
+        }
+    }
 })
 
 const CanvasDraw = state => ({
@@ -58,7 +63,7 @@ const CanvasHighlight = state => ({
 
 const Integrator = state => ({
     verlet: (forces, dt) => {
-        const forcesIter = Iter(forces)
+        const forcesIter = forces[Symbol.iterator]()
         state.m.forEach(mass => {
             // Pi+1 = Pi + (Pi - Po) + (accel)*(dt^2)
             let accel = forcesIter.next().value.div(mass.mass)
@@ -71,7 +76,7 @@ const Integrator = state => ({
 
 const Collider = state => ({
     collision: collCoord => {
-        const collCoordIter = Iter(collCoord)
+        const collCoordIter = collCoord[Symbol.iterator]()
         state.m.forEach(mass => {
             let cC_current = collCoordIter.next().value
             if (!mass.Po.equChk(cC_current.Po) || !mass.Pi.equChk(cC_current.Pi)) {

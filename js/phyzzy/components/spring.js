@@ -3,16 +3,13 @@
 // Spring must be referenced upon creation
 'use strict'
 const ForceCalc = state => ({
-    springing: (mass1, mass2) => {
+    springing: (pos1, pos2) => {
         // calculate springing force from mass1 to mass2
-        const seg12 = state.mass1.Pi.sub(state.mass2.Pi)
-        return seg12.unit().mul(
-            state.stiffness * (seg12.mag() - state.restlength)
-        )
+        const seg12 = pos1.sub(pos2)
+        return seg12.unit().mul(state.stiffness * (state.restlength - seg12.mag()))
     },
-    damping: (mass1, mass2, dt) => {
-        const vel1 = mass1.vel(dt)
-        const vel2 = mass2.vel(dt)
+    damping: (vel1, vel2, dt) => {
+        return 0
     }
 })
 
@@ -25,7 +22,7 @@ const Spring = (restlength, stiffness, damping) => {
     return Object.assign(
         {},
         state,
-        ForceCalc
+        ForceCalc(state)
     )
 }
 

@@ -3,8 +3,8 @@
 'use strict'
 const Phyzzy = require('./phyzzy/phyzzy.js')
 const Mass = require('./phyzzy/components/mass.js')
+const Spring = require('./phyzzy/components/spring.js')
 const Environment = require('./phyzzy/components/environment.js')
-
 
 const viewport = document.getElementById('viewport')
 const ctx = viewport.getContext('2d')
@@ -17,14 +17,20 @@ const env = Environment(
     {x: 0, y: 0, w: viewport.width / ph.scale, h: viewport.height / ph.scale}
 )
 const m1 = Mass(
-        {mass: 0.5, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
+        {mass: 0.8, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
         {x: viewport.width / 2 / ph.scale, y: 0.05},
         {x: 2.4, y: 0.05}
     )
-
+const m2 = Mass(
+        {mass: 0.8, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
+        {x: viewport.width / 2 / ph.scale, y: 0.05},
+        {x: 2.6, y: 0.05}
+    )
+const s1 = Spring(3, 10, 0)
 
 ph.addM(m1)
-
+ph.addM(m2)
+ph.addS(m1, m2, s1)
 
 const frame = () => {
     ctx.clearRect(0, 0, viewport.width, viewport.height)
@@ -34,6 +40,7 @@ const frame = () => {
     ph.verlet(ph.m.map(mass => {
         let f = env.weight(mass)
                 .sum(env.drag(mass, delta))
+                .sum(mass.springing())
         return f.sum(env.friction(mass, f, delta))
     }), delta)
 
@@ -44,7 +51,7 @@ const frame = () => {
 }
 
 frame();
-},{"./phyzzy/components/environment.js":2,"./phyzzy/components/mass.js":3,"./phyzzy/phyzzy.js":6}],2:[function(require,module,exports){
+},{"./phyzzy/components/environment.js":2,"./phyzzy/components/mass.js":3,"./phyzzy/components/spring.js":4,"./phyzzy/phyzzy.js":7}],2:[function(require,module,exports){
 // Environment library
 // Defines space where mesh exists and applies forces upon them.
 'use strict'
@@ -125,7 +132,7 @@ const Environment = (gravity, drag, boundary) => {
 }
 
 module.exports = Environment
-},{"./utils.js":4,"./vector.js":5}],3:[function(require,module,exports){
+},{"./utils.js":5,"./vector.js":6}],3:[function(require,module,exports){
 /*
 mass.js
 Generates a Mass object.
@@ -136,22 +143,66 @@ const Vect = require('./vector.js')
 const Velocity = state => ({
     vel: dt => state.Pi.sub(state.Po).div(dt)
 })
+const Springing = state => ({
+    springing: () => {
+        // sum forces acted on mass by springs
+        const force = new Vect(0, 0)
+        state.branch.forEach(link => {
+            let Fs = link.s.springing(state.Pi, link.m.Pi)
+            force.sumTo(Fs)
+        })
+        return force
+    }
+    
+})
 
 const Mass = (prop, Pi, Po) => {
     let state = {
         Pi: new Vect(Pi.x, Pi.y),
         Po: new Vect(Po.x, Po.y),
+        branch: []
     }
     Object.assign(state, prop)
     return Object.assign(
         {},
         state,
-        Velocity(state)
+        Velocity(state),
+        Springing(state)
     )
 }
 
 module.exports = Mass
-},{"./vector.js":5}],4:[function(require,module,exports){
+},{"./vector.js":6}],4:[function(require,module,exports){
+// spring.js
+// links two masses together for springing
+// Spring must be referenced upon creation
+'use strict'
+const ForceCalc = state => ({
+    springing: (pos1, pos2) => {
+        // calculate springing force from mass1 to mass2
+        const seg12 = pos1.sub(pos2)
+        return seg12.unit().mul(state.stiffness * (state.restlength - seg12.mag()))
+    },
+    damping: (vel1, vel2, dt) => {
+        return 0
+    }
+})
+
+const Spring = (restlength, stiffness, damping) => {
+    let state = {
+        restlength,
+        stiffness,
+        damping
+    }
+    return Object.assign(
+        {},
+        state,
+        ForceCalc(state)
+    )
+}
+
+module.exports = Spring
+},{}],5:[function(require,module,exports){
 // utilities for phyzzy
 
 'use strict'
@@ -168,7 +219,7 @@ module.exports = {
     calcVel,
     calcPo
 }
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 //vector.js
 /*
     Vector library
@@ -261,7 +312,7 @@ class Vect {
 }
 
 module.exports = Vect
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 // phyzzy.js
 // Engine. Manages, simulates, and draws mesh to canvas.
 'use strict'
@@ -285,7 +336,12 @@ const Iter = array => {
 
 const AddToMesh = state => ({
     addM: mass => state.m.push(mass),
-    addS: spring => state.s.push(spring)
+    addS: (mass1, mass2, spring) => {
+        if (mass1 !== mass2) {
+            mass1.branch.push({m: mass2, s: spring})
+            mass2.branch.push({m: mass1, s: spring})
+        }
+    }
 })
 
 const CanvasDraw = state => ({
@@ -322,7 +378,7 @@ const CanvasHighlight = state => ({
 
 const Integrator = state => ({
     verlet: (forces, dt) => {
-        const forcesIter = Iter(forces)
+        const forcesIter = forces[Symbol.iterator]()
         state.m.forEach(mass => {
             // Pi+1 = Pi + (Pi - Po) + (accel)*(dt^2)
             let accel = forcesIter.next().value.div(mass.mass)
@@ -335,7 +391,7 @@ const Integrator = state => ({
 
 const Collider = state => ({
     collision: collCoord => {
-        const collCoordIter = Iter(collCoord)
+        const collCoordIter = collCoord[Symbol.iterator]()
         state.m.forEach(mass => {
             let cC_current = collCoordIter.next().value
             if (!mass.Po.equChk(cC_current.Po) || !mass.Pi.equChk(cC_current.Pi)) {
@@ -365,4 +421,4 @@ const Phyzzy = (scale) => {
 }
 
 module.exports = Phyzzy
-},{"./components/mass.js":3,"./components/vector.js":5}]},{},[1]);
+},{"./components/mass.js":3,"./components/vector.js":6}]},{},[1]);
