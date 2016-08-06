@@ -1,3 +1,7 @@
+// user.js
+// mousing functions for user interaction
+
+'use strict'
 const MassHighlight = (phyzzy, mouseCoord, hColor) => {
     ctx.strokeStyle = hColor || '#000000'
     ph.m.forEach(m => {
