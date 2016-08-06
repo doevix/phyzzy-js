@@ -1,5 +1,5 @@
-// phyzzy.js
-// Engine.
+// engine.js
+// Phyzzy engine.
 // Manages, simulates, and draws mesh to canvas.
 'use strict'
 
