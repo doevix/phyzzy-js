@@ -10,7 +10,7 @@ const viewport = document.getElementById('viewport')
 const ctx = viewport.getContext('2d')
 let delta = 1 / 50 // step frequency
 let mouseCoord = {x: 0, y: 0}
-let hov = -1
+let hov = undefined
 
 const ph = Phyzzy(100)
 const env = Environment(
@@ -61,7 +61,7 @@ const frame = () => {
 
     ph.drawSpring(ctx, '#000000')
     ph.drawMass(ctx, '#1DB322')
-    User.MassHighlight(ph, mouseCoord, '#3D3D3D')
+    hov = User.MassHighlight(ph, mouseCoord, '#3D3D3D')
 
     ph.collision(ph.m.map(mass => env.boundaryHit(mass, delta) ))
     ph.verlet(ph.m.map(mass => {

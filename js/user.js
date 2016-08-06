@@ -4,19 +4,19 @@
 'use strict'
 const MassHighlight = (phyzzy, mouseCoord, hColor) => {
     ctx.strokeStyle = hColor || '#000000'
-    ph.m.forEach(m => {
-        if (m.Pi.compare(mouseCoord, m.rad + 10 / ph.scale)) {
-            ctx.beginPath()
-            ctx.arc(
-                m.Pi.x * ph.scale,
-                m.Pi.y * ph.scale,
-                m.rad * ph.scale + 5,
-                0, 2 * Math.PI, false
-            )
-            ctx.stroke()
-            ctx.closePath()
-        }
-    })
+    const hovered = ph.m.find(m => m.Pi.compare(mouseCoord, m.rad + 10 / ph.scale))
+    if (hovered) {
+        ctx.beginPath()
+        ctx.arc(
+            hovered.Pi.x * ph.scale,
+            hovered.Pi.y * ph.scale,
+            hovered.rad * ph.scale + 5,
+            0, 2 * Math.PI, false
+        )
+        ctx.stroke()
+        ctx.closePath()
+    }
+    return hovered
 }
 
 module.exports = {
