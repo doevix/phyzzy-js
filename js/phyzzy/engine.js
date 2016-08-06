@@ -92,6 +92,7 @@ const Collider = state => ({
         state.m.forEach(mass => {
             let cC_current = collCoordIter.next().value
             if (!mass.Po.equChk(cC_current.Po) || !mass.Pi.equChk(cC_current.Pi)) {
+                // change coordinates only when collisions have indicated it.
                 mass.Po.equ(cC_current.Po)
                 mass.Pi.equ(cC_current.Pi)
             }

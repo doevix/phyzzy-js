@@ -340,7 +340,10 @@ const CanvasDraw = state => ({
         const traces = []
         state.m.forEach(mass => {
             mass.branch.forEach(b => {
-                if (!traces.find(t => b.m === t.m1 && mass === t.m2 || b.m === t.m2 && mass === t.m1)) {
+                if (!traces.find(
+                    t => b.m === t.m1 && mass === t.m2 || b.m === t.m2 && mass === t.m1)
+                ) {
+                    // mesh is non-linear, traces must be tracked to avoid repetition
                     ctx.beginPath()
                     ctx.moveTo (
                         mass.Pi.x * state.scale,
