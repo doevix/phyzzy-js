@@ -340,22 +340,23 @@ const CanvasDraw = state => ({
         const traces = []
         state.m.forEach(mass => {
             mass.branch.forEach(b => {
-                ctx.beginPath()
-                ctx.moveTo (
-                    mass.Pi.x * state.scale,
-                    mass.Pi.y * state.scale
-                )
-                ctx.lineTo (
-                    b.m.Pi.x * state.scale,
-                    b.m.Pi.y * state.scale
-                )
-                ctx.strokeStyle = colorS || '#000000'
-                ctx.stroke()
-                ctx.closePath()
-                traces.push({m1: mass, m2: b.m})
+                if (!traces.find(t => b.m === t.m1 && mass === t.m2 || b.m === t.m2 && mass === t.m1)) {
+                    ctx.beginPath()
+                    ctx.moveTo (
+                        mass.Pi.x * state.scale,
+                        mass.Pi.y * state.scale
+                    )
+                    ctx.lineTo (
+                        b.m.Pi.x * state.scale,
+                        b.m.Pi.y * state.scale
+                    )
+                    ctx.strokeStyle = colorS || '#000000'
+                    ctx.stroke()
+                    ctx.closePath()
+                    traces.push({m1: mass, m2: b.m})
+                }
             })   
         })
-        console.log(traces)
     }
 })
 
