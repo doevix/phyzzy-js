@@ -1,10 +1,9 @@
 # phyzzy-js
 A tiny 2d physics simulator. Uses a system of masses and springs to create
 objects that bounce and jiggle. The main goal of the phyzzy library is to
-make use of a verlet-based 2d physics simulator with modular characteristics.
-By modular, it means that new physics and constraints can be added as prototype
-methods thereby extending the possibility of the types of creations that can be
-made.
+make use of a verlet-based 2d physics simulator with modular characteristics. 
+It is possible to add new forces and constraints by modifying the input force
+and input collision calculations.
 
 ### Details
 The main Phyzzy library is found within the folder named phyzzy. The following
