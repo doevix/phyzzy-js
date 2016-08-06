@@ -98,7 +98,6 @@ const Collider = state => ({
 const Phyzzy = (scale) => {
     let state = {
         scale: scale, // size of 1 meter in pixels
-        play: false, // false = paused, true = playing
         m: [],
         s: []
     }
