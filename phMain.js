@@ -42,24 +42,8 @@ ph.addS(m1, m2, s1)
 ph.addS(m2, m3, s2)
 ph.addS(m3, m1, s3)
 
-const canvasMouseCoord = (e, canvas) => {
-    const b = canvas.getBoundingClientRect()
-    return {x: e.clientX - b.left, y: e.clientY - b.top}
-}
-
-viewport.onmousemove = e => {
-    const coord = canvasMouseCoord(e, viewport)
-    mouseCoord.x = (coord.x / ph.scale).toFixed(2)
-    mouseCoord.y = (coord.y / ph.scale).toFixed(2)
-}
-
-const frame = () => {
-    ctx.clearRect(0, 0, viewport.width, viewport.height)
-
-    ph.drawSpring(ctx, '#000000')
-    ph.drawMass(ctx, '#1DB322')
-    
-    ph.m.forEach(m => {
+const mouseOverHighlight = mArr => {
+    mArr.forEach(m => {
         if (m.Pi.compare(mouseCoord, m.rad + 10 / ph.scale)) {
             ctx.beginPath()
             ctx.arc(
@@ -73,6 +57,26 @@ const frame = () => {
             ctx.closePath()
         }
     })
+}
+
+const canvasMouseCoord = (e, canvas) => {
+    const b = canvas.getBoundingClientRect()
+    return {x: e.clientX - b.left, y: e.clientY - b.top}
+}
+
+viewport.onmousemove = e => {
+    const coord = canvasMouseCoord(e, viewport)
+    mouseCoord.x = (coord.x / ph.scale).toFixed(2)
+    mouseCoord.y = (coord.y / ph.scale).toFixed(2)
+}
+
+
+const frame = () => {
+    ctx.clearRect(0, 0, viewport.width, viewport.height)
+
+    ph.drawSpring(ctx, '#000000')
+    ph.drawMass(ctx, '#1DB322')
+    mouseOverHighlight(ph.m)
 
     ph.collision(ph.m.map(mass => env.boundaryHit(mass, delta) ))
     ph.verlet(ph.m.map(mass => {
