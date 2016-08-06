@@ -41,8 +41,22 @@ ph.addS(m1, m2, s1)
 ph.addS(m2, m3, s2)
 ph.addS(m3, m1, s3)
 
+const elementMouseCoord = (e, scale) => {
+    return {x: e.clientX / ph.scale, y: e.clientY / ph.scale}
+}
+
+viewport.onmousedown = e => {
+    const mouseCoord = elementMouseCoord(e, ph.scale)
+    Mx = Mass(
+        {mass: 0.5, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
+        mouseCoord,
+        mouseCoord
+    )
+}
+
 const frame = () => {
     ctx.clearRect(0, 0, viewport.width, viewport.height)
+
     ph.drawSpring(ctx, '#000000')
     ph.drawMass(ctx, '#1DB322')
     
