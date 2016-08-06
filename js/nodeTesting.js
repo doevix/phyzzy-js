@@ -1,6 +1,6 @@
 // Area for testing components
 'use strict'
-const Phyzzy = require('./phyzzy/phyzzy.js')
+const Phyzzy = require('./phyzzy/engine.js')
 const Mass = require('./phyzzy/components/mass.js')
 const Spring = require('./phyzzy/components/spring.js')
 const Vect = require('./phyzzy/components/vector.js')

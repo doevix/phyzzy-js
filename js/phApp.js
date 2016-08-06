@@ -1,6 +1,6 @@
 // phyzzy main webapp
 'use strict'
-const Phyzzy = require('./phyzzy/phyzzy.js')
+const Phyzzy = require('./phyzzy/engine.js')
 const Mass = require('./phyzzy/components/mass.js')
 const Spring = require('./phyzzy/components/spring.js')
 const Environment = require('./phyzzy/components/environment.js')
