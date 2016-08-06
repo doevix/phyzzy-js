@@ -8,6 +8,7 @@ const Environment = require('./js/phyzzy/components/environment.js')
 const viewport = document.getElementById('viewport')
 const ctx = viewport.getContext('2d')
 let delta = 1 / 50 // step frequency
+let mouseCoord = {x: 0, y: 0}
 
 const ph = Phyzzy(100)
 const env = Environment(
@@ -41,17 +42,15 @@ ph.addS(m1, m2, s1)
 ph.addS(m2, m3, s2)
 ph.addS(m3, m1, s3)
 
-const elementMouseCoord = (e, scale) => {
-    return {x: e.clientX / ph.scale, y: e.clientY / ph.scale}
+const canvasMouseCoord = (e, canvas) => {
+    const b = canvas.getBoundingClientRect()
+    return {x: e.clientX - b.left, y: e.clientY - b.top}
 }
 
-viewport.onmousedown = e => {
-    const mouseCoord = elementMouseCoord(e, ph.scale)
-    Mx = Mass(
-        {mass: 0.5, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
-        mouseCoord,
-        mouseCoord
-    )
+viewport.onmousemove = e => {
+    const coord = canvasMouseCoord(e, viewport)
+    mouseCoord.x = (coord.x / ph.scale).toFixed(2)
+    mouseCoord.y = (coord.y / ph.scale).toFixed(2)
 }
 
 const frame = () => {
@@ -60,6 +59,21 @@ const frame = () => {
     ph.drawSpring(ctx, '#000000')
     ph.drawMass(ctx, '#1DB322')
     
+    ph.m.forEach(m => {
+        if (m.Pi.compare(mouseCoord, m.rad + 10 / ph.scale)) {
+            ctx.beginPath()
+            ctx.arc(
+                m.Pi.x * ph.scale,
+                m.Pi.y * ph.scale,
+                m.rad * ph.scale + 5,
+                0, 2 * Math.PI, false
+            )
+            ctx.strokeStyle = '#000000'
+            ctx.stroke()
+            ctx.closePath()
+        }
+    })
+
     ph.collision(ph.m.map(mass => env.boundaryHit(mass, delta) ))
     ph.verlet(ph.m.map(mass => {
         let f = env.weight(mass)
@@ -70,6 +84,7 @@ const frame = () => {
 
     ctx.fillStyle = '#000000'
     ctx.fillText(m1.Pi.sub(m1.Po).div(delta).display(5), 5, 495)
+    ctx.fillText('(' + mouseCoord.x + ', ' + mouseCoord.y + ')', 20, 20)
 
     window.requestAnimationFrame(frame)
 }
