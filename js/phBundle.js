@@ -1,7 +1,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 // phyzzy main webapp
 'use strict'
-const Phyzzy = require('./phyzzy/phyzzy.js')
+const Phyzzy = require('./phyzzy/engine.js')
 const Mass = require('./phyzzy/components/mass.js')
 const Spring = require('./phyzzy/components/spring.js')
 const Environment = require('./phyzzy/components/environment.js')
@@ -64,7 +64,7 @@ const frame = () => {
 }
 
 frame();
-},{"./phyzzy/components/environment.js":2,"./phyzzy/components/mass.js":3,"./phyzzy/components/spring.js":4,"./phyzzy/phyzzy.js":6}],2:[function(require,module,exports){
+},{"./phyzzy/components/environment.js":2,"./phyzzy/components/mass.js":3,"./phyzzy/components/spring.js":4,"./phyzzy/engine.js":6}],2:[function(require,module,exports){
 // environment.js
 // Environment library
 // Defines space where mesh exists and applies forces upon them.
@@ -157,10 +157,7 @@ const Springing = state => ({
     springing: () => {
         // sum forces acted on mass by springs
         const force = new Vect(0, 0)
-        state.branch.forEach(link => {
-            let Fs = link.s.springing(state.Pi, link.m.Pi)
-            force.sumTo(Fs)
-        })
+        state.branch.forEach(l => force.sumTo(l.s.springing(state.Pi, l.m.Pi)))
         return force
     }
     
@@ -307,15 +304,10 @@ class Vect {
 
 module.exports = Vect
 },{}],6:[function(require,module,exports){
-// phyzzy.js
-// Engine.
+// engine.js
+// Phyzzy engine.
 // Manages, simulates, and draws mesh to canvas.
 'use strict'
-
-const Vect = require('./components/vector.js')
-const Mass = require('./components/mass.js')
-// wrapper to avoid 'new' keyword
-const Vector = (x, y) => new Vect(x, y)
 
 const AddToMesh = state => ({
     addM: mass => state.m.push(mass),
@@ -345,6 +337,7 @@ const CanvasDraw = state => ({
         })
     },
     drawSpring: (ctx, colorS) => {
+        const traces = []
         state.m.forEach(mass => {
             mass.branch.forEach(b => {
                 ctx.beginPath()
@@ -359,9 +352,10 @@ const CanvasDraw = state => ({
                 ctx.strokeStyle = colorS || '#000000'
                 ctx.stroke()
                 ctx.closePath()
+                traces.push({m1: mass, m2: b.m})
             })   
         })
-
+        console.log(traces)
     }
 })
 
@@ -382,6 +376,7 @@ const CanvasHighlight = state => ({
 
 const Integrator = state => ({
     verlet: (forces, dt) => {
+        // verlet integrator
         const forcesIter = forces[Symbol.iterator]()
         state.m.forEach(mass => {
             // Pi+1 = Pi + (Pi - Po) + (accel)*(dt^2)
@@ -409,7 +404,6 @@ const Collider = state => ({
 const Phyzzy = (scale) => {
     let state = {
         scale: scale, // size of 1 meter in pixels
-        play: false, // false = paused, true = playing
         m: [],
         s: []
     }
@@ -425,4 +419,4 @@ const Phyzzy = (scale) => {
 }
 
 module.exports = Phyzzy
-},{"./components/mass.js":3,"./components/vector.js":5}]},{},[1]);
+},{}]},{},[1]);
