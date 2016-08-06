@@ -4,7 +4,13 @@
 'use strict'
 
 const AddToMesh = state => ({
-    addM: mass => state.m.push(mass),
+    addM: mass => {
+        // adds a new mass
+        if (!state.m.find(m => m === mass)) {
+            // each new mass added must be unique
+            state.m.push(mass)
+        }
+    },
     addS: (mass1, mass2, spring) => {
         // links two masses with a spring
         if (mass1 !== mass2 && !mass1.branch.find(b => b.m === mass2)) {
