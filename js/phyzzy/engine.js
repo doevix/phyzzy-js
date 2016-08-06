@@ -3,11 +3,6 @@
 // Manages, simulates, and draws mesh to canvas.
 'use strict'
 
-const Vect = require('./components/vector.js')
-const Mass = require('./components/mass.js')
-// wrapper to avoid 'new' keyword
-const Vector = (x, y) => new Vect(x, y)
-
 const AddToMesh = state => ({
     addM: mass => state.m.push(mass),
     addS: (mass1, mass2, spring) => {
