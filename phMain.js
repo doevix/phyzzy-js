@@ -4,11 +4,13 @@ const Phyzzy = require('./js/phyzzy/engine.js')
 const Mass = require('./js/phyzzy/components/mass.js')
 const Spring = require('./js/phyzzy/components/spring.js')
 const Environment = require('./js/phyzzy/components/environment.js')
+const User = require('./js/user.js')
 
 const viewport = document.getElementById('viewport')
 const ctx = viewport.getContext('2d')
 let delta = 1 / 50 // step frequency
 let mouseCoord = {x: 0, y: 0}
+let hov = -1
 
 const ph = Phyzzy(100)
 const env = Environment(
@@ -42,23 +44,6 @@ ph.addS(m1, m2, s1)
 ph.addS(m2, m3, s2)
 ph.addS(m3, m1, s3)
 
-const mouseOverHighlight = mArr => {
-    mArr.forEach(m => {
-        if (m.Pi.compare(mouseCoord, m.rad + 10 / ph.scale)) {
-            ctx.beginPath()
-            ctx.arc(
-                m.Pi.x * ph.scale,
-                m.Pi.y * ph.scale,
-                m.rad * ph.scale + 5,
-                0, 2 * Math.PI, false
-            )
-            ctx.strokeStyle = '#000000'
-            ctx.stroke()
-            ctx.closePath()
-        }
-    })
-}
-
 const canvasMouseCoord = (e, canvas) => {
     const b = canvas.getBoundingClientRect()
     return {x: e.clientX - b.left, y: e.clientY - b.top}
@@ -76,7 +61,7 @@ const frame = () => {
 
     ph.drawSpring(ctx, '#000000')
     ph.drawMass(ctx, '#1DB322')
-    mouseOverHighlight(ph.m)
+    User.MassHighlight(ph, mouseCoord, '#3D3D3D')
 
     ph.collision(ph.m.map(mass => env.boundaryHit(mass, delta) ))
     ph.verlet(ph.m.map(mass => {
@@ -87,7 +72,6 @@ const frame = () => {
     }), delta)
 
     ctx.fillStyle = '#000000'
-    ctx.fillText(m1.Pi.sub(m1.Po).div(delta).display(5), 5, 495)
     ctx.fillText('(' + mouseCoord.x + ', ' + mouseCoord.y + ')', 20, 20)
 
     window.requestAnimationFrame(frame)
