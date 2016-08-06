@@ -7,25 +7,19 @@ methods thereby extending the possibility of the types of creations that can be
 made.
 
 ### Details
+The main Phyzzy library is found within the folder named phyzzy. The following
+elements can be found inside:
 
-##### main.js
-Script used as main source file and entry point for webapp. Only used for testing.
+- **components/**
+    - *mass.js*
+    - *spring.js*
+    - *environment.js*
+    - *vector.js*
+- engine.js
 
-##### phyzzy.js
-This library is used as a wrapper to put into use the elements necessary to create a
-working simulation. Drawing to canvas is not required to use. Also contains a user object
-in case user interaction is desired.
+Each of the modules contain factory functions (excluding vector.js) which
+generate their corresponding object. The engine.js module creates the Phyzzy 
+engine which simulates the movement via a fixed-time Verlet integrator.
 
-#### mesh.js
-This library holds a collection of connected masses and springs and applies their
-methods all together.
-
-#### obj.js
-This library contains the elements used to simulate, mainly being the mass and spring which
-are the main pieces of what makes a mesh. Also contains the environment and containers that act
-as walls in case the user preferres a finite space to work in.
-
-#### vector.js
-Library for vector object and used throughout the the previous libraries. Contains properties and
-methods for two-dimensional vectors.
-
+Current implementation uses Smoothie's standalone require.js by Torben Haase
+(https://github.com/letorbi/smoothie)
