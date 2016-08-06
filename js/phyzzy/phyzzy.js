@@ -12,8 +12,8 @@ const AddToMesh = state => ({
     addM: mass => state.m.push(mass),
     addS: (mass1, mass2, spring) => {
         // links two masses with a spring
-        if (mass1 !== mass2) {
-            // cannot link a mass to itself
+        if (mass1 !== mass2 && !mass1.branch.find(b => b.m === mass2)) {
+            // cannot link a mass to itself nor have two springs in link
             mass1.branch.push({m: mass2, s: spring})
             mass2.branch.push({m: mass1, s: spring})
         }
@@ -36,12 +36,25 @@ const CanvasDraw = state => ({
         })
     },
     drawSpring: (ctx, colorS) => {
+        const traces = []
         state.m.forEach(mass => {
             mass.branch.forEach(b => {
-                beginPath()
-                closePath()
-            })
+                ctx.beginPath()
+                ctx.moveTo (
+                    mass.Pi.x * state.scale,
+                    mass.Pi.y * state.scale
+                )
+                ctx.lineTo (
+                    b.m.Pi.x * state.scale,
+                    b.m.Pi.y * state.scale
+                )
+                ctx.strokeStyle = colorS || '#000000'
+                ctx.stroke()
+                ctx.closePath()
+                traces.push({m1: mass, m2: b.m})
+            })   
         })
+        console.log(traces)
     }
 })
 
@@ -62,6 +75,7 @@ const CanvasHighlight = state => ({
 
 const Integrator = state => ({
     verlet: (forces, dt) => {
+        // verlet integrator
         const forcesIter = forces[Symbol.iterator]()
         state.m.forEach(mass => {
             // Pi+1 = Pi + (Pi - Po) + (accel)*(dt^2)

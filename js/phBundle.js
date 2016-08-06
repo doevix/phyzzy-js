@@ -42,9 +42,12 @@ ph.addS(m1, m2, s1)
 ph.addS(m2, m3, s2)
 ph.addS(m3, m1, s3)
 
+console.log(m2);
+
 const frame = () => {
     ctx.clearRect(0, 0, viewport.width, viewport.height)
-    ph.draw(ctx, '#1DB322')
+    ph.drawSpring(ctx, '#000000')
+    ph.drawMass(ctx, '#1DB322')
     
     ph.collision(ph.m.map(mass => env.boundaryHit(mass, delta) ))
     ph.verlet(ph.m.map(mass => {
@@ -318,8 +321,8 @@ const AddToMesh = state => ({
     addM: mass => state.m.push(mass),
     addS: (mass1, mass2, spring) => {
         // links two masses with a spring
-        if (mass1 !== mass2) {
-            // cannot link a mass to itself
+        if (mass1 !== mass2 && !mass1.branch.find(b => b.m === mass2)) {
+            // cannot link a mass to itself nor have two springs in link
             mass1.branch.push({m: mass2, s: spring})
             mass2.branch.push({m: mass1, s: spring})
         }
@@ -327,7 +330,7 @@ const AddToMesh = state => ({
 })
 
 const CanvasDraw = state => ({
-    draw: (ctx, colorM) => {
+    drawMass: (ctx, colorM) => {
         state.m.forEach(mass => {
             ctx.beginPath()
             ctx.arc (
@@ -340,6 +343,25 @@ const CanvasDraw = state => ({
             ctx.fill()
             ctx.closePath()
         })
+    },
+    drawSpring: (ctx, colorS) => {
+        state.m.forEach(mass => {
+            mass.branch.forEach(b => {
+                ctx.beginPath()
+                ctx.moveTo (
+                    mass.Pi.x * state.scale,
+                    mass.Pi.y * state.scale
+                )
+                ctx.lineTo (
+                    b.m.Pi.x * state.scale,
+                    b.m.Pi.y * state.scale
+                )
+                ctx.strokeStyle = colorS || '#000000'
+                ctx.stroke()
+                ctx.closePath()
+            })   
+        })
+
     }
 })
 

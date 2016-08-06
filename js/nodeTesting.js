@@ -20,12 +20,29 @@ const m2 = Mass(
         {x: 2, y: 0.05},
         {x: 2.6, y: 0.05}
     )
+const m3 = Mass(
+        {mass: 0.5, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
+        {x: 5, y: 2},
+        {x: 5, y: 2}
+    )
 const s1 = Spring(3, 100, 0)
+const s2 = Spring(3, 100, 0)
+const s3 = Spring(3, 100, 0)
+
+const ctx = {
+    moveTo: (x, y) => console.log("moveTo: x =", x, 'y =', y),
+    lineTo: (x, y) => console.log("lineTo: x =", x, 'y =', y),
+    stroke: () => console.log('line drawn'),
+    beginPath: () => console.log('path open'),
+    closePath: () => console.log('path closed\n'),
+    strokeStyle: '#000000'
+}
 
 ph.addM(m1)
 ph.addM(m2)
+ph.addM(m3)
 ph.addS(m1, m2, s1)
+ph.addS(m2, m3, s2)
+ph.addS(m3, m1, s3)
 
-//ph.verlet(ph.m.map(mass => mass.springing()), delta)
-
-console.log(ph.m[0].springing())
+ph.drawSpring(ctx)

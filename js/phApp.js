@@ -41,10 +41,12 @@ ph.addS(m1, m2, s1)
 ph.addS(m2, m3, s2)
 ph.addS(m3, m1, s3)
 
+console.log(m2);
+
 const frame = () => {
     ctx.clearRect(0, 0, viewport.width, viewport.height)
+    ph.drawSpring(ctx, '#000000')
     ph.drawMass(ctx, '#1DB322')
-    // ph.drawSpring(ctx, '#000000')
     
     ph.collision(ph.m.map(mass => env.boundaryHit(mass, delta) ))
     ph.verlet(ph.m.map(mass => {
