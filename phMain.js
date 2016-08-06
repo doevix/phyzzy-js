@@ -1,9 +1,9 @@
 // phyzzy main webapp
 'use strict'
-const Phyzzy = require('.js/phyzzy/engine.js')
-const Mass = require('.js/phyzzy/components/mass.js')
-const Spring = require('.js/phyzzy/components/spring.js')
-const Environment = require('.js/phyzzy/components/environment.js')
+const Phyzzy = require('./js/phyzzy/engine.js')
+const Mass = require('./js/phyzzy/components/mass.js')
+const Spring = require('./js/phyzzy/components/spring.js')
+const Environment = require('./js/phyzzy/components/environment.js')
 
 const viewport = document.getElementById('viewport')
 const ctx = viewport.getContext('2d')
@@ -40,8 +40,6 @@ ph.addM(m3)
 ph.addS(m1, m2, s1)
 ph.addS(m2, m3, s2)
 ph.addS(m3, m1, s3)
-
-console.log(m2);
 
 const frame = () => {
     ctx.clearRect(0, 0, viewport.width, viewport.height)
