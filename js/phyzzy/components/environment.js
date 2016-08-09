@@ -19,23 +19,26 @@ const BoundCalc = state => ({
         const n_Pi = new Vect(mass.Pi.x, mass.Pi.y)
         const n_Po = new Vect(mass.Po.x, mass.Po.y)
 
+        const reboundX = (Pi, Po, r) => r * (Pi.x - Po.x) + Pi.x
+        const reboundY = (Pi, Po, r) => r * (Pi.y - Po.y) + Pi.y
+
         if (n_Pi.y > state.boundary.h - mass.rad) {
             // h boundary hit
             n_Pi.y = state.boundary.h - mass.rad
-            n_Po.y = mass.refl * (n_Pi.y - n_Po.y) + n_Pi.y
+            n_Po.y = reboundY(n_Pi, n_Po, mass.refl)
         } else if (n_Pi.y < state.boundary.y + mass.rad) {
             // y boundary hit
             n_Pi.y = state.boundary.y + mass.rad
-            n_Po.y = mass.refl * (n_Pi.y - n_Po.y) + n_Pi.y
+            n_Po.y = reboundY(n_Pi, n_Po, mass.refl)
         }
         if (n_Pi.x > state.boundary.w - mass.rad) {
             // w boundary hit
             n_Pi.x = state.boundary.w - mass.rad
-            n_Po.x = mass.refl * (n_Pi.x - n_Po.x) + n_Pi.x
+            n_Po.x = reboundX(n_Pi, n_Po, mass.refl)
         } else if (n_Pi.x < state.boundary.x + mass.rad) {
             // x boundary hit
             n_Pi.x = state.boundary.x + mass.rad
-            n_Po.x = mass.refl * (n_Pi.x - n_Po.x) + n_Pi.x
+            n_Po.x = reboundX(n_Pi, n_Po, mass.refl)
         }
         return {Pi: n_Pi, Po: n_Po}
     },
