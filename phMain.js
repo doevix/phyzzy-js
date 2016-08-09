@@ -46,7 +46,7 @@ const frame = () => {
     ph.drawSpring(ctx, '#000000')
     ph.drawMass(ctx, '#1DB322')
     
-    ph.collision(ph.m.map(mass => env.boundaryHit(mass, delta) ))
+    ph.collision(ph.m.map(mass => env.boundaryHit(mass) ))
     ph.verlet(ph.m.map(mass => {
         let f = env.weight(mass)
                 .sum(env.drag(mass, delta))

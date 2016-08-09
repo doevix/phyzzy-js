@@ -15,32 +15,27 @@ const ForceCalc = state => ({
 // Wall collisions
 const BoundCalc = state => ({
     // calculates collisions against wall and friction on surface
-    boundaryHit: (mass, dt) => {
-        const vel = mass.vel(dt)
+    boundaryHit: mass => {
         const n_Pi = new Vect(mass.Pi.x, mass.Pi.y)
         const n_Po = new Vect(mass.Po.x, mass.Po.y)
 
         if (n_Pi.y > state.boundary.h - mass.rad) {
             // h boundary hit
-            n_Pi.equ({x: n_Pi.x, y: state.boundary.h - mass.rad})
-            vel.equ({x: vel.x, y: -mass.refl * vel.y})
-            n_Po.equ({x: n_Po.x, y: n_Po.y - vel.y * dt})
+            n_Pi.y = state.boundary.h - mass.rad
+            n_Po.y = mass.refl * (n_Pi.y - n_Po.y) + n_Pi.y
         } else if (n_Pi.y < state.boundary.y + mass.rad) {
             // y boundary hit
-            n_Pi.equ({x: n_Pi.x, y: state.boundary.y + mass.rad})
-            vel.equ({x: vel.x, y: -mass.refl * vel.y})
-            n_Po.equ({x: n_Po.x, y: n_Po.y - vel.y * dt})
+            n_Pi.y = state.boundary.y + mass.rad
+            n_Po.y = mass.refl * (n_Pi.y - n_Po.y) + n_Pi.y
         }
         if (n_Pi.x > state.boundary.w - mass.rad) {
             // w boundary hit
-            n_Pi.equ({x: state.boundary.w - mass.rad, y: n_Pi.y})
-            vel.equ({x: -mass.refl * vel.x, y: vel.y})
-            n_Po.equ({x: n_Po.x - vel.x * dt, y: n_Po.y})
+            n_Pi.x = state.boundary.w - mass.rad
+            n_Po.x = mass.refl * (n_Pi.x - n_Po.x) + n_Pi.x
         } else if (n_Pi.x < state.boundary.x + mass.rad) {
             // x boundary hit
-            n_Pi.equ({x: state.boundary.x + mass.rad, y: n_Pi.y})
-            vel.equ({x: -mass.refl * vel.x, y: vel.y})
-            n_Po.equ({x: n_Po.x - vel.x * dt, y: n_Po.y})
+            n_Pi.x = state.boundary.x + mass.rad
+            n_Po.x = mass.refl * (n_Pi.x - n_Po.x) + n_Pi.x
         }
         return {Pi: n_Pi, Po: n_Po}
     },
