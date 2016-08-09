@@ -42,17 +42,19 @@ const BoundCalc = state => ({
         return {Pi: n_Pi, Po: n_Po}
     },
     friction: (mass, force) => {
-        const friction = new Vect(0, 0)
+        let friction = new Vect(0, 0)
         const posDiff = mass.Pi.sub(mass.Po)
         if (mass.Pi.y > state.boundary.h - mass.rad - tol) {
-            if (Math.abs(posDiff.x) > tol) {
+            if (Math.abs(posDiff.x) > tol && Math.abs(force.x) > Math.abs(force.y * mass.m_us)) {
                 friction.sumTo({
                     x: -mass.mu_k * Math.abs(force.y) * Math.sign(posDiff.x),
                     y: -force.y
                 })
+            } else {
+                mass.Po.x = mass.Pi.x
+                friction.x = -force.x
             }
         }
-        if (Math.abs(mass.Po.x - mass.Pi.x) < tol) mass.Po.x = mass.Pi.x
         return friction
     }
 })
