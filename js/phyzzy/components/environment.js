@@ -51,6 +51,7 @@ const BoundCalc = state => ({
                     y: -force.y
                 })
             } else {
+                // NOTE: static friction condition mutates mass directly to ensure stopping
                 mass.Po.x = mass.Pi.x
                 friction.x = -force.x
             }
