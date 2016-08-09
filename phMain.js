@@ -47,11 +47,12 @@ const frame = () => {
     ph.drawMass(ctx, '#1DB322')
     
     ph.collision(ph.m.map(mass => env.boundaryHit(mass) ))
-    ph.verlet(ph.m.map(mass => {
-        let f = env.weight(mass)
-                .sum(env.drag(mass, delta))
-                .sum(mass.springing())
-        return f.sum(env.friction(mass, f, delta))
+    ph.verlet(
+        ph.m.map(mass => {
+            let f = env.weight(mass)
+            .sum(env.drag(mass, delta))
+            .sum(mass.springing())
+            return f.sum(env.friction(mass, f))
     }), delta)
 
     ctx.fillStyle = '#000000'
