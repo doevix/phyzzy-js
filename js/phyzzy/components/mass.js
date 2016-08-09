@@ -12,7 +12,9 @@ const Springing = state => ({
     springing: () => {
         // sum forces acted on mass by springs
         const force = new Vect(0, 0)
-        state.branch.forEach(l => force.sumTo(l.s.springing(state.Pi, l.m.Pi)))
+        state.branch.forEach(l => force.sumTo(
+                l.s.springing(state.Pi.sub(l.m.Pi))
+            ))
         return force
     }
     
