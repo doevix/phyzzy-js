@@ -10,8 +10,6 @@ const User = require('./js/user.js')
 const viewport = document.getElementById('viewport')
 const ctx = viewport.getContext('2d')
 let delta = 1 / 50 // step frequency
-let mouseCoord = {x: 0, y: 0}
-let mousedown = false
 let hov = undefined
 
 const ph = Phyzzy(100)
@@ -46,31 +44,17 @@ ph.addS(m1, m2, s1)
 ph.addS(m2, m3, s2)
 ph.addS(m3, m1, s3)
 
-const canvasMouseCoord = (e, canvas) => {
-    const b = canvas.getBoundingClientRect()
-    return {x: e.clientX - b.left, y: e.clientY - b.top}
-}
 
-viewport.onmousemove = e => {
-    const coord = canvasMouseCoord(e, viewport)
-    mouseCoord.x = (coord.x / ph.scale).toFixed(2)
-    mouseCoord.y = (coord.y / ph.scale).toFixed(2)
-}
+const mouse = User.Mouser()
 
-viewport.onmousedown = e => {
-    if (!mousedown) mousedown = true
-}
-viewport.onmouseup = e => {
-    if (mousedown) mousedown = false
-}
-viewport.onmouseenter = e => mousedown = false
+mouse.init(viewport, ph.scale)
 
 const frame = () => {
     ctx.clearRect(0, 0, viewport.width, viewport.height)
 
     ph.drawSpring(ctx, '#000000')
     ph.drawMass(ctx, '#1DB322')
-    hov = User.MassHighlight(ph, mouseCoord, '#3D3D3D')
+    hov = User.MassHighlight(ph, mouse.coord(ph.scale), '#3D3D3D')
 
     ph.collision(ph.m.map(mass => env.boundaryHit(mass, delta) ))
     ph.verlet(ph.m.map(mass => {
@@ -81,8 +65,8 @@ const frame = () => {
     }), delta)
 
     ctx.fillStyle = '#000000'
-    ctx.fillText('(' + mouseCoord.x + ', ' + mouseCoord.y + ')', 20, 20)
-    ctx.fillText('mousedown ' + mousedown, 20, 40)
+    ctx.fillText('(' + mouse.coord(ph.scale).x + ', ' + mouse.coord(ph.scale).y + ')', 20, 20)
+    ctx.fillText('mousedown ' + mouse.isDown(), 20, 40)
 
     window.requestAnimationFrame(frame)
 }

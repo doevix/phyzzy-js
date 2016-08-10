@@ -21,8 +21,45 @@ const MassHighlight = (phyzzy, mouseCoord, hColor) => {
     return hovered
 }
 
-const MoveMass = (mouseCoord)
+const Initializer = state => ({
+    init: (canvas, scale) => {
+        canvas.onmousedown = e => {
+            if (!state.mousedown) state.mousedown = true
+        }
+        canvas.onmouseup = e => {
+            if (state.mousedown) state.mousedown = false
+        }
+        canvas.onmouseenter = e => state.mousedown = false
+
+        canvas.onmousemove = e => {
+            b = canvas.getBoundingClientRect()
+            state.coord.equ({
+                x: e.clientX - b.left,
+                y: e.clientY - b.top
+            })
+        }
+
+    }
+})
+
+const Output = state => ({
+    coord: scale => state.coord.div(scale).toFixed2d(2),
+    isDown: () => state.mousedown
+})
+
+const Mouser = (element, scale) => {
+    const state = {
+        coord: new Vect(0, 0),
+        mousedown: false
+    }
+    return Object.assign(
+        {},
+        Initializer(state),
+        Output(state)
+    )
+}
 
 module.exports = {
-    MassHighlight
+    MassHighlight,
+    Mouser,
 }
