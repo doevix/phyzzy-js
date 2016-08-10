@@ -9,8 +9,7 @@ const User = require('./js/user.js')
 
 const viewport = document.getElementById('viewport')
 const ctx = viewport.getContext('2d')
-let delta = 1 / 50 // step frequency
-let hov = undefined
+let delta = 1 / 50 // step time
 
 const ph = Phyzzy(100)
 const env = Environment(
@@ -54,7 +53,8 @@ const frame = () => {
 
     ph.drawSpring(ctx, '#000000')
     ph.drawMass(ctx, '#1DB322')
-    hov = User.MassHighlight(ph, mouse.coord(ph.scale), '#3D3D3D')
+    mouse.hover(ph, ctx, '#3D3D3D')
+    mouse.select(ph.scale, ctx)
 
     ph.collision(ph.m.map(mass => env.boundaryHit(mass, delta) ))
     ph.verlet(ph.m.map(mass => {
@@ -66,7 +66,7 @@ const frame = () => {
 
     ctx.fillStyle = '#000000'
     ctx.fillText('(' + mouse.coord(ph.scale).x + ', ' + mouse.coord(ph.scale).y + ')', 20, 20)
-    ctx.fillText('mousedown ' + mouse.isDown(), 20, 40)
+    ctx.fillText('mousedown ' + mouse.isDown(), 20, 30)
 
     window.requestAnimationFrame(frame)
 }
