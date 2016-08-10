@@ -10,6 +10,7 @@ const viewport = document.getElementById('viewport')
 const ctx = viewport.getContext('2d')
 let delta = 1 / 50 // step frequency
 let mouseCoord = {x: 0, y: 0}
+let mousedown = false
 let hov = undefined
 
 const ph = Phyzzy(100)
@@ -55,6 +56,13 @@ viewport.onmousemove = e => {
     mouseCoord.y = (coord.y / ph.scale).toFixed(2)
 }
 
+viewport.onmousedown = e => {
+    if (!mousedown) mousedown = true
+}
+viewport.onmouseup = e => {
+    if (mousedown) mousedown = false
+}
+viewport.onmouseenter = e => mousedown = false
 
 const frame = () => {
     ctx.clearRect(0, 0, viewport.width, viewport.height)
@@ -73,6 +81,7 @@ const frame = () => {
 
     ctx.fillStyle = '#000000'
     ctx.fillText('(' + mouseCoord.x + ', ' + mouseCoord.y + ')', 20, 20)
+    ctx.fillText('mousedown ' + mousedown, 20, 40)
 
     window.requestAnimationFrame(frame)
 }
