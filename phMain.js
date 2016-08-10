@@ -46,7 +46,7 @@ const frame = () => {
     ph.drawSpring(ctx, '#000000')
     ph.drawMass(ctx, '#1DB322')
     
-    ph.collision(ph.m.map(mass => env.boundaryHit(mass) ))
+    
     ph.verlet(
         ph.m.map(mass => {
             let f = env.weight(mass)
@@ -55,6 +55,7 @@ const frame = () => {
             .sum(mass.damping())
             return f.sum(env.friction(mass, f))
     }), delta)
+    ph.collision(ph.m.map(mass => env.boundaryHit(mass) ))
 
     ctx.fillStyle = '#000000'
     ctx.fillText(m1.Pi.sub(m1.Po).div(delta).display(5), 5, 495)
