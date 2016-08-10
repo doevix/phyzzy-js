@@ -4,12 +4,15 @@
 // Spring must be referenced upon creation.
 'use strict'
 const ForceCalc = state => ({
-    springing: (seg12) => {
+    springing: seg12 => {
         // calculate springing force from segment of mass1 to mass2
         return seg12.unit().mul(state.stiffness * (state.restlength - seg12.mag()))
     },
-    damping: (vel1, vel2, dt) => {
-        return 0
+    damping: (Pi1, Po1, Pi2, Po2) => {
+         const seg12 = Pi1.sub(Pi2)
+         const diff12 = seg12.sub(Po1.sub(Po2))
+         const pjt = diff12.pjt(seg12).mul(-state.damping)
+         return pjt
     }
 })
 

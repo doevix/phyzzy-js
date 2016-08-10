@@ -16,8 +16,17 @@ const Springing = state => ({
                 l.s.springing(state.Pi.sub(l.m.Pi))
             ))
         return force
+    }  
+})
+
+const Damping = state => ({
+    damping: () => {
+        const force = new Vect(0, 0)
+        state.branch.forEach(l => force.sumTo(
+            l.s.damping(state.Pi, state.Po, l.m.Pi, l.m.Po)
+        ))
+        return force
     }
-    
 })
 
 const Mass = (prop, Pi, Po) => {
@@ -31,7 +40,8 @@ const Mass = (prop, Pi, Po) => {
         {},
         state,
         Velocity(state),
-        Springing(state)
+        Springing(state),
+        Damping(state)
     )
 }
 

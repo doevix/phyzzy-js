@@ -9,7 +9,7 @@ let tol = 1e-3
 // Basic forces that environment acts on masses
 const ForceCalc = state => ({
     weight: mass => state.gravity.mul(mass.mass),
-    drag: (mass, dt) => mass.vel(dt).mul(-state.drag),
+    drag: mass => mass.Pi.sub(mass.Po).mul(-state.drag),
 })
 
 // Wall collisions

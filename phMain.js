@@ -12,7 +12,7 @@ let delta = 1 / 50 // step frequency
 const ph = Phyzzy(100)
 const env = Environment(
     {x: 0, y: 9.81},
-    0.1,
+    5,
     {x: 0, y: 0, w: viewport.width / ph.scale, h: viewport.height / ph.scale}
 )
 const m1 = Mass(
@@ -30,9 +30,9 @@ const m3 = Mass(
         {x: viewport.width / 2 / ph.scale, y: 0.05},
         {x: 2.6, y: 0.1}
     )
-const s1 = Spring(1, 100, 0)
-const s2 = Spring(1, 100, 0)
-const s3 = Spring(1, 100, 0)
+const s1 = Spring(1, 100, 50)
+const s2 = Spring(1, 100, 50)
+const s3 = Spring(1, 100, 50)
 
 ph.addM(m1)
 ph.addM(m2)
@@ -52,6 +52,7 @@ const frame = () => {
             let f = env.weight(mass)
             .sum(env.drag(mass, delta))
             .sum(mass.springing())
+            .sum(mass.damping())
             return f.sum(env.friction(mass, f))
     }), delta)
 
