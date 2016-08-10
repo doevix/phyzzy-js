@@ -6,6 +6,7 @@ const Spring = require('./js/phyzzy/components/spring.js')
 const Environment = require('./js/phyzzy/components/environment.js')
 const User = require('./js/user.js')
 
+
 const viewport = document.getElementById('viewport')
 const ctx = viewport.getContext('2d')
 let delta = 1 / 50 // step frequency
