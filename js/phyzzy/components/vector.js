@@ -87,6 +87,9 @@ class Vect {
         // check if integer before printing. Otherwise, print decimal with 2 decimal places.
         return '(' + this.x.toFixed(fix) + ', ' + this.y.toFixed(fix) + ')'
     }
+    toFixed2d(fix) {
+        return new Vect(this.x.toFixed(fix), this.y.toFixed(fix))
+    }
 }
 
 module.exports = Vect

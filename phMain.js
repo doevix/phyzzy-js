@@ -4,10 +4,12 @@ const Phyzzy = require('./js/phyzzy/engine.js')
 const Mass = require('./js/phyzzy/components/mass.js')
 const Spring = require('./js/phyzzy/components/spring.js')
 const Environment = require('./js/phyzzy/components/environment.js')
+const User = require('./js/user.js')
+
 
 const viewport = document.getElementById('viewport')
 const ctx = viewport.getContext('2d')
-let delta = 1 / 50 // step frequency
+let delta = 1 / 50 // step time
 
 const ph = Phyzzy(100)
 const env = Environment(
@@ -41,11 +43,18 @@ ph.addS(m1, m2, s1)
 ph.addS(m2, m3, s2)
 ph.addS(m3, m1, s3)
 
-const frame = () => {
+
+const mouse = User.Mouser(ph.scale)
+
+mouse.init(viewport, ph)
+
+const frame = (frameTime) => {
     ctx.clearRect(0, 0, viewport.width, viewport.height)
+
     ph.drawSpring(ctx, '#000000')
     ph.drawMass(ctx, '#1DB322')
-    
+    mouse.hover(ph, ctx, '#3D3D3D')
+    mouse.select(ctx)
     
     ph.verlet(
         ph.m.map(mass => {
@@ -57,8 +66,11 @@ const frame = () => {
     }), delta)
     ph.collision(ph.m.map(mass => env.boundaryHit(mass) ))
 
+    mouse.dragMass()
+
     ctx.fillStyle = '#000000'
-    ctx.fillText(m1.Pi.sub(m1.Po).div(delta).display(5), 5, 495)
+    ctx.fillText('(' + mouse.coord().x + ', ' + mouse.coord().y + ')', 20, 20)
+    ctx.fillText('mousedown ' + mouse.isDown(), 20, 30)
 
     window.requestAnimationFrame(frame)
 }

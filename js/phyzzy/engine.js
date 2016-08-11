@@ -40,7 +40,7 @@ const CanvasDraw = state => ({
         const traces = []
         state.m.forEach(mass => {
             mass.branch.forEach(b => {
-                if (!traces.find(
+                if (!traces.find( // if trace has not yet been drawn.
                     t => b.m === t.m1 && mass === t.m2 || b.m === t.m2 && mass === t.m1)
                 ) {
                     // mesh is non-linear, traces must be tracked to avoid repetition
@@ -60,21 +60,6 @@ const CanvasDraw = state => ({
                 }
             })   
         })
-    }
-})
-
-const CanvasHighlight = state => ({
-    highlightMass: (mIdx, padding, ctx, color) => {
-        ctx.beginPath()
-        ctx.arc(
-            state.m[mIdx].Pi.x * state.scale,
-            state.m[mIdx].Pi.y * state.scale,
-            state.m[mIdx].rad * state.scale + padding,
-            0, Math.PI * 2, false
-        )
-        ctx.strokeStyle = color || '#000000'
-        ctx.stroke()
-        ctx.closePath()
     }
 })
 
@@ -118,8 +103,7 @@ const Phyzzy = (scale) => {
         AddToMesh(state),
         Integrator(state),
         Collider(state),
-        CanvasDraw(state),
-        CanvasHighlight(state)
+        CanvasDraw(state)
     )
 }
 
