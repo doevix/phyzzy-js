@@ -61,7 +61,7 @@ const Initializer = state => ({
                 state.coord.div(state.scale), state.hov.rad + padding / state.scale
             ) : false
 
-            if (isOnHov && state.sel != state.hov) {
+            if (isOnHov && state.sel !== state.hov) {
                 state.sel = state.hov
             } else state.sel = undefined
         }
