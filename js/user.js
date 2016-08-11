@@ -7,7 +7,6 @@ const padding = 10
 
 const Highlighter = state => ({
     hover: (phyzzy, ctx, hColor) => {
-        // mass is highlighted when function is called
         ctx.strokeStyle = hColor || '#000000'
         
         if (state.hov) {
@@ -25,6 +24,7 @@ const Highlighter = state => ({
     },
     select: (ctx, sColor) => {
         ctx.strokeStyle = sColor || '#000000'
+        
         if (state.sel) {
             ctx.beginPath()
             ctx.arc(
