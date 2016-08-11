@@ -18,17 +18,17 @@ const env = Environment(
     {x: 0, y: 0, w: viewport.width / ph.scale, h: viewport.height / ph.scale}
 )
 const m1 = Mass(
-        {mass: 0.1, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
+        {mass: 0.1, rad: 0.05, refl: 0.75, mu_s: 0.0, mu_k: 0.4},
         {x: viewport.width / 2 / ph.scale, y: 0.05},
         {x: 2.4, y: 0.05}
     )
 const m2 = Mass(
-        {mass: 0.1, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
+        {mass: 0.1, rad: 0.05, refl: 0.75, mu_s: 0.0, mu_k: 0.4},
         {x: viewport.width / 2 / ph.scale, y: 0.05},
         {x: 2.6, y: 0.05}
     )
 const m3 = Mass(
-        {mass: 0.1, rad: 0.05, refl: 0.75, mu_s: 0.8, mu_k: 0.4},
+        {mass: 0.1, rad: 0.05, refl: 0.75, mu_s: 0.0, mu_k: 0.4},
         {x: viewport.width / 2 / ph.scale, y: 0.05},
         {x: 2.6, y: 0.1}
     )
@@ -53,7 +53,7 @@ const frame = (frameTime) => {
 
     ph.drawSpring(ctx, '#000000')
     ph.drawMass(ctx, '#1DB322')
-    mouse.hover(ph, ctx, '#3D3D3D')
+    mouse.hover(ph, ctx, '#1DB322')
     mouse.select(ctx)
     
     ph.verlet(

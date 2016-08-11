@@ -71,7 +71,10 @@ const Initializer = state => ({
             if (state.drg) state.drg = undefined
         }
 
-        canvas.onmouseenter = e => state.mousedown = false
+        canvas.onmouseenter = e => {
+            state.drg = undefined
+            state.mousedown = false
+        }
 
         canvas.onmousemove = e => {
             // actions when mouse moves in the canvas
