@@ -9,7 +9,7 @@ const Highlighter = state => ({
     hover: (phyzzy, ctx, hColor) => {
         ctx.strokeStyle = hColor || '#000000'
         
-        if (state.hov) {
+        if (state.hov && state.sel !== state.hov) {
             ctx.beginPath()
             ctx.arc(
                 state.hov.Pi.x * state.scale,
@@ -24,7 +24,7 @@ const Highlighter = state => ({
     },
     select: (ctx, sColor) => {
         ctx.strokeStyle = sColor || '#000000'
-        
+
         if (state.sel) {
             ctx.beginPath()
             ctx.arc(
@@ -41,8 +41,12 @@ const Highlighter = state => ({
 })
 
 const Mover = state => ({
-    dragMass: phyzzy => {
-        
+    dragMass: () => {
+        if (state.sel && state.mousedown && state.hov === state.sel || state.drg) {
+            if (!state.drg) state.drg = state.sel 
+            state.sel.Pi.equ(state.coord.div(state.scale))
+            state.sel.Po.equ(state.coord.div(state.scale))
+        }
     }
 })
 
@@ -64,6 +68,7 @@ const Initializer = state => ({
         canvas.onmouseup = e => {
             // actions when mouse stops clicking
             if (state.mousedown) state.mousedown = false
+            if (state.drg) state.drg = undefined
         }
 
         canvas.onmouseenter = e => state.mousedown = false
@@ -98,12 +103,14 @@ const Mouser = scale => {
         scale,
         mousedown: false,
         hov: undefined,
-        sel: undefined
+        sel: undefined,
+        drg: undefined
     }
     return Object.assign(
         {},
         Initializer(state),
         Highlighter(state),
+        Mover(state),
         Output(state)
     )
 }

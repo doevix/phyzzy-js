@@ -48,7 +48,7 @@ const mouse = User.Mouser(ph.scale)
 
 mouse.init(viewport, ph)
 
-const frame = () => {
+const frame = (frameTime) => {
     ctx.clearRect(0, 0, viewport.width, viewport.height)
 
     ph.drawSpring(ctx, '#000000')
@@ -56,13 +56,15 @@ const frame = () => {
     mouse.hover(ph, ctx, '#3D3D3D')
     mouse.select(ctx)
 
-    ph.collision(ph.m.map(mass => env.boundaryHit(mass, delta) ))
+    ph.collision(ph.m.map(mass => env.boundaryHit(mass, delta)))
     ph.verlet(ph.m.map(mass => {
         let f = env.weight(mass)
                 .sum(env.drag(mass, delta))
                 .sum(mass.springing())
         return f.sum(env.friction(mass, f, delta))
     }), delta)
+
+    mouse.dragMass()
 
     ctx.fillStyle = '#000000'
     ctx.fillText('(' + mouse.coord().x + ', ' + mouse.coord().y + ')', 20, 20)
