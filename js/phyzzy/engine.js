@@ -34,7 +34,7 @@ const CanvasDraw = state => ({
         const traces = []
         state.m.forEach(mass => {
             mass.branch.forEach(b => {
-                if (!traces.find(
+                if (!traces.find( // if trace has not yet been drawn.
                     t => b.m === t.m1 && mass === t.m2 || b.m === t.m2 && mass === t.m1)
                 ) {
                     // mesh is non-linear, traces must be tracked to avoid repetition
