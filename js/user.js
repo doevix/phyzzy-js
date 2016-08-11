@@ -63,7 +63,10 @@ const Initializer = state => ({
 
             if (isOnHov && state.sel !== state.hov) {
                 state.sel = state.hov
-            } else state.sel = undefined
+            } else {
+                state.sel = undefined
+                state.hov = undefined
+            }
         }
         canvas.onmouseup = e => {
             // actions when mouse stops clicking
