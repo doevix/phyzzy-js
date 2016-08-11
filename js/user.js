@@ -5,64 +5,56 @@ const Vect = require('./phyzzy/components/vector.js')
 const highlightRadius = 5
 const padding = 10
 
-const MassHighlight = (phyzzy, mouseCoord, hColor) => {
-    ctx.strokeStyle = hColor || '#000000'
-    const hovered = ph.m.find(m => m.Pi.compare(mouseCoord, m.rad + 10 / ph.scale))
-    if (hovered) {
-        ctx.beginPath()
-        ctx.arc(
-            hovered.Pi.x * ph.scale,
-            hovered.Pi.y * ph.scale,
-            hovered.rad * ph.scale + 5,
-            0, 2 * Math.PI, false
-        )
-        ctx.stroke()
-        ctx.closePath()
-    }
-    return hovered
-}
-
 const Highlighter = state => ({
     hover: (phyzzy, ctx, hColor) => {
+        // mass is highlighted when function is called
         ctx.strokeStyle = hColor || '#000000'
-        state.hov = phyzzy.m.find(m => m.Pi.compare(state.coord.div(ph.scale), m.rad + padding / phyzzy.scale))
+        
         if (state.hov) {
             ctx.beginPath()
             ctx.arc(
-                state.hov.Pi.x * phyzzy.scale,
-                state.hov.Pi.y * phyzzy.scale,
-                state.hov.rad * phyzzy.scale + highlightRadius,
-                0, 2 * Math.PI, false
+                state.hov.Pi.x * state.scale,
+                state.hov.Pi.y * state.scale,
+                state.hov.rad * state.scale + highlightRadius,
+                0, 2 * Math.PI
             )
             ctx.stroke()
             ctx.closePath()
         }
         return state.hov
     },
-    select: (scale, ctx, sColor) => {
+    select: (ctx, sColor) => {
         ctx.strokeStyle = sColor || '#000000'
         if (state.sel) {
             ctx.beginPath()
             ctx.arc(
-                state.sel.Pi.x * scale,
-                state.sel.Pi.y * scale,
-                state.sel.rad * scale + highlightRadius,
+                state.sel.Pi.x * state.scale,
+                state.sel.Pi.y * state.scale,
+                state.sel.rad * state.scale + highlightRadius,
                 0, 2 * Math.PI, false
             )
             ctx.stroke()
             ctx.closePath()
         }
+        return state.sel
     } 
 })
 
+const Mover = state => ({
+    dragMass: phyzzy => {
+        
+    }
+})
+
 const Initializer = state => ({
-    init: (canvas, scale) => {
+    init: (canvas, phyzzy) => {
+
         canvas.onmousedown = e => {
+            // actions when mouse has been clicked
             if (!state.mousedown) state.mousedown = true
-            
-            const isOnHov = state.hov ?
-            state.hov.Pi.compare(
-                state.coord.div(scale), state.hov.rad + padding / scale
+
+            const isOnHov = state.hov ? state.hov.Pi.compare(
+                state.coord.div(state.scale), state.hov.rad + padding / state.scale
             ) : false
 
             if (isOnHov && state.sel != state.hov) {
@@ -70,29 +62,40 @@ const Initializer = state => ({
             } else state.sel = undefined
         }
         canvas.onmouseup = e => {
+            // actions when mouse stops clicking
             if (state.mousedown) state.mousedown = false
         }
+
         canvas.onmouseenter = e => state.mousedown = false
 
         canvas.onmousemove = e => {
+            // actions when mouse moves in the canvas
             const b = canvas.getBoundingClientRect()
             state.coord.equ({
                 x: e.clientX - b.left,
                 y: e.clientY - b.top
             })
+
+            state.hov = phyzzy.m.find(
+                m => m.Pi.compare(
+                    state.coord.div(state.scale),
+                    m.rad + padding / state.scale
+                )
+            )
         }
 
     }
 })
 
 const Output = state => ({
-    coord: scale => state.coord.div(scale).toFixed2d(2),
+    coord: scale => state.coord.div(scale || state.scale).toFixed2d(2),
     isDown: () => state.mousedown
 })
 
-const Mouser = (element, scale) => {
+const Mouser = scale => {
     const state = {
         coord: new Vect(0, 0),
+        scale,
         mousedown: false,
         hov: undefined,
         sel: undefined
@@ -106,6 +109,5 @@ const Mouser = (element, scale) => {
 }
 
 module.exports = {
-    MassHighlight,
-    Mouser,
+    Mouser
 }

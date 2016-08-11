@@ -44,9 +44,9 @@ ph.addS(m2, m3, s2)
 ph.addS(m3, m1, s3)
 
 
-const mouse = User.Mouser()
+const mouse = User.Mouser(ph.scale)
 
-mouse.init(viewport, ph.scale)
+mouse.init(viewport, ph)
 
 const frame = () => {
     ctx.clearRect(0, 0, viewport.width, viewport.height)
@@ -54,7 +54,7 @@ const frame = () => {
     ph.drawSpring(ctx, '#000000')
     ph.drawMass(ctx, '#1DB322')
     mouse.hover(ph, ctx, '#3D3D3D')
-    mouse.select(ph.scale, ctx)
+    mouse.select(ctx)
 
     ph.collision(ph.m.map(mass => env.boundaryHit(mass, delta) ))
     ph.verlet(ph.m.map(mass => {
@@ -65,7 +65,7 @@ const frame = () => {
     }), delta)
 
     ctx.fillStyle = '#000000'
-    ctx.fillText('(' + mouse.coord(ph.scale).x + ', ' + mouse.coord(ph.scale).y + ')', 20, 20)
+    ctx.fillText('(' + mouse.coord().x + ', ' + mouse.coord().y + ')', 20, 20)
     ctx.fillText('mousedown ' + mouse.isDown(), 20, 30)
 
     window.requestAnimationFrame(frame)
