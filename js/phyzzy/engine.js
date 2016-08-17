@@ -40,9 +40,8 @@ const CanvasDraw = state => ({
         const traces = []
         state.m.forEach(mass => {
             mass.branch.forEach(b => {
-                if (!traces.find( // if trace has not yet been drawn.
-                    t => b.m === t.m1 && mass === t.m2 || b.m === t.m2 && mass === t.m1)
-                ) {
+                const wasTraced = traces.find(t => b.m === t.m1 && mass === t.m2 || b.m === t.m2 && mass === t.m1)
+                if (!wasTraced) {
                     // mesh is non-linear, traces must be tracked to avoid repetition
                     ctx.beginPath()
                     ctx.moveTo (
@@ -64,13 +63,12 @@ const CanvasDraw = state => ({
 })
 
 const Integrator = state => ({
-    verlet: (forces, dt) => {
-        // verlet integrator
+    verlet: (forces, dt) => { // verlet integrator
+        // Array.map() recommended for obtaining force array
         const forcesIter = forces[Symbol.iterator]()
         state.m.forEach(mass => {
-            // Pi+1 = Pi + (Pi - Po) + (accel)*(dt^2)
-            let accel = forcesIter.next().value.div(mass.mass)
-            let delta_Pi = mass.Pi.sub(mass.Po).sum(accel.mul(dt * dt))
+            const accel = forcesIter.next().value.div(mass.mass)
+            const delta_Pi = mass.Pi.sub(mass.Po).sum(accel.mul(dt * dt))
             mass.Po.equ(mass.Pi)
             mass.Pi.sumTo(delta_Pi)
         })
@@ -94,8 +92,7 @@ const Collider = state => ({
 const Phyzzy = (scale) => {
     let state = {
         scale: scale, // size of 1 meter in pixels
-        m: [],
-        s: []
+        m: []
     }
     return Object.assign(
         state,
