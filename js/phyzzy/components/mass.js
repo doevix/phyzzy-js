@@ -37,7 +37,6 @@ const Mass = (prop, Pi, Po) => {
     }
     Object.assign(state, prop)
     return Object.assign(
-        {},
         state,
         Velocity(state),
         Springing(state),

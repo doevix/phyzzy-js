@@ -98,7 +98,6 @@ const Phyzzy = (scale) => {
         s: []
     }
     return Object.assign(
-        {},
         state,
         AddToMesh(state),
         Integrator(state),

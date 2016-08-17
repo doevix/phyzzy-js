@@ -67,7 +67,6 @@ const Environment = (gravity, drag, boundary) => {
         boundary
     }
     return Object.assign(
-        {},
         state,
         ForceCalc(state),
         BoundCalc(state)
