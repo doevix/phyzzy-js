@@ -90,6 +90,7 @@ class Vect {
     toFixed2d(fix) {
         return new Vect(this.x.toFixed(fix), this.y.toFixed(fix))
     }
+    // draws vector onto canvas
     canvasDraw(pos, scale, lenScale, ctx) {
         ctx.beginPath()
         ctx.moveTo(pos.x * scale, pos.y * scale)
