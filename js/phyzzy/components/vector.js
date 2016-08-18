@@ -44,7 +44,7 @@ class Vect {
     }
     // divides vector by a scalar value
     div (s) {
-        return s !== 0 ? new Vect(this.x / s, this.y / s) : new Vect()    
+        return s !== 0 ? new Vect(this.x / s, this.y / s) : new Vect()
     }
     // sums vector with another vector
     sum (A) {
