@@ -90,6 +90,13 @@ class Vect {
     toFixed2d(fix) {
         return new Vect(this.x.toFixed(fix), this.y.toFixed(fix))
     }
+    canvasDraw(pos, scale, lenScale, ctx) {
+        ctx.beginPath()
+        ctx.moveTo(pos.x * scale, pos.y * scale)
+        ctx.lineTo((pos.x + this.x * lenScale) * scale, (pos.y + this.y * lenScale) * scale)
+        ctx.stroke()
+        ctx.closePath()
+    }
 }
 
 module.exports = Vect
