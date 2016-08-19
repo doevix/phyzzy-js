@@ -44,8 +44,9 @@ const Mover = state => ({
     dragMass: () => {
         if (state.sel && state.mousedown && state.hov === state.sel || state.drg) {
             if (!state.drg) state.drg = state.sel 
-            state.sel.Pi.equ(state.coord.div(state.scale))
-            state.sel.Po.equ(state.coord.div(state.scale))
+            state.sel.Pi.equ(state.Pi.div(state.scale))
+            // state.sel.Po.equ(state.Pi.div(state.scale))
+            
         }
     }
 })
@@ -58,7 +59,7 @@ const Initializer = state => ({
             if (!state.mousedown) state.mousedown = true
 
             const isOnHov = state.hov ? state.hov.Pi.compare(
-                state.coord.div(state.scale), state.hov.rad + padding / state.scale
+                state.Pi.div(state.scale), state.hov.rad + padding / state.scale
             ) : false
 
             if (isOnHov && state.sel !== state.hov) {
@@ -82,14 +83,15 @@ const Initializer = state => ({
         canvas.onmousemove = e => {
             // actions when mouse moves in the canvas
             const b = canvas.getBoundingClientRect()
-            state.coord.equ({
+            state.Po.equ(state.Pi)
+            state.Pi.equ({
                 x: e.clientX - b.left,
                 y: e.clientY - b.top
             })
 
             state.hov = phyzzy.m.find(
                 m => m.Pi.compare(
-                    state.coord.div(state.scale),
+                    state.Pi.div(state.scale),
                     m.rad + padding / state.scale
                 )
             )
@@ -99,13 +101,15 @@ const Initializer = state => ({
 })
 
 const Output = state => ({
-    coord: scale => state.coord.div(scale || state.scale).toFixed2d(2),
-    isDown: () => state.mousedown
+    coord: scale => state.Pi.div(scale || state.scale),
+    isDown: () => state.mousedown,
+    dragging: () => state.drg
 })
 
 const Mouser = scale => {
     const state = {
-        coord: new Vect(0, 0),
+        Pi: new Vect(0, 0),
+        Po: new Vect(0, 0),
         scale,
         mousedown: false,
         hov: undefined,

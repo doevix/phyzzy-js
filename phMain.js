@@ -6,7 +6,6 @@ const Spring = require('./js/phyzzy/components/spring.js')
 const Environment = require('./js/phyzzy/components/environment.js')
 const User = require('./js/user.js')
 
-
 const viewport = document.getElementById('viewport')
 const ctx = viewport.getContext('2d')
 let delta = 1 / 50 // step time
@@ -55,21 +54,25 @@ const frame = (frameTime) => {
     ph.drawMass(ctx, '#1DB322')
     mouse.hover(ph, ctx, '#1DB322')
     mouse.select(ctx)
-    
-    ph.verlet(
-        ph.m.map(mass => {
-            let f = env.weight(mass)
-            .sum(env.drag(mass, delta))
-            .sum(mass.springing())
-            .sum(mass.damping())
-            return f.sum(env.friction(mass, f))
-    }), delta)
-    ph.collision(ph.m.map(mass => env.boundaryHit(mass) ))
+    let meshForce = ph.m.map(mass => {
+        let f = env.weight(mass)
+        .sum(env.drag(mass, delta))
+        .sum(mass.springing())
+        .sum(mass.damping())
+        f = f.sum(env.friction(mass, f))
+        f = mass !== mouse.dragging() ? f : f.mul(0)
+        // the following are drawing functions for visualizing F and V
+        // f.canvasDraw(mass.Pi, ph.scale, 0.1, ctx, '#FF5555')
+        // mass.vel(delta).canvasDraw(mass.Pi, ph.scale, 0.1, ctx, '#7777FF')
+        return f
+    })
+    ph.verlet(meshForce, delta)
+    ph.collision(ph.m.map(mass => env.boundaryHit(mass)))
 
-    mouse.dragMass()
+    mouse.dragMass(ph)
 
     ctx.fillStyle = '#000000'
-    ctx.fillText('(' + mouse.coord().x + ', ' + mouse.coord().y + ')', 20, 20)
+    ctx.fillText(mouse.coord().display(2), 20, 20)
     ctx.fillText('mousedown ' + mouse.isDown(), 20, 30)
 
     window.requestAnimationFrame(frame)

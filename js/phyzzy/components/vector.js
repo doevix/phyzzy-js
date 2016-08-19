@@ -91,7 +91,8 @@ class Vect {
         return new Vect(this.x.toFixed(fix), this.y.toFixed(fix))
     }
     // draws vector onto canvas
-    canvasDraw(pos, scale, lenScale, ctx) {
+    canvasDraw(pos, scale, lenScale, ctx, lineColor) {
+        ctx.strokeStyle = lineColor || '#000000'
         ctx.beginPath()
         ctx.moveTo(pos.x * scale, pos.y * scale)
         ctx.lineTo((pos.x + this.x * lenScale) * scale, (pos.y + this.y * lenScale) * scale)

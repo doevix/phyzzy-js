@@ -21,6 +21,15 @@ const AddToMesh = state => ({
     }
 })
 
+const DelFromMesh = state => ({
+    remM: mass => {
+
+    },
+    remS: spring => {
+
+    }
+})
+
 const CanvasDraw = state => ({
     drawMass: (ctx, colorM) => {
         state.m.forEach(mass => {
