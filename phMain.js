@@ -62,8 +62,8 @@ const frame = (frameTime) => {
         f = f.sum(env.friction(mass, f))
         f = mass !== mouse.dragging() ? f : f.mul(0)
         // the following are drawing functions for visualizing F and V
-        // f.canvasDraw(mass.Pi, ph.scale, 0.1, ctx, '#FF5555')
-        // mass.vel(delta).canvasDraw(mass.Pi, ph.scale, 0.1, ctx, '#7777FF')
+        f.canvasDraw(mass.Pi, ph.scale, 0.1, ctx, '#FF5555')
+        mass.vel(delta).canvasDraw(mass.Pi, ph.scale, 0.1, ctx, '#7777FF')
         return f
     })
     ph.verlet(meshForce, delta)
