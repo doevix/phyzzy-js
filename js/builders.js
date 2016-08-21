@@ -1,5 +1,5 @@
 // builders.js
-// generates meshes to be simulated by phyzzy
+// generates shapes and adds them to the mesh.
 
 'use strict'
 
