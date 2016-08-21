@@ -10,8 +10,20 @@ const Builders = require('./js/builders.js')
 
 const viewport = document.getElementById('viewport')
 const ctx = viewport.getContext('2d')
-let delta = 1 / 50 // step time
+const pauseButton = document.getElementById('userPause')
+let pause = pauseButton.value === 'pause' ? false : true
+pauseButton.addEventListener('click', e => {
+    if (!pause) {
+        pause = true
+        pauseButton.value = 'play'
+    } else {
+        pause = false
+        pauseButton.value = 'pause'
+    }
+}, false)
 
+
+let delta = 1 / 50 // step time
 const ph = Phyzzy(100)
 
 const env = Environment(
@@ -37,22 +49,23 @@ const frame = (frameTime) => {
     ph.drawMass(ctx, '#1DB322')
     mouse.hover(ph, ctx, '#1DB322')
     mouse.select(ctx)
-    let meshForce = ph.m.map(mass => {
-        let f = env.weight(mass)
-        .sum(env.drag(mass, delta))
-        .sum(mass.springing())
-        .sum(mass.damping())
-        f = f.sum(env.friction(mass, f))
-        f = mass !== mouse.dragging() ? f : f.mul(0)
-        // the following are drawing functions for visualizing F and V
-        f.canvasDraw(mass.Pi, ph.scale, 0.1, ctx, '#FF5555')
-        mass.vel(delta).canvasDraw(mass.Pi, ph.scale, 0.1, ctx, '#7777FF')
-        return f
-    })
-    ph.verlet(meshForce, delta)
-    ph.collision(ph.m.map(mass => env.boundaryHit(mass)))
+    if (!pause){
+        ph.verlet(ph.m.map(mass => {
+            let f = env.weight(mass)
+            .sum(env.drag(mass, delta))
+            .sum(mass.springing())
+            .sum(mass.damping())
+            f = f.sum(env.friction(mass, f))
+            f = mass !== mouse.dragging() ? f : f.mul(0)
+            // the following are drawing functions for visualizing F and V
+            f.canvasDraw(mass.Pi, ph.scale, 0.1, ctx, '#FF5555')
+            mass.vel(delta).canvasDraw(mass.Pi, ph.scale, 0.1, ctx, '#7777FF')
+            return f
+        }), delta)
+        ph.collision(ph.m.map(mass => env.boundaryHit(mass)))
+    }
 
-    mouse.dragMass(ph)
+    mouse.dragMass(pause)
 
     ctx.fillStyle = '#000000'
     ctx.fillText(mouse.coord().display(2), 20, 20)

@@ -41,11 +41,11 @@ const Highlighter = state => ({
 })
 
 const Mover = state => ({
-    dragMass: () => {
+    dragMass: isPaused => {
         if (state.sel && state.mousedown && state.hov === state.sel || state.drg) {
             if (!state.drg) state.drg = state.sel 
             state.sel.Pi.equ(state.Pi.div(state.scale))
-            // state.sel.Po.equ(state.Pi.div(state.scale))
+            if (isPaused) state.sel.Po.equ(state.Pi.div(state.scale))
             
         }
     }
