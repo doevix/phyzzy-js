@@ -1,47 +1,53 @@
+// builders.js
+// generates meshes to be simulated by phyzzy
+
 'use strict'
 
 const Mass = require('./phyzzy/components/mass.js')
 const Spring = require('./phyzzy/components/spring.js')
 
-const generateBox = (x, y, w, h, prop, rest, damp, eng) => {
+const FullLinkCreate = (vertices, property, spr, damp, engine) => {
+    const masses = vertices.map(vertex => Mass(property, vertex, vertex))
+    masses.forEach(mass => engine.addM(mass))
+    engine.m.forEach(mass => {
+        engine.m.forEach(otherM => {
+            if (otherM !== mass && masses.find(m => m === mass) && masses.find(m => m === otherM)) {
+                engine.addS(mass, otherM, Spring(mass.Pi.sub(otherM.Pi).mag(), spr, damp))
+            }
+        })
+    })
+}
+
+const generateBox = (x, y, w, h, prop, spr, damp, eng) => {
     const vertices = [
         {x: x, y: y},
         {x: w, y: y},
         {x: w, y: h},
         {x: x, y: h}
     ]
-    const massProp = Object.assign({}, prop)
-    const masses = vertices.map(vertex => Mass(massProp, vertex, vertex))
-    masses.forEach(mass => eng.addM(mass))
-    eng.m.forEach(mass => {
-        ph.m.forEach(otherM => {
-            if (otherM !== mass && masses.find(m => m === mass) && masses.find(m => m === otherM)) {
-                ph.addS(mass, otherM, Spring(mass.Pi.sub(otherM.Pi).mag(), rest, damp))
-            }
-        })
-    })
+    FullLinkCreate(vertices, Object.assign({}, prop), spr, damp, eng)
 }
 
-const generateTriangle = (x, y, b, h, prop, rest, damp, eng) => {
+const generateTriangle = (x, y, b, h, prop, spr, damp, eng) => {
     const vertices = [
         {x: x, y: y},
         {x: x + b, y: y},
         {x: x + b / 2, y: y + h}
     ]
-    const massProp = Object.assign({}, prop)
-    let masses = vertices.map(vertex => Mass(massProp, vertex, vertex))
+    FullLinkCreate(vertices, Object.assign({}, prop), spr, damp, eng)
+}
 
-    masses.forEach(mass => eng.addM(mass))
-    eng.m.forEach(mass => {
-        ph.m.forEach(otherM => {
-            if (otherM !== mass && masses.find(m => m === mass) && masses.find(m => m === otherM)) {
-                ph.addS(mass, otherM, Spring(mass.Pi.sub(otherM.Pi).mag(), rest, damp))
-            }
-        })
-    })
+const generateBlob = (x, y, w, h, N, prop, spr, damp, eng) => {
+    const randCoord = (p, l) => Math.random() * (l - p) + p
+    const vertices = []
+    for (let i = 0; i < N; i++) {
+        vertices.push({x: randCoord(x, w), y: randCoord(y, h)})
+    }
+    FullLinkCreate(vertices, Object.assign({}, prop), spr, damp, eng)
 }
 
 module.exports = {
     generateBox,
-    generateTriangle
+    generateTriangle,
+    generateBlob
 }
