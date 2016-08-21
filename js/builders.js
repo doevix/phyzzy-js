@@ -9,8 +9,8 @@ const Spring = require('./phyzzy/components/spring.js')
 const FullLinkCreate = (vertices, property, spr, damp, engine) => {
     const masses = vertices.map(vertex => Mass(property, vertex, vertex))
     masses.forEach(mass => engine.addM(mass))
-    engine.m.forEach(mass => {
-        engine.m.forEach(otherM => {
+    engine.mesh.forEach(mass => {
+        engine.mesh.forEach(otherM => {
             if (otherM !== mass && masses.find(m => m === mass) && masses.find(m => m === otherM)) {
                 engine.addS(mass, otherM, Spring(mass.Pi.sub(otherM.Pi).mag(), spr, damp))
             }

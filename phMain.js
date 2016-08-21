@@ -50,7 +50,7 @@ const frame = (frameTime) => {
     mouse.hover(ph, ctx, '#1DB322')
     mouse.select(ctx)
     if (!pause){
-        ph.verlet(ph.m.map(mass => {
+        ph.verlet(ph.mesh.map(mass => {
             let f = env.weight(mass)
             .sum(env.drag(mass, delta))
             .sum(mass.springing())
@@ -62,7 +62,7 @@ const frame = (frameTime) => {
             mass.vel(delta).canvasDraw(mass.Pi, ph.scale, 0.1, ctx, '#7777FF')
             return f
         }), delta)
-        ph.collision(ph.m.map(mass => env.boundaryHit(mass)))
+        ph.collision(ph.mesh.map(mass => env.boundaryHit(mass)))
     }
 
     mouse.dragMass(pause)

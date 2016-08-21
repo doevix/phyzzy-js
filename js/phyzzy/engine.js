@@ -6,9 +6,9 @@
 const AddToMesh = state => ({
     addM: mass => {
         // adds a new mass
-        if (!state.m.find(m => m === mass)) {
+        if (!state.mesh.find(m => m === mass)) {
             // each new mass added must be unique
-            state.m.push(mass)
+            state.mesh.push(mass)
         }
     },
     addS: (mass1, mass2, spring) => {
@@ -32,7 +32,7 @@ const DelFromMesh = state => ({
 
 const CanvasDraw = state => ({
     drawMass: (ctx, colorM) => {
-        state.m.forEach(mass => {
+        state.mesh.forEach(mass => {
             ctx.beginPath()
             ctx.arc (
                 mass.Pi.x * state.scale,
@@ -47,7 +47,7 @@ const CanvasDraw = state => ({
     },
     drawSpring: (ctx, colorS) => {
         const traces = []
-        state.m.forEach(mass => {
+        state.mesh.forEach(mass => {
             mass.branch.forEach(b => {
                 const wasTraced = traces.find(t => b.m === t.m1 && mass === t.m2 || b.m === t.m2 && mass === t.m1)
                 if (!wasTraced) {
@@ -75,7 +75,7 @@ const Integrator = state => ({
     verlet: (forces, dt) => { // verlet integrator
         // Array.map() recommended for obtaining force array
         const forcesIter = forces.values()
-        state.m.forEach(mass => {
+        state.mesh.forEach(mass => {
             const accel = forcesIter.next().value.div(mass.mass)
             const delta_Pi = mass.Pi.sub(mass.Po).sum(accel.mul(dt * dt))
             mass.Po.equ(mass.Pi)
@@ -87,7 +87,7 @@ const Integrator = state => ({
 const Collider = state => ({
     collision: collCoord => {
         const collCoordIter = collCoord.values()
-        state.m.forEach(mass => {
+        state.mesh.forEach(mass => {
             let cC_current = collCoordIter.next().value
             if (!mass.Po.equChk(cC_current.Po) || !mass.Pi.equChk(cC_current.Pi)) {
                 // change coordinates only when collisions have indicated it.
@@ -101,7 +101,7 @@ const Collider = state => ({
 const Phyzzy = (scale) => {
     let state = {
         scale: scale, // size of 1 meter in pixels
-        m: []
+        mesh: []
     }
     return Object.assign(
         state,
