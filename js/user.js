@@ -45,6 +45,7 @@ const Mover = state => ({
         if (state.sel && state.mousedown && state.hov === state.sel || state.drg) {
             if (!state.drg) state.drg = state.sel 
             state.sel.Pi.equ(state.Pi.div(state.scale))
+            // prevents unwanted speed changes after getting out of pause mode.
             if (isPaused) state.sel.Po.equ(state.Pi.div(state.scale))
             
         }
