@@ -90,7 +90,7 @@ const Initializer = state => ({
                 y: e.clientY - b.top
             })
 
-            state.hov = phyzzy.m.find(
+            state.hov = phyzzy.mesh.find(
                 m => m.Pi.compare(
                     state.Pi.div(state.scale),
                     m.rad + padding / state.scale
