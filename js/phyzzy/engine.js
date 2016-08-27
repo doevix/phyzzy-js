@@ -74,7 +74,7 @@ const CanvasDraw = state => ({
 const Integrator = state => ({
     verlet: (forces, dt) => { // verlet integrator
         // Array.map() recommended for obtaining force array
-        const forcesIter = forces.values()
+        const forcesIter = forces[Symbol.iterator]()//= forces.values()
         state.mesh.forEach(mass => {
             const accel = forcesIter.next().value.div(mass.mass)
             const delta_Pi = mass.Pi.sub(mass.Po).sum(accel.mul(dt * dt))
@@ -86,7 +86,7 @@ const Integrator = state => ({
 
 const Collider = state => ({
     collision: collCoord => {
-        const collCoordIter = collCoord.values()
+        const collCoordIter = collCoord[Symbol.iterator]()// collCoord.values()
         state.mesh.forEach(mass => {
             let cC_current = collCoordIter.next().value
             if (!mass.Po.equChk(cC_current.Po) || !mass.Pi.equChk(cC_current.Pi)) {
