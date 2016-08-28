@@ -1,4 +1,5 @@
 // phyzzy main webapp
+// mainly used for testing
 'use strict'
 const Phyzzy = require('./js/phyzzy/engine.js')
 const Mass = require('./js/phyzzy/components/mass.js')
