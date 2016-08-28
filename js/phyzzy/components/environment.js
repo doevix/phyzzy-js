@@ -6,10 +6,13 @@ const Vect = require('./vector.js')
 
 let tol = 1e-3
 
+const underOrigin = (o, xi, r) => xi > o - r
+const overLimit = (o, xi, r) => xi > o - r
+
 // Basic forces that environment acts on masses
 const ForceCalc = state => ({
     weight: mass => state.gravity.mul(mass.mass),
-    drag: mass => mass.Pi.sub(mass.Po).mul(-state.drag),
+    drag: mass => mass.Pi.sub(mass.Po).mul(-state.kd)
 })
 
 // Wall collisions
@@ -41,6 +44,30 @@ const BoundCalc = state => ({
         }
         return {Pi: n_Pi, Po: n_Po}
     },
+
+        squishyBounds: (mass, F, factorS, factorD) => {
+        // experimental spring-like boundary
+        let force = new Vect(0, 0)
+
+        const fCalc = (xi, xo, bound, xf) => factorS * (bound - xi) - factorD * (xi - xo) - xf * mass.refl
+
+        if (mass.Pi.y > state.boundary.h - mass.rad) {
+            // h boundary hit
+            force.y = fCalc(mass.Pi.y, mass.Po.y, state.boundary.h - mass.rad, F.y)
+        } else if (mass.Pi.y < state.boundary.y + mass.rad) {
+            // y boundary hit
+            force.y = fCalc(mass.Pi.y, mass.Po.y, state.boundary.y + mass.rad, F.y)
+        }
+        if (mass.Pi.x > state.boundary.w - mass.rad) {
+            // w boundary hit
+            force.x = fCalc(mass.Pi.x, mass.Po.x, state.boundary.w - mass.rad, F.x)
+        } else if (mass.Pi.x < state.boundary.x + mass.rad) {
+            // x boundary hit
+            force.x = fCalc(mass.Pi.x, mass.Po.x, state.boundary.x + mass.rad, F.x)
+        }
+        return force;
+    },
+
     friction: (mass, force) => {
         let friction = new Vect(0, 0)
         const posDiff = mass.Pi.sub(mass.Po)
@@ -60,10 +87,10 @@ const BoundCalc = state => ({
     }
 })
 
-const Environment = (gravity, drag, boundary) => {
+const Environment = (gravity, kd, boundary) => {
     let state = {
         gravity: new Vect(gravity.x, gravity.y),
-        drag,
+        kd,
         boundary
     }
     return Object.assign(
