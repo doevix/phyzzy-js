@@ -9,24 +9,13 @@ const Velocity = state => ({
     vel: dt => state.Pi.sub(state.Po).div(dt)
 })
 const Springing = state => ({
-    springing: () => {
-        // sum forces acted on mass by springs
-        const force = new Vect(0, 0)
-        state.branch.forEach(l => force.sumTo(
-                l.s.springing(state.Pi, l.m.Pi)
-            ))
-        return force
-    }  
+    // sum forces acted on mass by springs
+    springing: () => state.branch.reduce((lf, cf) => lf.sum(cf.s.springing(state.Pi, cf.m.Pi)), new Vect())
 })
 
 const Damping = state => ({
-    damping: () => {
-        const force = new Vect(0, 0)
-        state.branch.forEach(l => force.sumTo(
-            l.s.damping(state.Pi, state.Po, l.m.Pi, l.m.Po)
-        ))
-        return force
-    }
+    // sum forces acted on mass by dampers
+    damping: () => state.branch.reduce((lf, cf) => lf.sum(cf.s.damping(state.Pi, state.Po, cf.m.Pi, cf.m.Po)), new Vect())
 })
 
 const Mass = (prop, Pi, Po) => {
