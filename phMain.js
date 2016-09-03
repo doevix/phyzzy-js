@@ -29,7 +29,7 @@ const ph = Phyzzy(100)
 
 const env = Environment(
     {x: 0, y: 0},
-    0.0,
+    0,
     {x: 0, y: 0, w: viewport.width / ph.scale, h: viewport.height / ph.scale}
 )
 
@@ -41,7 +41,7 @@ const mProp = {mass: 0.1, rad: 0.05, refl: 0.75, mu_s: 0.5, mu_k: 0.4}
 const mPropQ = {mass: 0.1, rad: 0.05, refl: 0.75, mu_s: 0.5, mu_k: 0.4, q: 1}
 
 Builders.generateBox(1, 1, 2, 2, mProp, 100, 50, ph)
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 20; i++) {
     let rCoord = {
         x: env.boundary.x + Math.random() * env.boundary.w,
         y: env.boundary.y + Math.random() * env.boundary.h
