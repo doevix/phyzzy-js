@@ -23,11 +23,9 @@ const AddToMesh = state => ({
 
 const DelFromMesh = state => ({
     remM: mass => {
-
+        state.mesh = state.mesh.filter(checkedMass => checkedMass !== mass)
     },
-    remS: spring => {
-
-    }
+    remS: spring => state.mesh.forEach(mass => mass.branch = mass.branch.filter(leaf => leaf.s !== spring))
 })
 
 const CanvasDraw = state => ({
@@ -49,7 +47,7 @@ const CanvasDraw = state => ({
         const traces = []
         state.mesh.forEach(mass => {
             mass.branch.forEach(b => {
-                const wasTraced = traces.find(t => b.m === t.m1 && mass === t.m2 || b.m === t.m2 && mass === t.m1)
+                const wasTraced = traces.some(t => b.m === t.m1 && mass === t.m2 || b.m === t.m2 && mass === t.m1)
                 if (!wasTraced) {
                     // mesh is non-linear, traces must be tracked to avoid repetition
                     ctx.beginPath()
@@ -106,6 +104,7 @@ const Phyzzy = (scale) => {
     return Object.assign(
         state,
         AddToMesh(state),
+        DelFromMesh(state),
         Integrator(state),
         Collider(state),
         CanvasDraw(state)
