@@ -28,7 +28,7 @@ let delta = 1 / 50 // step time
 const ph = Phyzzy(100)
 
 const env = Environment(
-    {x: 0, y: 0},
+    {x: 0, y: 9.81},
     0,
     {x: 0, y: 0, w: viewport.width / ph.scale, h: viewport.height / ph.scale}
 )
@@ -38,19 +38,10 @@ const mouse = User.Mouser(ph.scale)
 mouse.init(viewport, ph)
 
 const mProp = {mass: 0.1, rad: 0.05, refl: 0.75, mu_s: 0.5, mu_k: 0.4}
-const mPropQ = {mass: 0.1, rad: 0.05, refl: 0.75, mu_s: 0.5, mu_k: 0.4, q: 1}
 
-Builders.generateBox(1, 1, 2, 2, mProp, 100, 50, ph)
-for (let i = 0; i < 20; i++) {
-    let rCoord = {
-        x: env.boundary.x + Math.random() * env.boundary.w,
-        y: env.boundary.y + Math.random() * env.boundary.h
-    }
-    ph.addM(Mass(mPropQ, rCoord, rCoord))
-}
+Builders.generateBox(1, 1, 1, 1, mProp, 100, 50, ph)
+Builders.generateBox(2, 2, 1, 1, mProp, 100, 50, ph)
 
-// ph.remS(ph.mesh[0].branch[0].s)
-ph.remM(ph.mesh[0])
 
 const frame = (frameTime) => {
     ctx.clearRect(0, 0, viewport.width, viewport.height)
@@ -62,7 +53,6 @@ const frame = (frameTime) => {
         ph.verlet(ph.mesh.map(mass => {
             let f = env.weight(mass).sum(env.drag(mass))
             .sum(mass.springing()).sum(mass.damping())
-            .sum(extraForces.Gravitation(mass, ph.mesh, 0.5))
             f = f.sum(env.friction(mass, f))
             f = mass !== mouse.dragging() ? f : f.mul(0)
             return f
