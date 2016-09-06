@@ -37,7 +37,7 @@ const mouse = User.Mouser(ph.scale)
 
 mouse.init(viewport, ph)
 
-const mProp = {mass: 0.1, rad: 0.05, refl: 0.75, mu_s: 0.5, mu_k: 0.4}
+const mProp = {mass: 0.1, rad: 0.05, refl: 0.75, mu_s: 0.4, mu_k: 0.4}
 
 Builders.generateBox(1, 1, 1, 1, mProp, 100, 50, ph)
 Builders.generateBox(2, 2, 1, 1, mProp, 100, 50, ph)
@@ -53,11 +53,12 @@ const frame = (frameTime) => {
         ph.verlet(ph.mesh.map(mass => {
             let f = env.weight(mass).sum(env.drag(mass))
             .sum(mass.springing()).sum(mass.damping())
-            f = f.sum(env.friction(mass, f))
+            // f = f.sum(env.friction(mass, f))
+            f = f.sum(env.squishyBounds(mass, f, 100, 0))
             f = mass !== mouse.dragging() ? f : f.mul(0)
             return f
         }), delta)
-        ph.collision(ph.mesh.map(mass => env.boundaryHit(mass)))
+        // ph.collision(ph.mesh.map(mass => env.boundaryHit(mass)))
     }
 
     mouse.dragMass(pause)

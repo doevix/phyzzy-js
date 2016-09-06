@@ -6,9 +6,6 @@ const Vect = require('./vector.js')
 
 let tol = 1e-3
 
-const underOrigin = (o, xi, r) => xi > o - r
-const overLimit = (o, xi, r) => xi > o - r
-
 // Basic forces that environment acts on masses
 const ForceCalc = state => ({
     weight: mass => state.gravity.mul(mass.mass),
@@ -49,7 +46,7 @@ const BoundCalc = state => ({
         // experimental spring-like boundary
         let force = new Vect(0, 0)
 
-        const fCalc = (xi, xo, bound, xf) => factorS * (bound - xi) - factorD * (xi - xo) - xf * mass.refl
+        const fCalc = (xi, xo, bound, xf) => factorS * (bound - xi) - factorD * (xi - xo) - xf
 
         if (mass.Pi.y > state.boundary.h - mass.rad) {
             // h boundary hit
