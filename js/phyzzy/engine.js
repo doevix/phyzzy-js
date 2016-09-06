@@ -6,14 +6,14 @@
 const AddToMesh = state => ({
     addM: mass => {
         // adds a new mass
-        if (!state.mesh.find(m => m === mass)) {
+        if (!state.mesh.some(m => m === mass)) {
             // each new mass added must be unique
             state.mesh.push(mass)
         }
     },
     addS: (mass1, mass2, spring) => {
         // links two masses with a spring
-        if (mass1 !== mass2 && !mass1.branch.find(b => b.m === mass2)) {
+        if (mass1 !== mass2 && !mass1.branch.some(b => b.m === mass2)) {
             // cannot link a mass to itself nor have two springs in link
             mass1.branch.push({m: mass2, s: spring})
             mass2.branch.push({m: mass1, s: spring})
