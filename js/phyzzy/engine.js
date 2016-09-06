@@ -23,6 +23,7 @@ const AddToMesh = state => ({
 
 const DelFromMesh = state => ({
     remM: mass => {
+        state.mesh.forEach(m => m.branch = m.branch.filter(leaf => leaf.m !== mass))
         state.mesh = state.mesh.filter(checkedMass => checkedMass !== mass)
     },
     remS: spring => state.mesh.forEach(mass => mass.branch = mass.branch.filter(leaf => leaf.s !== spring))

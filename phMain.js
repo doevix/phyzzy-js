@@ -49,7 +49,8 @@ for (let i = 0; i < 20; i++) {
     ph.addM(Mass(mPropQ, rCoord, rCoord))
 }
 
-ph.remS(ph.mesh[0].branch[0].s)
+// ph.remS(ph.mesh[0].branch[0].s)
+ph.remM(ph.mesh[0])
 
 const frame = (frameTime) => {
     ctx.clearRect(0, 0, viewport.width, viewport.height)
