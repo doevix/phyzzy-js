@@ -21,9 +21,9 @@ const FullLinkCreate = (vertices, property, spr, damp, engine) => {
 const generateBox = (x, y, w, h, prop, spr, damp, eng) => {
     const vertices = [
         {x: x, y: y},
-        {x: w, y: y},
-        {x: w, y: h},
-        {x: x, y: h}
+        {x: x + w, y: y},
+        {x: x + w, y: y + h},
+        {x: x, y: y + h}
     ]
     FullLinkCreate(vertices, Object.assign({}, prop), spr, damp, eng)
 }
