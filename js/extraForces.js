@@ -31,9 +31,33 @@ const Brownian = (factor) => {
     return new Vect(factor * signedRand(), factor * signedRand())
 }
 
+const SquishyBounds = (boundary, mass, factorS, factorD) => {
+    // experimental spring-like boundary
+    let force = new Vect(0, 0)
+
+    const fCalc = (xi, xo, bound) => factorS * (bound - xi) - (xi - xo) * (factorS - factorS * mass.refl) / factorS
+
+    if (mass.Pi.y > boundary.h - mass.rad) {
+        // h boundary hit
+        force.y = fCalc(mass.Pi.y, mass.Po.y, boundary.h - mass.rad)
+    } else if (mass.Pi.y < boundary.y + mass.rad) {
+        // y boundary hit
+        force.y = fCalc(mass.Pi.y, mass.Po.y, boundary.y + mass.rad)
+    }
+    if (mass.Pi.x > boundary.w - mass.rad) {
+        // w boundary hit
+        force.x = fCalc(mass.Pi.x, mass.Po.x, boundary.w - mass.rad)
+    } else if (mass.Pi.x < boundary.x + mass.rad) {
+        // x boundary hit
+        force.x = fCalc(mass.Pi.x, mass.Po.x, boundary.x + mass.rad)
+    }
+    return force;
+}
+
 module.exports = {
     Coulomb,
     Gravitation, 
-    Brownian
+    Brownian,
+    SquishyBounds
 }
 

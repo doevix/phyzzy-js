@@ -42,37 +42,14 @@ const BoundCalc = state => ({
         return {Pi: n_Pi, Po: n_Po}
     },
 
-        squishyBounds: (mass, F, factorS, factorD) => {
-        // experimental spring-like boundary
-        let force = new Vect(0, 0)
-
-        const fCalc = (xi, xo, bound, xf) => factorS * (bound - xi) - factorD * (xi - xo) - xf
-
-        if (mass.Pi.y > state.boundary.h - mass.rad) {
-            // h boundary hit
-            force.y = fCalc(mass.Pi.y, mass.Po.y, state.boundary.h - mass.rad, F.y)
-        } else if (mass.Pi.y < state.boundary.y + mass.rad) {
-            // y boundary hit
-            force.y = fCalc(mass.Pi.y, mass.Po.y, state.boundary.y + mass.rad, F.y)
-        }
-        if (mass.Pi.x > state.boundary.w - mass.rad) {
-            // w boundary hit
-            force.x = fCalc(mass.Pi.x, mass.Po.x, state.boundary.w - mass.rad, F.x)
-        } else if (mass.Pi.x < state.boundary.x + mass.rad) {
-            // x boundary hit
-            force.x = fCalc(mass.Pi.x, mass.Po.x, state.boundary.x + mass.rad, F.x)
-        }
-        return force;
-    },
-
     friction: (mass, force) => {
         let friction = new Vect(0, 0)
         const posDiff = mass.Pi.sub(mass.Po)
         if (mass.Pi.y > state.boundary.h - mass.rad - tol) {
-            if (Math.abs(posDiff.x) > tol /*|| Math.abs(force.x) > Math.abs(force.y * mass.m_us)*/) {
+            if (Math.abs(posDiff.x) > tol || Math.abs(force.x) > Math.abs(force.y * mass.m_us)) {
                 friction.sumTo({
                     x: -mass.mu_k * Math.abs(force.y) * Math.sign(posDiff.x),
-                    y: -force.y
+                    y: force.y > 0 ? -force.y : 0
                 })
             } else {
                 // NOTE: static friction condition mutates mass directly to ensure stopping
