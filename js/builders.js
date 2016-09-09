@@ -18,6 +18,16 @@ const FullLinkCreate = (vertices, property, spr, damp, engine) => {
     })
 }
 
+const generateLine = (coordA, coordB, prop, spr, damp, eng) => {
+    let segAB = {x: coordA.x - coordB.x, y: coordA.y - coordB.y}
+    let restlength = Math.sqrt(segAB.x * segAB.x + segAB.y * segAB.y)
+    let m1 = Mass(prop, coordA) 
+    let m2 = Mass(prop, coordB) 
+    eng.addM(m1)
+    eng.addM(m2)
+    eng.addS(m1, m2, Spring(restlength, spr, damp))
+}
+
 const generateBox = (x, y, w, h, prop, spr, damp, eng) => {
     const vertices = [
         {x: x, y: y},
@@ -47,6 +57,7 @@ const generateBlob = (x, y, w, h, N, prop, spr, damp, eng) => {
 }
 
 module.exports = {
+    generateLine,
     generateBox,
     generateTriangle,
     generateBlob
