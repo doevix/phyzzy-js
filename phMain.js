@@ -29,7 +29,7 @@ const ph = Phyzzy(100)
 
 const env = Environment(
     {x: 0, y: 9.81},
-    0,
+    1,
     {x: 0, y: 0, w: viewport.width / ph.scale, h: viewport.height / ph.scale}
 )
 
@@ -37,11 +37,15 @@ const mouse = User.Mouser(ph.scale)
 
 mouse.init(viewport, ph)
 
-const mProp = {mass: 0.1, rad: 0.05, refl: 0.75, mu_s: 0.4, mu_k: 0.4}
+const mPropA = {mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2}
+const mPropB = {mass: 0.5, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2}
 
-Builders.generateBox(1, 1, 1, 1, mProp, 100, 50, ph)
-Builders.generateBox(2, 2, 1, 1, mProp, 100, 50, ph)
+Builders.generateBox(1, 1, 1, 1, mPropA, 100, 50, ph)
+Builders.generateBox(2, 2, 1, 1, mPropA, 100, 50, ph)
+Builders.generateBox(3.5, 4.5, 1, 1, mPropB, 500, 250, ph)
+Builders.generateBox(0.05, 4.5, 1, 1, mPropB, 500, 250, ph)
 
+Builders.generateLine({x: 1, y: 1}, {x: 1.5, y: 1.5}, mPropA, 100, 50, ph)
 
 const frame = (frameTime) => {
     ctx.clearRect(0, 0, viewport.width, viewport.height)

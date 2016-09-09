@@ -46,7 +46,7 @@ const Mover = state => ({
             if (!state.drg) state.drg = state.sel 
             state.sel.Pi.equ(state.Pi.div(state.scale))
             // prevents unwanted speed changes after getting out of pause mode.
-            if (isPaused) state.sel.Po.equ(state.Pi.div(state.scale))
+            if (isPaused || state.drg.fixed) state.sel.Po.equ(state.Pi.div(state.scale))
             
         }
     }
