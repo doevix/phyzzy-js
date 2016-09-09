@@ -11,9 +11,9 @@ const Springer = state => ({
     }
 })
 const Damper = state => ({
-    damping: (Pi1, Po1, Pi2, Po2) => {
-        const seg12 = Pi1.sub(Pi2)
-        const diff12 = seg12.sub(Po1.sub(Po2))
+    damping: (massA, massB) => {
+        const seg12 = massA.Pi.sub(massB.Pi)
+        const diff12 = seg12.sub(massA.Po.sub(massB.Po))
         return diff12.pjt(seg12).mul(-state.resistence)
     }
 })
