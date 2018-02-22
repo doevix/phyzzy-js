@@ -1,5 +1,5 @@
 'use strict'
-const Vect = require('./phyzzy/components/vector.js')
+const Vect = require('./components/vector.js')
 
 
 const PropController = state => ({

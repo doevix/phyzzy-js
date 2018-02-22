@@ -1,7 +1,7 @@
 // extraForces.js
 // Special forces that can be added to the mapped force calculation.
 'use strict'
-const Vect = require('./phyzzy/components/vector.js')
+const Vect = require('./components/vector.js')
 
 const Coulomb = (mass1, mesh, Kc) => {
     // calculates electrostatic force via Coulombs law. (worst case: O(n^2))

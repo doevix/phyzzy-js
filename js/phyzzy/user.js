@@ -1,7 +1,7 @@
 // user.js
 // mousing functions for user interaction
 'use strict'
-const Vect = require('./phyzzy/components/vector.js')
+const Vect = require('./components/vector.js')
 const highlightRadius = 5
 const padding = 10
 

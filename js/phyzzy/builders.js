@@ -3,8 +3,8 @@
 
 'use strict'
 
-const Mass = require('./phyzzy/components/mass.js')
-const Spring = require('./phyzzy/components/spring.js')
+const Mass = require('./components/mass.js')
+const Spring = require('./components/spring.js')
 
 const FullLinkCreate = (vertices, property, spr, damp, engine) => {
     const masses = vertices.map(vertex => Mass(property, vertex, vertex))
