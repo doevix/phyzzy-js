@@ -14,7 +14,7 @@ const Coulomb = (mass1, mesh, Kc) => {
         }, new Vect())
     } else return new Vect()
 }
-
+    
 const Gravitation = (mass1, mesh, Kg) => {
     // calculates gravitational force via Newton's Law.
     // This is O(n^2) make sure mesh has less than 1000 masses for this.
