@@ -46,7 +46,18 @@ Builders.generateBox(3.5, 4.5, 1, 1, mPropB, 500, 250, ph)
 Builders.generateBox(0.05, 4.5, 1, 1, mPropB, 500, 250, ph)
 
 Builders.generateLine({x: 1, y: 1}, {x: 1.5, y: 1.5}, mPropA, 100, 50, ph)
+
+
+
 ph.mesh[16].fixed = true
+
+for (let i = 0; i < 20; i++) {
+    let m = Mass(mPropA,
+        {x: Math.random() * env.boundary.w, y: Math.random() * env.boundary.h},
+        {x: Math.random() * env.boundary.w, y: Math.random() * env.boundary.h}
+    )
+    ph.addM(m)
+}
 
 const frame = (frameTime) => {
     ctx.clearRect(0, 0, viewport.width, viewport.height)
