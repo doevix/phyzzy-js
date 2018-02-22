@@ -83,6 +83,19 @@ const Integrator = state => ({
     }
 })
 
+
+const FastIntegrator = state => ({
+    verlet: (forces, dt) => {
+        for (let i = 0; i < state.mesh.length; i++) {
+            let mass = state.mesh[i]
+            let accel = forces[i].div(mass.mass);
+            let delta_Pi = mass.Pi.sub(mass.Po).sum(accel.mul(dt * dt))
+            mass.Po.equ(mass.Pi)
+            mass.Pi.sumTo(delta_Pi)
+        }
+    }
+})
+
 const Collider = state => ({
     collision: collCoord => {
         const collCoordIter = collCoord[Symbol.iterator]()// collCoord.values()
@@ -97,7 +110,7 @@ const Collider = state => ({
     }
 })
 
-const Phyzzy = (scale) => {
+const Engine = (scale) => {
     let state = {
         scale: scale, // size of 1 meter in pixels
         mesh: []
@@ -112,4 +125,4 @@ const Phyzzy = (scale) => {
     )
 }
 
-module.exports = Phyzzy
+module.exports = Engine
