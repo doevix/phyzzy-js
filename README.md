@@ -23,6 +23,4 @@ Each of the modules contain factory functions (excluding vector.js) which
 generate their corresponding object. The engine.js module creates the Phyzzy 
 engine which simulates the movement via a fixed-time Verlet integrator.
 
-Current implementation uses Smoothie's standalone require.js by Torben Haase
-for in-browser require() support.
-(https://github.com/letorbi/smoothie)
+Current implementation uses browserify to generate ph.js.
