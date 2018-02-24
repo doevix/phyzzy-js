@@ -31,7 +31,7 @@ const Brownian = (factor) => {
     return new Vect(factor * signedRand(), factor * signedRand())
 }
 
-const SquishyBounds = (boundary, mass, factorS, factorD) => {
+const SquishyBounds = (boundary, mass, factorS) => {
     // experimental spring-like boundary
     let force = new Vect(0, 0)
 
