@@ -71,20 +71,6 @@ const CanvasDraw = state => ({
 })
 
 const Integrator = state => ({
-    verlet: (forces, dt) => { // verlet integrator
-        // Array.map() recommended for obtaining force array
-        const forcesIter = forces[Symbol.iterator]()//= forces.values()
-        state.mesh.forEach(mass => {
-            const accel = forcesIter.next().value.div(mass.mass)
-            const delta_Pi = mass.Pi.sub(mass.Po).sum(accel.mul(dt * dt))
-            mass.Po.equ(mass.Pi)
-            mass.Pi.sumTo(delta_Pi)
-        })
-    }
-})
-
-
-const FastIntegrator = state => ({
     verlet: (forces, dt) => {
         for (let i = 0; i < state.mesh.length; i++) {
             let mass = state.mesh[i]

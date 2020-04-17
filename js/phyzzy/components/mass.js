@@ -8,12 +8,8 @@ const Vect = require('./vector.js')
 const Velocity = state => ({
     vel: dt => state.Pi.sub(state.Po).div(dt)
 })
-const Springing = state => ({
-    // sum forces acted on mass by springs
-    springing: () => state.branch.reduce((lf, cf) => lf.sum(cf.s.springing(state.Pi, cf.m.Pi)), new Vect())
-})
 
-const FastSpringing = state => ({
+const Springing = state => ({
     // quicker implementation of springing force calculation
     springing: () => {
         const force = new Vect()
@@ -25,11 +21,6 @@ const FastSpringing = state => ({
 })
 
 const Damping = state => ({
-    // sum forces acted on mass by dampers
-    damping: () => state.branch.reduce((lf, cf) => lf.sum(cf.s.damping(state, cf.m)), new Vect())
-})
-
-const FastDamping = state => ({
     // quicker implementation of damping force calculation
     damping: () => {
         const force = new Vect()
@@ -50,8 +41,8 @@ const Mass = (prop, Pi, Po) => {
         state,
         prop,
         Velocity(state),
-        FastSpringing(state),
-        FastDamping(state)
+        Springing(state),
+        Damping(state)
     )
 }
 
