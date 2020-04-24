@@ -77,6 +77,11 @@ class Vect {
     pjt(A) {
         return A.magSq() > 0 ? A.mul(A.dot(this)).div(A.magSq()) : new Vect();
     }
+    // Get length between this vector and another.
+    segLen(A)
+    {
+        return this.sub(A).mag();
+    }
     // check if vector is equal to another
     equChk(V) {
         return V.x === this.x && V.y === this.y;
