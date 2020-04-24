@@ -54,6 +54,7 @@ const env = new PhyzzyEnvironment(
 const userState = {
     mousePos: new Vect(),
     touchPos: new Vect(),
+    touchPrv: new Vect(), // Track the last touch location
     highlight: undefined,
     select: undefined,
     drag: undefined,
@@ -120,14 +121,13 @@ viewport.addEventListener("touchstart", e => {
     userState.drag = userState.select;
     
 });
-const _tl = new Vect();
 viewport.addEventListener("touchmove", e => {
     const b = viewport.getBoundingClientRect();
-    _tl.equ(userState.touchPos);
+    userState.touchPrv.equ(userState.touchPos);
     userState.touchPos.set(e.touches[0].clientX - b.left , e.touches[0].clientY - b.top);
 
     if (userState.drag) {
-        const mMovement = userState.touchPos.sub(_tl).div(ph.scale);
+        const mMovement = userState.touchPos.sub(userState.touchPrv).div(ph.scale);
         userState.drag.ignore = true;
         userState.drag.Po.equ(userState.drag.Pi);
         userState.drag.Pi.sumTo(mMovement);
