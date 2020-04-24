@@ -21,6 +21,7 @@ const setPause = p => {
         pauseButton.value = "play";
     } else {
         pauseButton.value = "pause";
+        setConstruct(false);
     }
 }
 const setConstruct = c => {
@@ -28,6 +29,8 @@ const setConstruct = c => {
     if (construct)
     {
         constructButton.value = "move/select";
+        setDelete(false);
+        setPause(true);
     } else {
         constructButton.value = "construct";
     }
@@ -95,7 +98,10 @@ const userState = {
             const x = this.highlight.Pi.x * ph.scale;
             const y = this.highlight.Pi.y * ph.scale;
             const r = this.highlight.rad * ph.scale;
-            ctx.strokeStyle = "grey";
+            
+            if (!udelete) ctx.strokeStyle = "grey";
+            else ctx.strokeStyle = "red";
+
             ctx.beginPath();
             ctx.arc(x, y, r + r, 0, 2 * Math.PI);
             ctx.stroke();
@@ -128,7 +134,7 @@ viewport.addEventListener("mousemove", e => {
     const b = viewport.getBoundingClientRect();
     userState.mousePos.set(e.clientX - b.left , e.clientY - b.top);
     userState.highlight = ph.locateMass(userState.mousePos.div(ph.scale), 0.15);
-    if (userState.drag) {
+    if (userState.drag && !userState.construct) {
         const mMovement = new Vect(e.movementX / ph.scale, e.movementY / ph.scale);
         userState.drag.ignore = true;
         userState.drag.Po.equ(userState.drag.Pi);
@@ -139,10 +145,46 @@ viewport.addEventListener("mousemove", e => {
 });
 viewport.addEventListener("mousedown", e => {
     if (construct) {
-        
+        if (!userState.highlight && !userState.makeSpring)
+        {
+            ph.addM(new Mass({mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2},
+                userState.mousePos.div(ph.scale)));
+                userState.makeSpring = true;
+        } else if(userState.select && !userState.highlight && userState.makeSpring) {
+            let mB = new Mass({mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2},
+                userState.mousePos.div(ph.scale))
+            ph.addM(mB);
+            let len = userState.select.Pi.segLen(mB.Pi);
+            console.log(len);
+            ph.addS(userState.select, mB, new Spring(len, 100, 50));
+
+        } else if(userState.select && userState.highlight && userState.makeSpring) {
+            let len = userState.select.Pi.segLen(userState.highlight.Pi);
+            console.log(len);
+            ph.addS(userState.select, userState.highlight, new Spring(len, 100, 50));
+        } else if(userState.select && userState.highlight && !userState.makeSpring) {
+            userState.makeSpring = true;
+            let len = userState.select.Pi.segLen(userState.highlight.Pi);
+            console.log(len);
+            ph.addS(userState.select, userState.highlight, new Spring(len, 100, 50));
+        }
+    } else if (udelete)
+    {
+        if (userState.highlight)
+        {
+            ph.remM(userState.highlight);
+            userState.highlight = undefined;
+        }
     }
     userState.select = ph.locateMass(userState.mousePos.div(ph.scale), 0.15);
     userState.drag = userState.select;
+});
+viewport.addEventListener("dblclick", e => {
+    if (userState.select.Pi.isNear(userState.mousePos.div(ph.scale), 0.15))
+    {
+        userState.select = undefined;
+        userState.makeSpring = false;
+    }
 });
 viewport.addEventListener("mouseup", e => {
     if (userState.drag) {
@@ -186,25 +228,6 @@ viewport.addEventListener("touchend", e => {
         userState.drag = undefined;
     }
 });
-
-// Construct model.
-const mPropA = {mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2};
-const mPropB = {mass: 0.5, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2};
-
-Builders.generateBox(1, 1, 1, 1, mPropA, 100, 50, ph);
-Builders.generateBox(2, 2, 1, 1, mPropA, 100, 50, ph);
-Builders.generateBox(3.5, 4.5, 1, 1, mPropB, 500, 250, ph);
-Builders.generateBox(0.05, 4.5, 1, 1, mPropB, 500, 250, ph);
-Builders.generateLine({x: 1, y: 1}, {x: 1.5, y: 1.5}, mPropA, 100, 50, ph);
-ph.mesh[16].fix = true;
-
-for (let i = 0; i < 20; i++) {
-    let m = new Mass(mPropA,
-        {x: Math.random() * env.boundary.w, y: Math.random() * env.boundary.h},
-        {x: Math.random() * env.boundary.w, y: Math.random() * env.boundary.h}
-    );
-    ph.addM(m);
-}
 
 const frame = (frameTime) => {
     ctx.clearRect(0, 0, viewport.width, viewport.height);
