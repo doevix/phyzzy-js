@@ -53,6 +53,7 @@ const env = new PhyzzyEnvironment(
 // Initialize user events.
 const userState = {
     mousePos: new Vect(),
+    touchPos: new Vect(),
     highlight: undefined,
     select: undefined,
     drag: undefined,
@@ -111,6 +112,37 @@ viewport.addEventListener("mouseleave", e => {
         userState.drag = undefined;
     }    
 });
+viewport.addEventListener("touchstart", e => {
+    const b = viewport.getBoundingClientRect();
+    userState.touchPos.set(e.touches[0].clientX - b.left , e.touches[0].clientY - b.top);
+    userState.highlight = undefined;
+    userState.select = ph.locateMass(userState.touchPos.div(ph.scale), 0.15);
+    userState.drag = userState.select;
+    
+});
+const _tl = new Vect();
+viewport.addEventListener("touchmove", e => {
+    const b = viewport.getBoundingClientRect();
+    _tl.equ(userState.touchPos);
+    userState.touchPos.set(e.touches[0].clientX - b.left , e.touches[0].clientY - b.top);
+
+    if (userState.drag) {
+        const mMovement = userState.touchPos.sub(_tl).div(ph.scale);
+        userState.drag.ignore = true;
+        userState.drag.Po.equ(userState.drag.Pi);
+        userState.drag.Pi.sumTo(mMovement);
+        // Prevents masses from moving after dragging in pause mode.
+        if (pause) userState.drag.Po.equ(userState.drag.Pi);
+    }
+
+});
+viewport.addEventListener("touchend", e => {
+    userState.touchPos.clr();
+    if (userState.drag) {
+        userState.drag.ignore = false;
+        userState.drag = undefined;
+    }
+});
 
 // Construct model.
 const mPropA = {mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2};
@@ -148,9 +180,10 @@ const frame = (frameTime) => {
     }
     ctx.fillStyle = "black";
     ctx.fillText("Cursor: " + userState.mousePos.div(ph.scale).display(3), 20, 20);
-    ctx.fillText("Highlight: " + userState.highlight, 20, 40);
-    ctx.fillText("Select: " + userState.select, 20, 60);
-    ctx.fillText("Drag: " + userState.drag, 20, 80);
+    ctx.fillText("Touch: " + userState.touchPos.div(ph.scale).display(3), 20, 40);
+    ctx.fillText("Highlight: " + userState.highlight, 20, 60);
+    ctx.fillText("Select: " + userState.select, 20, 80);
+    ctx.fillText("Drag: " + userState.drag, 20, 100);
     window.requestAnimationFrame(frame)
 }
 
