@@ -202,12 +202,6 @@ class PhyzzyModel {
         for (let i = 0; i < this.mesh.length; i++) {
             let mass = this.mesh[i];
             mass.moveVerlet(forces[i], dt);
-            // if (!mass.fix && !mass.ignore) {
-            //     let accel = forces[i].div(mass.mass);
-            //     let delta_Pi = mass.Pi.sub(mass.Po).sum(accel.mul(dt * dt));
-            //     mass.Po.equ(mass.Pi);
-            //     mass.Pi.sumTo(delta_Pi);
-            // }
         }        
     }
     collision(collCoord) {
