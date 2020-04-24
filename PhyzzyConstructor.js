@@ -8,34 +8,65 @@ const ctx = viewport.getContext("2d");
 const pauseButton = document.getElementById("userPause");
 const constructButton = document.getElementById("userConstruct");
 const deleteButton = document.getElementById("userDelete");
-let pause = pauseButton.value === "pause" ? false : true;
-let construct = pauseButton.value === "construct" ? false : true;
-let udelete = pauseButton.value === "delete" ? false : true;
+
+// User mode states.
+let pause;
+let construct;
+let udelete;
+
+const setPause = p => {
+    pause = p;
+    if (pause)
+    {
+        pauseButton.value = "play";
+    } else {
+        pauseButton.value = "pause";
+    }
+}
+const setConstruct = c => {
+    construct = c;
+    if (construct)
+    {
+        constructButton.value = "move/select";
+    } else {
+        constructButton.value = "construct";
+    }
+}
+const setDelete = d => {
+    udelete = d;
+    if (udelete)
+    {
+        deleteButton.value = "select";
+        setConstruct(false);
+    } else {
+        deleteButton.value = "delete";
+    }
+}
+
+// Initilize modes.
+setPause(false);
+setConstruct(false);
+setDelete(false);
+
 pauseButton.addEventListener('click', e => {
     if (!pause) {
-        pause = true;
-        pauseButton.value = 'play';
+        setPause(true);
     } else {
-        pause = false;
-        pauseButton.value = 'pause';
+        setPause(false);
     }
 }, false);
 constructButton.addEventListener('click', e => {
     if (!construct) {
-        construct = true;
-        constructButton.value = 'construct';
+        setConstruct(true);
     } else {
-        construct = false;
-        constructButton.value = 'move/select';
+        setConstruct(false);
     }
 }, false);
 deleteButton.addEventListener('click', e => {
     if (!udelete) {
-        udelete = true;
-        deleteButton.value = 'delete';
+        setDelete(true);
     } else {
-        udelete = false;
-        deleteButton.value = 'select';
+        setDelete(false);
     }
 }, false);
 
@@ -58,6 +89,7 @@ const userState = {
     highlight: undefined,
     select: undefined,
     drag: undefined,
+    makeSpring: false,
     drawHighlight: function() {
         if (this.highlight) {
             const x = this.highlight.Pi.x * ph.scale;
@@ -79,8 +111,16 @@ const userState = {
             ctx.strokeStyle = "black";
             ctx.beginPath();
             ctx.arc(x, y, r + r, 0, 2 * Math.PI);
-            ctx.stroke();
             ctx.closePath();
+            ctx.stroke();
+            if (construct && this.makeSpring)
+            {
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(this.mousePos.x, this.mousePos.y);
+                ctx.closePath();
+                ctx.stroke();
+            }
         }
     }
 };
@@ -98,6 +138,9 @@ viewport.addEventListener("mousemove", e => {
     }
 });
 viewport.addEventListener("mousedown", e => {
+    if (construct) {
+        
+    }
     userState.select = ph.locateMass(userState.mousePos.div(ph.scale), 0.15);
     userState.drag = userState.select;
 });
