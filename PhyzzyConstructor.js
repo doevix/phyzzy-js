@@ -105,6 +105,12 @@ viewport.addEventListener("mouseup", e => {
         userState.drag = undefined;
     }
 });
+viewport.addEventListener("mouseleave", e => {
+    if (userState.drag) {
+        userState.drag.ignore = false;
+        userState.drag = undefined;
+    }    
+});
 
 // Construct model.
 const mPropA = {mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2};
