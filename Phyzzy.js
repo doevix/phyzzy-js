@@ -261,7 +261,7 @@ class PhyzzyEnvironment {
         this.kd = kd;
         this.boundary = boundary;
     }
-    weight (mass) {
+    weight(mass) {
         return this.gravity.mul(mass.mass);
     }
     drag(mass) {
