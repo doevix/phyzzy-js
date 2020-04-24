@@ -91,7 +91,8 @@ viewport.addEventListener("mousemove", e => {
         userState.drag.ignore = true;
         userState.drag.Po.equ(userState.drag.Pi);
         userState.drag.Pi.sumTo(mMovement);
-
+        // Prevents masses from moving after dragging in pause mode.
+        if (pause) userState.drag.Po.equ(userState.drag.Pi);
     }
 });
 viewport.addEventListener("mousedown", e => {
