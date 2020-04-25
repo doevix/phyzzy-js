@@ -9,67 +9,68 @@ const pauseButton = document.getElementById("userPause");
 const constructButton = document.getElementById("userConstruct");
 const deleteButton = document.getElementById("userDelete");
 
-// User mode states.
-let pause;
-let construct;
-let udelete;
-
-const setPause = p => {
-    pause = p;
-    if (pause)
-    {
-        pauseButton.value = "play";
-    } else {
-        pauseButton.value = "pause";
-        setConstruct(false);
-    }
-}
-const setConstruct = c => {
-    construct = c;
-    if (construct)
-    {
-        constructButton.value = "move/select";
-        setDelete(false);
-        setPause(true);
-    } else {
-        constructButton.value = "construct";
-    }
-}
-const setDelete = d => {
-    udelete = d;
-    if (udelete)
-    {
-        deleteButton.value = "select";
-        setConstruct(false);
-    } else {
-        deleteButton.value = "delete";
+// User mode control.
+const userMode = {
+    pause: false,
+    construct: false,
+    udelete: false,
+    setPause: function(p) {
+        this.pause = p;
+        if (this.pause)
+        {
+            pauseButton.value = "play";
+        } else {
+            pauseButton.value = "pause";
+            this.setConstruct(false);
+        }
+    },
+    setConstruct: function(c) {
+        this.construct = c;
+        if (this.construct)
+        {
+            constructButton.value = "move/select";
+            this.setDelete(false);
+            this.setPause(true);
+        } else {
+            constructButton.value = "construct";
+        }
+    },
+    setDelete: function(d) {
+        this.udelete = d;
+        if (this.udelete)
+        {
+            deleteButton.value = "select";
+            this.setConstruct(false);
+        } else {
+            deleteButton.value = "delete";
+        }
     }
 }
 
 // Initilize modes.
-setPause(false);
-setConstruct(false);
-setDelete(false);
+userMode.setPause(false);
+userMode.setConstruct(false);
+userMode.setDelete(false);
 
 pauseButton.addEventListener('click', e => {
-    if (!pause) {
-        setPause(true);
+    if (!userMode.pause) {
+        userMode.setPause(true);
     } else {
-        setPause(false);
+        userMode.setPause(false);
     }
 }, false);
 constructButton.addEventListener('click', e => {
-    if (!construct) {
-        setConstruct(true);
+    if (!userMode.construct) {
+        userMode.setConstruct(true);
     } else {
-        setConstruct(false);
+        userMode.setConstruct(false);
     }
 }, false);
 deleteButton.addEventListener('click', e => {
-    if (!udelete) {
-        setDelete(true);
+    if (!userMode.udelete) {
+        userMode.setDelete(true);
     } else {
-        setDelete(false);
+        userMode.setDelete(false);
     }
 }, false);
 
@@ -99,7 +100,7 @@ const userState = {
             const y = this.highlight.Pi.y * ph.scale;
             const r = this.highlight.rad * ph.scale;
             
-            if (!udelete) ctx.strokeStyle = "grey";
+            if (!userMode.udelete) ctx.strokeStyle = "grey";
             else ctx.strokeStyle = "red";
 
             ctx.beginPath();
@@ -119,7 +120,7 @@ const userState = {
             ctx.arc(x, y, r + r, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.stroke();
-            if (construct && this.makeSpring)
+            if (userMode.construct && this.makeSpring)
             {
                 ctx.beginPath();
                 ctx.moveTo(x, y);
@@ -134,17 +135,17 @@ viewport.addEventListener("mousemove", e => {
     const b = viewport.getBoundingClientRect();
     userState.mousePos.set(e.clientX - b.left , e.clientY - b.top);
     userState.highlight = ph.locateMass(userState.mousePos.div(ph.scale), 0.15);
-    if (userState.drag && !userState.construct) {
+    if (userState.drag && !userMode.construct) {
         const mMovement = new Vect(e.movementX / ph.scale, e.movementY / ph.scale);
         userState.drag.ignore = true;
         userState.drag.Po.equ(userState.drag.Pi);
         userState.drag.Pi.sumTo(mMovement);
         // Prevents masses from moving after dragging in pause mode.
-        if (pause) userState.drag.Po.equ(userState.drag.Pi);
+        if (userMode.pause) userState.drag.Po.equ(userState.drag.Pi);
     }
 });
 viewport.addEventListener("mousedown", e => {
-    if (construct) {
+    if (userMode.construct) {
         if (!userState.highlight && !userState.makeSpring)
         {
             ph.addM(new Mass({mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2},
@@ -160,7 +161,6 @@ viewport.addEventListener("mousedown", e => {
 
         } else if(userState.select && userState.highlight && userState.makeSpring) {
             let len = userState.select.Pi.segLen(userState.highlight.Pi);
-            console.log(len);
             ph.addS(userState.select, userState.highlight, new Spring(len, 100, 50));
         } else if(userState.select && userState.highlight && !userState.makeSpring) {
             userState.makeSpring = true;
@@ -168,7 +168,7 @@ viewport.addEventListener("mousedown", e => {
             console.log(len);
             ph.addS(userState.select, userState.highlight, new Spring(len, 100, 50));
         }
-    } else if (udelete)
+    } else if (userMode.udelete)
     {
         if (userState.highlight)
         {
@@ -235,7 +235,7 @@ const frame = (frameTime) => {
     userState.drawSelect();
     ph.drawSpring(ctx, '#000000');
     ph.drawMass(ctx, '#1DB322');
-    if (!pause){
+    if (!userMode.pause){
         ph.update(ph.mesh.map(mass => {
             let f = env.weight(mass).sum(env.drag(mass))
             .sum(mass.springing()).sum(mass.damping())
