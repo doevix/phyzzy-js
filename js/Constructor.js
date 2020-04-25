@@ -8,6 +8,7 @@ const ctx = viewport.getContext("2d");
 const pauseButton = document.getElementById("userPause");
 const constructButton = document.getElementById("userConstruct");
 const deleteButton = document.getElementById("userDelete");
+const clearButton = document.getElementById("userClear");
 
 // User mode control.
 const userMode = {
@@ -94,6 +95,12 @@ const userState = {
     select: undefined,
     drag: undefined,
     makeSpring: false,
+    reset: function() {
+        this.highlight = undefined;
+        this.select = undefined;
+        this.drag = undefined;
+        this.makeSpring = false;
+    },
     drawHighlight: function() {
         if (this.highlight) {
             const x = this.highlight.Pi.x * ph.scale;
@@ -203,8 +210,7 @@ viewport.addEventListener("touchstart", e => {
     userState.touchPos.set(e.touches[0].clientX - b.left , e.touches[0].clientY - b.top);
     userState.highlight = undefined;
     userState.select = ph.locateMass(userState.touchPos.div(ph.scale), 0.15);
-    userState.drag = userState.select;
-    
+    userState.drag = userState.select;   
 });
 viewport.addEventListener("touchmove", e => {
     const b = viewport.getBoundingClientRect();
@@ -219,7 +225,6 @@ viewport.addEventListener("touchmove", e => {
         // Prevents masses from moving after dragging in pause mode.
         if (pause) userState.drag.Po.equ(userState.drag.Pi);
     }
-
 });
 viewport.addEventListener("touchend", e => {
     userState.touchPos.clr();
@@ -228,13 +233,28 @@ viewport.addEventListener("touchend", e => {
         userState.drag = undefined;
     }
 });
+clearButton.addEventListener("click", () => {
+    userState.reset();
+    ph.clear();
+});
 
 const frame = (frameTime) => {
     ctx.clearRect(0, 0, viewport.width, viewport.height);
     userState.drawHighlight();
     userState.drawSelect();
+    
+    if(ph.mesh.length > 0) {
+        const center = ph.getCenter();
+        ctx.strokeStyle = "red";
+        ctx.beginPath();
+        ctx.arc(center.x * ph.scale, center.y * ph.scale, 5, 0, 2 * Math.PI);
+        ctx.closePath();
+        ctx.stroke();
+    }
+    
     ph.drawSpring(ctx, '#000000');
     ph.drawMass(ctx, '#1DB322');
+
     if (!userMode.pause){
         ph.update(ph.mesh.map(mass => {
             let f = env.weight(mass).sum(env.drag(mass))
@@ -244,6 +264,7 @@ const frame = (frameTime) => {
         }), delta);
         ph.collision(ph.mesh.map(mass => env.boundaryHit(mass)))
     }
+
     ctx.fillStyle = "black";
     ctx.fillText("Cursor: " + userState.mousePos.div(ph.scale).display(3), 20, 20);
     ctx.fillText("Touch: " + userState.touchPos.div(ph.scale).display(3), 20, 40);

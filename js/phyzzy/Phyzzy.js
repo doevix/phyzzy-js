@@ -199,9 +199,22 @@ class PhyzzyModel {
     remS(spring) {
         this.mesh.forEach(mass => mass.branch = mass.branch.filter(leaf => leaf.s !== spring));
     }
+    clear()
+    {
+        this.mesh = [];
+        this.springs = [];
+    }
     locateMass(pos, rad)
     {
         return this.mesh.find(mass => mass.Pi.isNear(pos, rad));
+    }
+    // Calculate approximate centroid of model.
+    getCenter()
+    {
+        const center = new Vect();
+        for(let m of this.mesh)
+            center.sumTo(m.Pi);
+        return center.div(this.mesh.length);
     }
     update(forces, dt) {
         for (let i = 0; i < this.mesh.length; i++) {
