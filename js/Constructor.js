@@ -24,6 +24,7 @@ const setPause = p => {
         pauseButton.value = "play";
     } else {
         pauseButton.value = "pause";
+        setConstruct(false);
     }
 }
 const setConstruct = c => {
@@ -31,6 +32,8 @@ const setConstruct = c => {
     if (mode.construct)
     {
         constructButton.value = "move/select";
+        setPause(true);
+        setDelete(false);
     } else {
         constructButton.value = "construct";
     }
@@ -40,12 +43,16 @@ const setDelete = d => {
     if (mode.udelete)
     {
         deleteButton.value = "select";
+        setConstruct(false);
     } else {
         deleteButton.value = "delete";
     }
 }
 // Button event listeners.
-pauseButton.addEventListener('click', () => {setPause(!mode.pause)}, false);
+pauseButton.addEventListener('click', () => {
+    setPause(!mode.pause);
+
+}, false);
 constructButton.addEventListener('click', () => setConstruct(!mode.construct), false);
 deleteButton.addEventListener('click', () => setDelete(!mode.udelete), false);
 
@@ -158,6 +165,56 @@ const frame = () => {
     prv = debugData(prv);
     window.requestAnimationFrame(frame);
 }
+
+// Constructor helper functions.
+const defaultMassProp = {mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2};
+const defaultSpringProp = {stiff: 100, damp: 50};
+const constructorCase1 = () => {
+    // User clicks empty space with no spring generating.
+    if (!user.highlight && !user.springFrom) {
+        const m = new Mass(defaultMassProp, phz.scaleV(user.mpos));
+        phz.addM(m);
+        user.select = m;
+        user.springFrom = user.select;
+    }
+}
+const constructorCase2 = () => {
+    // User clicks empty space with previously selected mass and spring generating
+    if (!user.highlight && user.springFrom) {
+        const m = new Mass(defaultMassProp, phz.scaleV(user.mpos));
+        const len = user.springFrom.Pi.segLen(m.Pi);
+        const s = new Spring(len, defaultSpringProp.stiff, defaultSpringProp.damp);
+        phz.addM(m);
+        phz.addS(user.springFrom, m, s);
+        user.select = m;
+        user.springFrom = user.select;
+    }
+}
+const constructorCase3 = () => {
+    // User clicks on existing mass with spring generating enabled.
+    if (user.highlight && user.springFrom)
+    {
+        user.springFrom = undefined;
+    }
+}
+const constructorCase4 = () => {
+    // User clicks on existing mass with spring generating disabled.
+    if (user.highlight && !user.springFrom) {
+        user.springFrom = user.select;
+    }
+}
+const constructorCase5 = () => {
+    // User clicks existing mass with spring generating enabled.
+    if (user.highlight && user.springFrom)
+    {
+        const len = user.springFrom.Pi.segLen(user.highlight.Pi);
+        const s = new Spring(len, defaultSpringProp.stiff, defaultSpringProp.damp);
+        phz.addS(user.springFrom, user.highlight, s);
+        user.select = user.highlight;
+        user.springFrom = user.select;
+    }
+}
+
 // Mouse event handlers.
 const mouseMoveHandler = e => {
     user.mpos.set(e.clientX - viewport.offsetLeft, e.clientY - viewport.offsetTop);
@@ -174,7 +231,10 @@ const mouseDownHandler = e => {
     if (user.drag) user.drag.ignore = true;
     if (mode.construct)
     {
-
+        if (!user.highlight && !user.springFrom) constructorCase1();
+        else if (!user.highlight && user.springFrom) constructorCase2();
+        else if (user.highlight && !user.springFrom) constructorCase4();
+        else if (user.highlight && user.springFrom) constructorCase5();
     }
     if (mode.udelete)
     {
@@ -190,7 +250,10 @@ const mouseUpHandler = e => {
     }
 }
 const doubleClickHandler = e => {
-
+    if (mode.construct)
+    {
+        constructorCase3();
+    }
 }
 // Touch event handlers.
 const tPos_capture = e => {
