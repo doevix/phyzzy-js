@@ -1,4 +1,5 @@
 // PhyzzyConstructor.js
+"use strict";
 
 // Initialize canvas element.
 const viewport = document.getElementById("viewport");
@@ -11,267 +12,222 @@ const deleteButton = document.getElementById("userDelete");
 const clearButton = document.getElementById("userClear");
 
 // User mode control.
-const userMode = {
+const mode = {
     pause: false,
     construct: false,
-    udelete: false,
-    setPause: function(p) {
-        this.pause = p;
-        if (this.pause)
-        {
-            pauseButton.value = "play";
-        } else {
-            pauseButton.value = "pause";
-            this.setConstruct(false);
-        }
-    },
-    setConstruct: function(c) {
-        this.construct = c;
-        if (this.construct)
-        {
-            constructButton.value = "move/select";
-            this.setDelete(false);
-            this.setPause(true);
-        } else {
-            constructButton.value = "construct";
-        }
-    },
-    setDelete: function(d) {
-        this.udelete = d;
-        if (this.udelete)
-        {
-            deleteButton.value = "select";
-            this.setConstruct(false);
-        } else {
-            deleteButton.value = "delete";
-        }
+    udelete: false
+};
+const setPause = p => {
+    mode.pause = p;
+    if (mode.pause)
+    {
+        pauseButton.value = "play";
+    } else {
+        pauseButton.value = "pause";
     }
 }
-
-// Initilize modes.
-userMode.setPause(false);
-userMode.setConstruct(false);
-userMode.setDelete(false);
-
-pauseButton.addEventListener('click', e => {
-    if (!userMode.pause) {
-        userMode.setPause(true);
+const setConstruct = c => {
+    mode.construct = c;
+    if (mode.construct)
+    {
+        constructButton.value = "move/select";
     } else {
-        userMode.setPause(false);
+        constructButton.value = "construct";
     }
-}, false);
-constructButton.addEventListener('click', e => {
-    if (!userMode.construct) {
-        userMode.setConstruct(true);
+}
+const setDelete = d => {
+    mode.udelete = d;
+    if (mode.udelete)
+    {
+        deleteButton.value = "select";
     } else {
-        userMode.setConstruct(false);
+        deleteButton.value = "delete";
     }
-}, false);
-deleteButton.addEventListener('click', e => {
-    if (!userMode.udelete) {
-        userMode.setDelete(true);
-    } else {
-        userMode.setDelete(false);
-    }
-}, false);
+}
+// Button event listeners.
+pauseButton.addEventListener('click', () => {setPause(!mode.pause)}, false);
+constructButton.addEventListener('click', () => setConstruct(!mode.construct), false);
+deleteButton.addEventListener('click', () => setDelete(!mode.udelete), false);
 
 // Initialize model.
-let delta = 1 / 50; // step time
-const ph = new PhyzzyModel(100);
+let delta = 1 / 60; // step time
+const phz = new PhyzzyModel(100);
 
 // Initialize environment.
 const env = new PhyzzyEnvironment(
     {x: 0, y: 9.81},
     1,
-    {x: 0, y: 0, w: viewport.width / ph.scale, h: viewport.height / ph.scale}
-);
+    {x: 0, y: 0, w: viewport.width / phz.scale, h: viewport.height / phz.scale}
+    );
+    
+const mProp = {mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2};
+Builders.generateBox(2, 2, 1, 1, mProp, 100, 50, phz);
+phz.mesh[1].fix = true;
 
-// Initialize user events.
-const userState = {
-    mousePos: new Vect(),
-    touchPos: new Vect(),
-    touchPrv: new Vect(), // Track the last touch location
-    highlight: undefined,
-    select: undefined,
-    drag: undefined,
-    makeSpring: false,
+// Indicate state of user's interaction with model.
+const user = {
+    mpos: new Vect(),       // Cursor position.
+    tpos: new Vect(),       // Touch position.
+    highlight: undefined,   // Highlighted mass.
+    select: undefined,      // Selected mass.
+    drag: undefined,        // Mass being dragged.
+    springFrom: undefined,  // Connect next mass with spring.
+    draw: function(model) {
+        if (this.highlight) {
+            ctx.strokeStyle = "#62B564";
+            ctx.beginPath();
+            ctx.arc(
+                this.highlight.Pi.x * model.scale,
+                this.highlight.Pi.y * model.scale,
+                this.highlight.rad * model.scale + 5,
+                0, 2 * Math.PI);
+                ctx.closePath();
+            ctx.stroke();
+        }
+        if (this.springFrom)
+        {
+            ctx.strokeStyle = "#62B564";
+            ctx.beginPath();
+            ctx.moveTo(this.springFrom.Pi.x * model.scale, this.springFrom.Pi.y * model.scale);
+            if (!this.highlight) ctx.lineTo(this.mpos.x, this.mpos.y);
+            else ctx.lineTo(this.highlight.Pi.x * model.scale, this.highlight.Pi.y * model.scale);
+            ctx.closePath();
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(
+                this.springFrom.Pi.x * model.scale,
+                this.springFrom.Pi.y * model.scale,
+                this.springFrom.rad * model.scale + 10,
+                0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.stroke();
+        }
+        if (this.select) {
+            ctx.strokeStyle = "black";
+            ctx.beginPath();
+            ctx.arc(
+                this.select.Pi.x * model.scale,
+                this.select.Pi.y * model.scale,
+                this.select.rad * model.scale + 5,
+                0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.stroke();
+        }
+    },
     reset: function() {
         this.highlight = undefined;
         this.select = undefined;
         this.drag = undefined;
-        this.makeSpring = false;
-    },
-    drawHighlight: function() {
-        if (this.highlight) {
-            const x = this.highlight.Pi.x * ph.scale;
-            const y = this.highlight.Pi.y * ph.scale;
-            const r = this.highlight.rad * ph.scale;
-            
-            if (!userMode.udelete) ctx.strokeStyle = "grey";
-            else ctx.strokeStyle = "red";
-
-            ctx.beginPath();
-            ctx.arc(x, y, r + r, 0, 2 * Math.PI);
-            ctx.stroke();
-            ctx.closePath();
-        }
-    },
-    drawSelect: function() {
-        if (this.select)
-        {
-            const x = this.select.Pi.x * ph.scale;
-            const y = this.select.Pi.y * ph.scale;
-            const r = this.select.rad * ph.scale;
-            ctx.strokeStyle = "black";
-            ctx.beginPath();
-            ctx.arc(x, y, r + r, 0, 2 * Math.PI);
-            ctx.closePath();
-            ctx.stroke();
-            if (userMode.construct && this.makeSpring)
-            {
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-                ctx.lineTo(this.mousePos.x, this.mousePos.y);
-                ctx.closePath();
-                ctx.stroke();
-            }
-        }
     }
 };
-viewport.addEventListener("mousemove", e => {
-    const b = viewport.getBoundingClientRect();
-    userState.mousePos.set(e.clientX - b.left , e.clientY - b.top);
-    userState.highlight = ph.locateMass(userState.mousePos.div(ph.scale), 0.15);
-    if (userState.drag && !userMode.construct) {
-        const mMovement = new Vect(e.movementX / ph.scale, e.movementY / ph.scale);
-        userState.drag.ignore = true;
-        userState.drag.Po.equ(userState.drag.Pi);
-        userState.drag.Pi.sumTo(mMovement);
-        // Prevents masses from moving after dragging in pause mode.
-        if (userMode.pause) userState.drag.Po.equ(userState.drag.Pi);
-    }
-});
-viewport.addEventListener("mousedown", e => {
-    if (userMode.construct) {
-        if (!userState.highlight && !userState.makeSpring)
-        {
-            ph.addM(new Mass({mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2},
-                userState.mousePos.div(ph.scale)));
-                userState.makeSpring = true;
-        } else if(userState.select && !userState.highlight && userState.makeSpring) {
-            let mB = new Mass({mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2},
-                userState.mousePos.div(ph.scale))
-            ph.addM(mB);
-            let len = userState.select.Pi.segLen(mB.Pi);
-            console.log(len);
-            ph.addS(userState.select, mB, new Spring(len, 100, 50));
 
-        } else if(userState.select && userState.highlight && userState.makeSpring) {
-            let len = userState.select.Pi.segLen(userState.highlight.Pi);
-            ph.addS(userState.select, userState.highlight, new Spring(len, 100, 50));
-        } else if(userState.select && userState.highlight && !userState.makeSpring) {
-            userState.makeSpring = true;
-            let len = userState.select.Pi.segLen(userState.highlight.Pi);
-            console.log(len);
-            ph.addS(userState.select, userState.highlight, new Spring(len, 100, 50));
-        }
-    } else if (userMode.udelete)
-    {
-        if (userState.highlight)
-        {
-            ph.remM(userState.highlight);
-            userState.highlight = undefined;
-        }
-    }
-    userState.select = ph.locateMass(userState.mousePos.div(ph.scale), 0.15);
-    userState.drag = userState.select;
-});
-viewport.addEventListener("dblclick", e => {
-    if (userState.select.Pi.isNear(userState.mousePos.div(ph.scale), 0.15))
-    {
-        userState.select = undefined;
-        userState.makeSpring = false;
-    }
-});
-viewport.addEventListener("mouseup", e => {
-    if (userState.drag) {
-        userState.drag.ignore = false;
-        userState.drag = undefined;
-    }
-});
-viewport.addEventListener("mouseleave", e => {
-    if (userState.drag) {
-        userState.drag.ignore = false;
-        userState.drag = undefined;
-    }    
-});
-viewport.addEventListener("touchstart", e => {
-    const b = viewport.getBoundingClientRect();
-    userState.touchPos.set(e.touches[0].clientX - b.left , e.touches[0].clientY - b.top);
-    userState.highlight = undefined;
-    userState.select = ph.locateMass(userState.touchPos.div(ph.scale), 0.15);
-    userState.drag = userState.select;   
-});
-viewport.addEventListener("touchmove", e => {
-    const b = viewport.getBoundingClientRect();
-    userState.touchPrv.equ(userState.touchPos);
-    userState.touchPos.set(e.touches[0].clientX - b.left , e.touches[0].clientY - b.top);
-
-    if (userState.drag) {
-        const mMovement = userState.touchPos.sub(userState.touchPrv).div(ph.scale);
-        userState.drag.ignore = true;
-        userState.drag.Po.equ(userState.drag.Pi);
-        userState.drag.Pi.sumTo(mMovement);
-        // Prevents masses from moving after dragging in pause mode.
-        if (pause) userState.drag.Po.equ(userState.drag.Pi);
-    }
-});
-viewport.addEventListener("touchend", e => {
-    userState.touchPos.clr();
-    if (userState.drag) {
-        userState.drag.ignore = false;
-        userState.drag = undefined;
-    }
-});
-clearButton.addEventListener("click", () => {
-    userState.reset();
-    ph.clear();
-});
-
-const frame = (frameTime) => {
+const debugData = prvTime => {
+    let curTime = performance.now();
+    let t_diff = curTime - prvTime;
+    ctx.fillStyle = "black";
+    ctx.fillText((1000 / t_diff).toFixed(3) + " fps", 10, 10);
+    ctx.fillText("Cursor: " + phz.scaleV(user.mpos).display(3), 10, 20);
+    ctx.fillText("Touch:" + phz.scaleV(user.tpos).display(3), 10, 30);
+    ctx.fillText("Highlight: " + user.highlight, 10, 40);
+    ctx.fillText("Select: " + user.select, 10, 50);
+    ctx.fillText("Drag: " + user.drag, 10, 60);
+    ctx.fillText("SpringFrom: " + user.springFrom, 10, 70);
+    return curTime;
+}
+// Main animation frame function.
+let prv = performance.now();
+const frame = () => {
     ctx.clearRect(0, 0, viewport.width, viewport.height);
-    userState.drawHighlight();
-    userState.drawSelect();
-    
-    if(ph.mesh.length > 0) {
-        const center = ph.getCenter();
-        ctx.strokeStyle = "red";
-        ctx.beginPath();
-        ctx.arc(center.x * ph.scale, center.y * ph.scale, 5, 0, 2 * Math.PI);
-        ctx.closePath();
-        ctx.stroke();
-    }
-    
-    ph.drawSpring(ctx, '#000000');
-    ph.drawMass(ctx, '#1DB322');
+    phz.drawSpring(ctx, '#000000');
+    phz.drawMass(ctx, '#1DB322');
+    user.highlight = phz.locateMass(phz.scaleV(user.mpos), 0.2);
+    user.draw(phz);
 
-    if (!userMode.pause){
-        ph.update(ph.mesh.map(mass => {
+    if (!mode.pause){
+        phz.update(phz.mesh.map(mass => {
             let f = env.weight(mass).sum(env.drag(mass))
             .sum(mass.springing()).sum(mass.damping())
             f = f.sum(env.friction(mass, f));
             return f;
         }), delta);
-        ph.collision(ph.mesh.map(mass => env.boundaryHit(mass)))
+        phz.collision(phz.mesh.map(mass => env.boundaryHit(mass)))
     }
 
-    ctx.fillStyle = "black";
-    ctx.fillText("Cursor: " + userState.mousePos.div(ph.scale).display(3), 20, 20);
-    ctx.fillText("Touch: " + userState.touchPos.div(ph.scale).display(3), 20, 40);
-    ctx.fillText("Highlight: " + userState.highlight, 20, 60);
-    ctx.fillText("Select: " + userState.select, 20, 80);
-    ctx.fillText("Drag: " + userState.drag, 20, 100);
-    window.requestAnimationFrame(frame)
+    prv = debugData(prv);
+    window.requestAnimationFrame(frame);
+}
+// Mouse event handlers.
+const mouseMoveHandler = e => {
+    user.mpos.set(e.clientX - viewport.offsetLeft, e.clientY - viewport.offsetTop);
+    if (user.drag)
+    {
+        const mMov = new Vect(e.movementX, e.movementY);
+        user.drag.Po.equ(user.drag.Pi);
+        user.drag.Pi.sumTo(phz.scaleV(mMov));
+    }
+}
+const mouseDownHandler = e => {
+    user.select = user.highlight;
+    user.drag = user.select;
+    if (user.drag) user.drag.ignore = true;
+}
+const mouseUpHandler = e => {
+    if (user.drag) 
+    {
+        user.drag.ignore = false;
+        user.drag = undefined;
+    }
+}
+const doubleClickHandler = e => {
+
+}
+// Touch event handlers.
+const tPos_capture = e => {
+    const pos = new Vect(
+        e.touches[0].clientX - viewport.offsetLeft,
+        e.touches[0].clientY - viewport.offsetTop);
+    return pos;
+}
+const tPos_prv = new Vect();
+const touchStartHandler = e => {
+    user.tpos.equ(tPos_capture(e));
+    user.select = phz.locateMass(phz.scaleV(user.tpos), 0.3);
+    user.drag = user.select;
+    if (user.drag) user.drag.ignore = true;
+}
+const touchMoveHandler = e => {
+    tPos_prv.equ(user.tpos);
+    user.tpos.equ(tPos_capture(e))
+    const tmov = new Vect();
+    tmov.equ(user.tpos.sub(tPos_prv));
+    if (user.drag) {
+        user.drag.Po.equ(user.drag.Pi);
+        user.drag.Pi.sumTo(phz.scaleV(tmov));
+    }
+}
+const touchEndHandler = e => {
+    if (user.drag) user.drag.ignore = false;
+    user.drag = undefined;
 }
 
+// Mousing events.
+viewport.addEventListener("mousemove", mouseMoveHandler, false);
+viewport.addEventListener("mousedown", mouseDownHandler, false);
+viewport.addEventListener("mouseup", mouseUpHandler, false);
+viewport.addEventListener("dblclick", doubleClickHandler, false);
+// Touch events.
+viewport.addEventListener("touchstart", touchStartHandler, false);
+viewport.addEventListener("touchmove", touchMoveHandler, false);
+viewport.addEventListener("touchend", touchEndHandler, false);
+
+// Clear model on clicking the clear button.
+clearButton.addEventListener('click', () => phz.clear(), false);
+
+// Initilize modes.
+setPause(false);
+setConstruct(false);
+setDelete(false);
+
+// Run constructor animation.
 frame();

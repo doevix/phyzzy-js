@@ -1,4 +1,5 @@
 // Phyzzy.js
+"use strict";
 
 // 2D vector class to handle calculations.
 class Vect {
@@ -168,6 +169,27 @@ class Mass {
             this.Po.equ(this.Pi);
         }
     }
+    draw(ctx, scale, color)
+    {
+        ctx.fillStyle = color || "black";
+        if (!this.fix)
+        {
+            ctx.beginPath();
+            ctx.arc(
+                this.Pi.x * scale,
+                this.Pi.y * scale,
+                this.rad * scale,
+                0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.fill();
+        } else {
+            ctx.fillRect(
+                (this.Pi.x - this.rad) * scale,
+                (this.Pi.y - this.rad) * scale,
+                this.rad * 2 * scale,
+                this.rad * 2 * scale);
+        }
+    }
 };
 
 class PhyzzyModel {
@@ -176,6 +198,16 @@ class PhyzzyModel {
         this.scale = scale;
         this.mesh = [];
         this.springs = [];
+    }
+    // Adjust a given vector to Phyzzy's scale.
+    scaleV(A)
+    {
+        return A.div(this.scale);
+    }
+    // Adjust a value to Phyzzy's scale.
+    scaleS(S)
+    {
+        return S / this.scale;
     }
     addM(mass) {
         if (!this.mesh.some(m => m === mass)) {
@@ -234,18 +266,7 @@ class PhyzzyModel {
         })
     }
     drawMass(ctx, colorM) {
-        this.mesh.forEach(mass => {
-            ctx.beginPath();
-            ctx.arc (
-                mass.Pi.x * this.scale,
-                mass.Pi.y * this.scale,
-                mass.rad * this.scale,
-                0, Math.PI * 2, false
-            );
-            ctx.fillStyle = colorM || '#000000';
-            ctx.fill();
-            ctx.closePath();
-        })
+        this.mesh.forEach(mass => mass.draw(ctx, this.scale, colorM));
     }
     drawSpring(ctx, colorS) {
         const traces = [];
