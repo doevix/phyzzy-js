@@ -74,7 +74,8 @@ const user = {
     springFrom: undefined,  // Connect next mass with spring.
     draw: function(model) {
         if (this.highlight) {
-            ctx.strokeStyle = "#62B564";
+            if (!mode.udelete) ctx.strokeStyle = "#62B564";
+            else ctx.strokeStyle = "red";
             ctx.beginPath();
             ctx.arc(
                 this.highlight.Pi.x * model.scale,
@@ -171,6 +172,15 @@ const mouseDownHandler = e => {
     user.select = user.highlight;
     user.drag = user.select;
     if (user.drag) user.drag.ignore = true;
+    if (mode.construct)
+    {
+
+    }
+    if (mode.udelete)
+    {
+        phz.remM(user.select);
+        user.reset();
+    }
 }
 const mouseUpHandler = e => {
     if (user.drag) 
@@ -207,6 +217,7 @@ const touchMoveHandler = e => {
     }
 }
 const touchEndHandler = e => {
+    user.tpos.clr();
     if (user.drag) user.drag.ignore = false;
     user.drag = undefined;
 }
