@@ -127,6 +127,11 @@ const user = {
     }
 };
 
+// Waveform settings.
+let amp = 1;
+let wSpd = 0.5;
+let t = 0;
+
 const debugData = prvTime => {
     let curTime = performance.now();
     let t_diff = curTime - prvTime;
@@ -138,6 +143,10 @@ const debugData = prvTime => {
     ctx.fillText("Select: " + user.select, 10, 50);
     ctx.fillText("Drag: " + user.drag, 10, 60);
     ctx.fillText("SpringFrom: " + user.springFrom, 10, 70);
+    ctx.fillText("Wave amplitude: " + amp, 10, 80);
+    ctx.fillText("Wave speed: " + wSpd, 10, 90);
+    ctx.fillText("Wave time: " + t.toFixed(3), 10, 100);
+    ctx.fillText("Wave val: " + (amp * 0.5 * (1 + Math.sin(t * wSpd))).toFixed(3), 10, 110);
     return curTime;
 }
 // Main animation frame function.
@@ -150,13 +159,15 @@ const frame = () => {
     user.draw(phz);
 
     if (!mode.pause){
+        phz.updateActuators(amp, wSpd, t);
         phz.update(phz.mesh.map(mass => {
             let f = env.weight(mass).sum(env.drag(mass))
             .sum(mass.springing()).sum(mass.damping())
             f = f.sum(env.friction(mass, f));
             return f;
         }), delta);
-        phz.collision(phz.mesh.map(mass => env.boundaryHit(mass)))
+        phz.collision(phz.mesh.map(mass => env.boundaryHit(mass)));
+        t += delta;
     }
 
     prv = debugData(prv);
@@ -309,7 +320,12 @@ setDelete(false);
 
 // Construct a basic model.
 const mProp = {mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2};
-Builders.generateBox(2, 2, 1, 1, mProp, 100, 50, phz);
-
+// Builders.generateBox(2, 2, 1, 1, mProp, 100, 50, phz);
+Builders.generateLine({x: 2.5, y: 1}, {x: 3.5, y: 1}, mProp, 100, 50, phz);
+Builders.generateLine({x: 4.5, y: 1}, {x: 5.5, y: 1}, mProp, 100, 50, phz);
+phz.mesh[0].fix = true;
+phz.mesh[2].fix = true;
+phz.attachSpringActuator(phz.springs[0], 0, 0, 1);
+phz.attachSpringActuator(phz.springs[1], 1, 0, 1);
 // Run constructor animation.
 frame();

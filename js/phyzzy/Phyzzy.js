@@ -220,23 +220,50 @@ class Mass {
 
 class SpringActuator
 {
-    constructor(spring, mode)
+    constructor(spring, mode, phase = 0, sense = 0.5)
     {
         this.spring = spring;
-        this.mode = mode;
+        this.mode = mode; // 0 = modify restlength, 1 = modify stiffness
         this.defaultRest = spring.restlength;
         this.defaultStiff = spring.stiffness;
+
+        this.phase = phase; // 0 to 2pi
+        this.sense = sense; // 0 to 1
+    }
+    act(amp, wSpd, t) {
+        // Waveform oscillates between zero and 1
+        const factor = amp * this.sense * (1 + Math.sin(wSpd * t + this.phase / wSpd));
+        if (this.mode === 0) {
+            // Spring length modifies from zero to twice its original length.
+            this.spring.restlength = this.defaultRest * factor;
+        } else {
+            // Spring stiffness modifies from zero to its original length.
+            this.spring.stiffness = this.defaultStiff * (factor / 2);
+        }
     }
 };
 
 class MassActuator
 {
-    constructor(mass, mode)
+    constructor(mass, mode, maxMult = 1)
     {
         this.mass = mass;
-        this.mode = mode;
+        this.mode = mode; // 0 = modify radius, 1 = modify mass
         this.defaultRad = mass.rad;
         this.defaultMass = mass.mass;
+        this.maxMult = maxMult; // increment multiplier.
+        this.phase = phase;
+        this.sense = sense;
+    }
+    act(amp, wSpd, t) {
+        // Waveform oscillates between zero and 1
+        const factor = 0.5 * this.sense * amp * (1 + Math.sin(wSpd * t * this.mult + this.phase / wSpd));
+        if (mode === 0)
+        {
+            this.mass.rad = this.defaultRad * (1 + factor * this.maxMult);
+        } else {
+            this.mass.mass = this.defaultMass * (1 + factor * this.maxMult);
+        }
     }
 };
 
@@ -282,6 +309,11 @@ class PhyzzyModel {
     remS(spring) {
         this.mesh.forEach(mass => mass.branch = mass.branch.filter(leaf => leaf.s !== spring));
     }
+    attachSpringActuator(s, mode, phase, sense)
+    {
+        const a = new SpringActuator(s, mode, phase, sense);
+        this.actuators.push(a);
+    }
     clear()
     {
         this.mesh = [];
@@ -298,6 +330,9 @@ class PhyzzyModel {
         for(let m of this.mesh)
             center.sumTo(m.Pi);
         return center.div(this.mesh.length);
+    }
+    updateActuators(amp, wSpd, t) {
+        this.actuators.forEach(a => a.act(amp, wSpd, t));
     }
     update(forces, dt) {
         for (let i = 0; i < this.mesh.length; i++) {
