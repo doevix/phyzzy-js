@@ -1,4 +1,4 @@
-// PhyzzyConstructor.js
+// Constructor.js
 "use strict";
 
 // Initialize canvas element.
@@ -168,48 +168,36 @@ const defaultMassProp = {mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2};
 const defaultSpringProp = {stiff: 100, damp: 50};
 const constructorCase1 = () => {
     // User clicks empty space with no spring generating.
-    if (!user.highlight && !user.springFrom) {
-        const m = new Mass(defaultMassProp, phz.scaleV(user.mpos));
-        phz.addM(m);
-        user.select = m;
-        user.springFrom = user.select;
-    }
+    const m = new Mass(defaultMassProp, phz.scaleV(user.mpos));
+    phz.addM(m);
+    user.select = m;
+    user.springFrom = user.select;
 }
 const constructorCase2 = () => {
     // User clicks empty space with previously selected mass and spring generating
-    if (!user.highlight && user.springFrom) {
-        const m = new Mass(defaultMassProp, phz.scaleV(user.mpos));
-        const len = user.springFrom.Pi.len(m.Pi);
-        const s = new Spring(len, defaultSpringProp.stiff, defaultSpringProp.damp);
-        phz.addM(m);
-        phz.addS(user.springFrom, m, s);
-        user.select = m;
-        user.springFrom = user.select;
-    }
+    const m = new Mass(defaultMassProp, phz.scaleV(user.mpos));
+    const len = user.springFrom.Pi.len(m.Pi);
+    const s = new Spring(len, defaultSpringProp.stiff, defaultSpringProp.damp);
+    phz.addM(m);
+    phz.addS(user.springFrom, m, s);
+    user.select = m;
+    user.springFrom = user.select;
 }
 const constructorCase3 = () => {
     // User clicks on existing mass with spring generating enabled.
-    if (user.highlight && user.springFrom)
-    {
-        user.springFrom = undefined;
-    }
+    user.springFrom = undefined;
 }
 const constructorCase4 = () => {
     // User clicks on existing mass with spring generating disabled.
-    if (user.highlight && !user.springFrom) {
-        user.springFrom = user.select;
-    }
+    user.springFrom = user.select;
 }
 const constructorCase5 = () => {
     // User clicks existing mass with spring generating enabled.
-    if (user.highlight && user.springFrom)
-    {
-        const len = user.springFrom.Pi.len(user.highlight.Pi);
-        const s = new Spring(len, defaultSpringProp.stiff, defaultSpringProp.damp);
-        phz.addS(user.springFrom, user.highlight, s);
-        user.select = user.highlight;
-        user.springFrom = user.select;
-    }
+    const len = user.springFrom.Pi.len(user.highlight.Pi);
+    const s = new Spring(len, defaultSpringProp.stiff, defaultSpringProp.damp);
+    phz.addS(user.springFrom, user.highlight, s);
+    user.select = user.highlight;
+    user.springFrom = user.select;
 }
 
 // Mouse event handlers.
@@ -227,13 +215,13 @@ const mouseDownHandler = e => {
     user.select = user.highlight;
     user.drag = user.select;
     if (user.drag) user.drag.ignore = true;
-    if (mode.construct)
+    if (mode.construct && e.which === 1)
     {
         if (!user.highlight && !user.springFrom) constructorCase1();
         else if (!user.highlight && user.springFrom) constructorCase2();
         else if (user.highlight && !user.springFrom) constructorCase4();
         else if (user.highlight && user.springFrom) constructorCase5();
-    }
+    } else user.springFrom = undefined;
     if (mode.udelete)
     {
         phz.remM(user.select);
@@ -253,6 +241,17 @@ const doubleClickHandler = e => {
         constructorCase3();
     }
 }
+const mouseLeaveHandler = e => {
+    if (user.drag) user.drag.ignore = false;
+    user.drag = undefined;
+    user.highlight = undefined;
+    user.springFrom = undefined;
+}
+const contextMenuHandler = e => {
+    // Disable context menu.
+    e.preventDefault();
+}
+
 // Touch event handlers.
 const tPos_capture = e => {
     const pos = new Vect(
@@ -289,6 +288,8 @@ viewport.addEventListener("mousemove", mouseMoveHandler, false);
 viewport.addEventListener("mousedown", mouseDownHandler, false);
 viewport.addEventListener("mouseup", mouseUpHandler, false);
 viewport.addEventListener("dblclick", doubleClickHandler, false);
+viewport.addEventListener("mouseleave", mouseLeaveHandler, false);
+viewport.addEventListener("contextmenu", contextMenuHandler, false);
 // Touch events.
 viewport.addEventListener("touchstart", touchStartHandler, false);
 viewport.addEventListener("touchmove", touchMoveHandler, false);
@@ -296,6 +297,7 @@ viewport.addEventListener("touchend", touchEndHandler, false);
 
 // Clear model on clicking the clear button.
 clearButton.addEventListener('click', () => {
+    if (confirm("You are about to clear the model. Continue?"));
     phz.clear();
     user.reset();
 }, false);
