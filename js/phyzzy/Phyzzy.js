@@ -201,7 +201,7 @@ class SpringActuator
         this.defaultRest = spring.restlength;
         this.defaultStiff = spring.stiffness;
     }
-}
+};
 
 class MassActuator
 {
@@ -212,7 +212,7 @@ class MassActuator
         this.defaultRad = mass.rad;
         this.defaultMass = mass.mass;
     }
-}
+};
 
 class PhyzzyModel {
     constructor(scale)
