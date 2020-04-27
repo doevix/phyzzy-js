@@ -253,6 +253,13 @@ const doubleClickHandler = e => {
         constructorCase3();
     }
 }
+const mouseLeaveHandler = e => {
+    if (user.drag) user.drag.ignore = false;
+    user.drag = undefined;
+    user.highlight = undefined;
+    user.springFrom = undefined;
+}
+
 // Touch event handlers.
 const tPos_capture = e => {
     const pos = new Vect(
@@ -289,6 +296,7 @@ viewport.addEventListener("mousemove", mouseMoveHandler, false);
 viewport.addEventListener("mousedown", mouseDownHandler, false);
 viewport.addEventListener("mouseup", mouseUpHandler, false);
 viewport.addEventListener("dblclick", doubleClickHandler, false);
+viewport.addEventListener("mouseleave", mouseLeaveHandler, false);
 // Touch events.
 viewport.addEventListener("touchstart", touchStartHandler, false);
 viewport.addEventListener("touchmove", touchMoveHandler, false);
@@ -296,7 +304,7 @@ viewport.addEventListener("touchend", touchEndHandler, false);
 
 // Clear model on clicking the clear button.
 clearButton.addEventListener('click', () => {
-    if (confirm("You are about to clear the model. Continue?"))
+    if (confirm("You are about to clear the model. Continue?"));
     phz.clear();
     user.reset();
 }, false);
