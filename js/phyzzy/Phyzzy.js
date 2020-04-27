@@ -192,12 +192,35 @@ class Mass {
     }
 };
 
+class SpringActuator
+{
+    constructor(spring, mode)
+    {
+        this.spring = spring;
+        this.mode = mode;
+        this.defaultRest = spring.restlength;
+        this.defaultStiff = spring.stiffness;
+    }
+}
+
+class MassActuator
+{
+    constructor(mass, mode)
+    {
+        this.mass = mass;
+        this.mode = mode;
+        this.defaultRad = mass.rad;
+        this.defaultMass = mass.mass;
+    }
+}
+
 class PhyzzyModel {
     constructor(scale)
     {
         this.scale = scale;
         this.mesh = [];
         this.springs = [];
+        this.actuators = [];
     }
     // Adjust a given vector to Phyzzy's scale.
     scaleV(A)
@@ -212,7 +235,7 @@ class PhyzzyModel {
     addM(mass) {
         if (!this.mesh.some(m => m === mass)) {
             // each new mass added must be unique
-            this.mesh.push(mass)
+            this.mesh.push(mass);
         }
     }
     addS(mass1, mass2, spring) {
