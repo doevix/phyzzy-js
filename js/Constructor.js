@@ -37,6 +37,7 @@ const setConstruct = c => {
     } else {
         constructButton.value = "construct";
     }
+    user.springFrom = undefined;
 }
 const setDelete = d => {
     mode.udelete = d;
@@ -182,7 +183,7 @@ const constructorCase2 = () => {
     // User clicks empty space with previously selected mass and spring generating
     if (!user.highlight && user.springFrom) {
         const m = new Mass(defaultMassProp, phz.scaleV(user.mpos));
-        const len = user.springFrom.Pi.segLen(m.Pi);
+        const len = user.springFrom.Pi.len(m.Pi);
         const s = new Spring(len, defaultSpringProp.stiff, defaultSpringProp.damp);
         phz.addM(m);
         phz.addS(user.springFrom, m, s);
@@ -207,7 +208,7 @@ const constructorCase5 = () => {
     // User clicks existing mass with spring generating enabled.
     if (user.highlight && user.springFrom)
     {
-        const len = user.springFrom.Pi.segLen(user.highlight.Pi);
+        const len = user.springFrom.Pi.len(user.highlight.Pi);
         const s = new Spring(len, defaultSpringProp.stiff, defaultSpringProp.damp);
         phz.addS(user.springFrom, user.highlight, s);
         user.select = user.highlight;
