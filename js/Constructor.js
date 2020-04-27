@@ -76,7 +76,6 @@ const user = {
     select: undefined,      // Selected mass.
     drag: undefined,        // Mass being dragged.
     springFrom: undefined,  // Connect next mass with spring.
-    rightClick: false,
     draw: function(model) {
         if (this.highlight) {
             if (!mode.udelete) ctx.strokeStyle = "#62B564";
@@ -216,13 +215,13 @@ const mouseDownHandler = e => {
     user.select = user.highlight;
     user.drag = user.select;
     if (user.drag) user.drag.ignore = true;
-    if (mode.construct)
+    if (mode.construct && e.which === 1)
     {
         if (!user.highlight && !user.springFrom) constructorCase1();
         else if (!user.highlight && user.springFrom) constructorCase2();
         else if (user.highlight && !user.springFrom) constructorCase4();
         else if (user.highlight && user.springFrom) constructorCase5();
-    }
+    } else user.springFrom = undefined;
     if (mode.udelete)
     {
         phz.remM(user.select);
@@ -230,7 +229,6 @@ const mouseDownHandler = e => {
     }
 }
 const mouseUpHandler = e => {
-    user.rightClick = false;
     if (user.drag) 
     {
         user.drag.ignore = false;
@@ -250,12 +248,8 @@ const mouseLeaveHandler = e => {
     user.springFrom = undefined;
 }
 const contextMenuHandler = e => {
+    // Disable context menu.
     e.preventDefault();
-    user.rightClick = true;
-    if (mode.construct)
-    {
-        user.springFrom = undefined;
-    }
 }
 
 // Touch event handlers.
