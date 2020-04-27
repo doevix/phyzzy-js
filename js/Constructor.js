@@ -222,8 +222,9 @@ const mouseMoveHandler = e => {
     if (user.drag)
     {
         const mMov = new Vect(e.movementX, e.movementY);
-        user.drag.Po.equ(user.drag.Pi);
+        user.drag.Po.equ(user.drag.Pi); // Set velocity to cursor's for throwing.
         user.drag.Pi.sumTo(phz.scaleV(mMov));
+        if (mode.pause) user.drag.Po.equ(user.drag.Pi); // Cancel velocity if paused
     }
 }
 const mouseDownHandler = e => {
@@ -276,8 +277,9 @@ const touchMoveHandler = e => {
     const tmov = new Vect();
     tmov.equ(user.tpos.sub(tPos_prv));
     if (user.drag) {
-        user.drag.Po.equ(user.drag.Pi);
+        user.drag.Po.equ(user.drag.Pi); // Set velocity to cursor's for throwing.
         user.drag.Pi.sumTo(phz.scaleV(tmov));
+        if (mode.pause) user.drag.Po.equ(user.drag.Pi); // Cancel velocity if paused.
     }
 }
 const touchEndHandler = e => {
