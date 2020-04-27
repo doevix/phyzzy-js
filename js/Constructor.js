@@ -1,4 +1,4 @@
-// PhyzzyConstructor.js
+// Constructor.js
 "use strict";
 
 // Initialize canvas element.
