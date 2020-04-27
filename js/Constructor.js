@@ -66,11 +66,7 @@ const env = new PhyzzyEnvironment(
     {x: 0, y: 9.81},
     1,
     {x: 0, y: 0, w: viewport.width / phz.scale, h: viewport.height / phz.scale}
-    );
-    
-const mProp = {mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2};
-Builders.generateBox(2, 2, 1, 1, mProp, 100, 50, phz);
-phz.mesh[1].fix = true;
+);
 
 // Indicate state of user's interaction with model.
 const user = {
@@ -305,6 +301,10 @@ clearButton.addEventListener('click', () => phz.clear(), false);
 setPause(false);
 setConstruct(false);
 setDelete(false);
+
+// Construct a basic model.
+const mProp = {mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2};
+Builders.generateBox(2, 2, 1, 1, mProp, 100, 50, phz);
 
 // Run constructor animation.
 frame();
