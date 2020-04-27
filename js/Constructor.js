@@ -76,6 +76,7 @@ const user = {
     select: undefined,      // Selected mass.
     drag: undefined,        // Mass being dragged.
     springFrom: undefined,  // Connect next mass with spring.
+    rightClick: false,
     draw: function(model) {
         if (this.highlight) {
             if (!mode.udelete) ctx.strokeStyle = "#62B564";
@@ -168,48 +169,36 @@ const defaultMassProp = {mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2};
 const defaultSpringProp = {stiff: 100, damp: 50};
 const constructorCase1 = () => {
     // User clicks empty space with no spring generating.
-    if (!user.highlight && !user.springFrom) {
-        const m = new Mass(defaultMassProp, phz.scaleV(user.mpos));
-        phz.addM(m);
-        user.select = m;
-        user.springFrom = user.select;
-    }
+    const m = new Mass(defaultMassProp, phz.scaleV(user.mpos));
+    phz.addM(m);
+    user.select = m;
+    user.springFrom = user.select;
 }
 const constructorCase2 = () => {
     // User clicks empty space with previously selected mass and spring generating
-    if (!user.highlight && user.springFrom) {
-        const m = new Mass(defaultMassProp, phz.scaleV(user.mpos));
-        const len = user.springFrom.Pi.len(m.Pi);
-        const s = new Spring(len, defaultSpringProp.stiff, defaultSpringProp.damp);
-        phz.addM(m);
-        phz.addS(user.springFrom, m, s);
-        user.select = m;
-        user.springFrom = user.select;
-    }
+    const m = new Mass(defaultMassProp, phz.scaleV(user.mpos));
+    const len = user.springFrom.Pi.len(m.Pi);
+    const s = new Spring(len, defaultSpringProp.stiff, defaultSpringProp.damp);
+    phz.addM(m);
+    phz.addS(user.springFrom, m, s);
+    user.select = m;
+    user.springFrom = user.select;
 }
 const constructorCase3 = () => {
     // User clicks on existing mass with spring generating enabled.
-    if (user.highlight && user.springFrom)
-    {
-        user.springFrom = undefined;
-    }
+    user.springFrom = undefined;
 }
 const constructorCase4 = () => {
     // User clicks on existing mass with spring generating disabled.
-    if (user.highlight && !user.springFrom) {
-        user.springFrom = user.select;
-    }
+    user.springFrom = user.select;
 }
 const constructorCase5 = () => {
     // User clicks existing mass with spring generating enabled.
-    if (user.highlight && user.springFrom)
-    {
-        const len = user.springFrom.Pi.len(user.highlight.Pi);
-        const s = new Spring(len, defaultSpringProp.stiff, defaultSpringProp.damp);
-        phz.addS(user.springFrom, user.highlight, s);
-        user.select = user.highlight;
-        user.springFrom = user.select;
-    }
+    const len = user.springFrom.Pi.len(user.highlight.Pi);
+    const s = new Spring(len, defaultSpringProp.stiff, defaultSpringProp.damp);
+    phz.addS(user.springFrom, user.highlight, s);
+    user.select = user.highlight;
+    user.springFrom = user.select;
 }
 
 // Mouse event handlers.
@@ -241,6 +230,7 @@ const mouseDownHandler = e => {
     }
 }
 const mouseUpHandler = e => {
+    user.rightClick = false;
     if (user.drag) 
     {
         user.drag.ignore = false;
@@ -258,6 +248,14 @@ const mouseLeaveHandler = e => {
     user.drag = undefined;
     user.highlight = undefined;
     user.springFrom = undefined;
+}
+const contextMenuHandler = e => {
+    e.preventDefault();
+    user.rightClick = true;
+    if (mode.construct)
+    {
+        user.springFrom = undefined;
+    }
 }
 
 // Touch event handlers.
@@ -297,6 +295,7 @@ viewport.addEventListener("mousedown", mouseDownHandler, false);
 viewport.addEventListener("mouseup", mouseUpHandler, false);
 viewport.addEventListener("dblclick", doubleClickHandler, false);
 viewport.addEventListener("mouseleave", mouseLeaveHandler, false);
+viewport.addEventListener("contextmenu", contextMenuHandler, false);
 // Touch events.
 viewport.addEventListener("touchstart", touchStartHandler, false);
 viewport.addEventListener("touchmove", touchMoveHandler, false);
