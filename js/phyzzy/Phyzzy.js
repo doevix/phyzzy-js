@@ -79,7 +79,7 @@ class Vect {
         return A.magSq() > 0 ? A.mul(A.dot(this)).div(A.magSq()) : new Vect();
     }
     // Get length between this vector and another.
-    segLen(A)
+    len(A)
     {
         return this.sub(A).mag();
     }
