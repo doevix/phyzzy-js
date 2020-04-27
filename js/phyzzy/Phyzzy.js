@@ -115,6 +115,9 @@ class Spring {
         this.restlength = restlength;
         this.stiffness = stiffness;
         this.resistance = resistance;
+        // These are only for search and repositioning. Force input is external only.
+        this.mA;
+        this.mB;
     }
     springing(Pi1, Pi2) {
         // calculate springing force from segment of mass1 to mass2
@@ -125,6 +128,29 @@ class Spring {
         const seg12 = massA.Pi.sub(massB.Pi);
         const diff12 = seg12.sub(massA.Po.sub(massB.Po));
         return diff12.pjt(seg12).mul(-this.resistance);
+    }
+    len() {
+        // Return current length of the spring.
+        return this.mA.Pi.len(this.mB.Pi);
+    }
+    center() {
+        // Return center position of spring.
+        return this.mA.Pi.sum(this.mB.Pi).div(2);
+    }
+    setPos(pos) {
+        // Modify spring's position.
+        
+    }
+    sumPos(diff) {
+        // Increment spring's position.
+    }
+    draw(ctx, scale, color) {
+        ctx.strokeStyle = color || "black";
+        ctx.beginPath();
+        ctx.moveTo(this.mA.Pi.x * scale, this.mA.Pi.y * scale);
+        ctx.lineTo(this.mB.Pi.x * scale, this.mB.Pi.y * scale);
+        ctx.closePath();
+        ctx.stroke();
     }
 };
 
@@ -244,6 +270,8 @@ class PhyzzyModel {
             // cannot link a mass to itself nor have two springs in link
             mass1.branch.push({m: mass2, s: spring});
             mass2.branch.push({m: mass1, s: spring});
+            spring.mA = mass1;
+            spring.mB = mass2;
             this.springs.push(spring);
         }
     }
@@ -292,28 +320,7 @@ class PhyzzyModel {
         this.mesh.forEach(mass => mass.draw(ctx, this.scale, colorM));
     }
     drawSpring(ctx, colorS) {
-        const traces = [];
-        this.mesh.forEach(mass => {
-            mass.branch.forEach(b => {
-                const wasTraced = traces.some(t => b.m === t.m1 && mass === t.m2 || b.m === t.m2 && mass === t.m1);
-                if (!wasTraced) {
-                    // mesh is non-linear, traces must be tracked to avoid repetition
-                    ctx.beginPath();
-                    ctx.moveTo (
-                        mass.Pi.x * this.scale,
-                        mass.Pi.y * this.scale
-                    );
-                    ctx.lineTo (
-                        b.m.Pi.x * this.scale,
-                        b.m.Pi.y * this.scale
-                    );
-                    ctx.strokeStyle = colorS || '#000000';
-                    ctx.stroke();
-                    ctx.closePath();
-                    traces.push({m1: mass, m2: b.m});
-                }
-            });   
-        });
+        this.springs.forEach(spring => spring.draw(ctx, this.scale, colorS));
     }
 };
 
