@@ -295,7 +295,10 @@ viewport.addEventListener("touchmove", touchMoveHandler, false);
 viewport.addEventListener("touchend", touchEndHandler, false);
 
 // Clear model on clicking the clear button.
-clearButton.addEventListener('click', () => phz.clear(), false);
+clearButton.addEventListener('click', () => {
+    phz.clear();
+    user.reset();
+}, false);
 
 // Initilize modes.
 setPause(false);
