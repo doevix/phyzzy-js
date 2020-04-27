@@ -296,6 +296,7 @@ viewport.addEventListener("touchend", touchEndHandler, false);
 
 // Clear model on clicking the clear button.
 clearButton.addEventListener('click', () => {
+    if (confirm("You are about to clear the model. Continue?"))
     phz.clear();
     user.reset();
 }, false);
