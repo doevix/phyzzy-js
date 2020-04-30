@@ -232,13 +232,13 @@ class SpringActuator
     }
     act(amp, wSpd, t) {
         // Waveform oscillates between zero and 1
-        const factor = amp * this.sense * (1 + Math.sin(wSpd * t + this.phase / wSpd));
+        const factor = (1 + Math.sin(wSpd * t + (this.phase / Math.abs(wSpd))));
         if (this.mode === 0) {
             // Spring length modifies from zero to twice its original length.
-            this.spring.restlength = this.defaultRest * factor;
+            this.spring.restlength = this.defaultRest * (1 + amp * this.sense * factor) ;
         } else {
             // Spring stiffness modifies from zero to its original length.
-            this.spring.stiffness = this.defaultStiff * (factor / 2);
+            this.spring.stiffness = this.defaultStiff * amp * this.sense * (factor / 2);
         }
     }
 };
