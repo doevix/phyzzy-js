@@ -319,13 +319,19 @@ setConstruct(false);
 setDelete(false);
 
 // Construct a basic model.
+amp = 0.5;
+wSpd = -1.5;
 const mProp = {mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2};
-// Builders.generateBox(2, 2, 1, 1, mProp, 100, 50, phz);
-Builders.generateLine({x: 2.5, y: 1}, {x: 3.5, y: 1}, mProp, 100, 50, phz);
-Builders.generateLine({x: 4.5, y: 1}, {x: 5.5, y: 1}, mProp, 100, 50, phz);
+phz.addM(new Mass(mProp, {x: 2.5, y: 2}));
+phz.addM(new Mass(mProp, {x: 3.5, y: 2}));
+phz.addM(new Mass(mProp, {x: (2.5 + 3.5) / 2, y: 3}));
 phz.mesh[0].fix = true;
-phz.mesh[2].fix = true;
-phz.attachSpringActuator(phz.springs[0], 0, 0, 1);
-phz.attachSpringActuator(phz.springs[1], 1, 0, 1);
+phz.mesh[1].fix = true;
+
+phz.addS(phz.mesh[0], phz.mesh[2], new Spring(phz.mesh[0].Pi.len(phz.mesh[2].Pi), 100, 50));
+phz.addS(phz.mesh[1], phz.mesh[2], new Spring(phz.mesh[1].Pi.len(phz.mesh[2].Pi), 100, 50));
+
+phz.attachSpringActuator(phz.springs[0], 0, 0, 0.5);
+phz.attachSpringActuator(phz.springs[1], 0, Math.PI / 2, 0.5);
 // Run constructor animation.
 frame();
