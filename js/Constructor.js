@@ -336,13 +336,27 @@ phz.addS(phz.mesh[1], phz.mesh[2], new Spring(phz.mesh[1].Pi.len(phz.mesh[2].Pi)
 Builders.generateLine({x: 4, y: 2}, {x: 4, y: 3}, mProp, 100, 50, phz);
 phz.mesh[3].fix = true;
 
+Builders.generateLine({x: 2.5, y: 1}, {x: 4, y: 1}, mProp, 100, 50, phz);
+phz.springs[3].restlength *= 3 / 2;
+phz.addM(new Mass(mProp, {x: 3.25, y: 1}));
+phz.mesh[7].fix = true;
+phz.addS(phz.mesh[5], phz.mesh[7], new Spring(0, 100, 50));
+phz.addS(phz.mesh[6], phz.mesh[7], new Spring(0, 100, 50));
+
+
+
 const a0 = new MuscleSpringActuator(phz.springs[0], 0, 0.5);
 const a1 = new MuscleSpringActuator(phz.springs[1], Math.PI / 4, 0.5);
 const a2 = new RelaxationSpringActuator(phz.springs[2], 0, 0.5);
+const a3 = new BalloonMassActuator(phz.mesh[4], 0, 1, 5);
+const a4 = new VaryMassActuator(phz.mesh[5], 0, 1, 2);
+const a5 = new VaryMassActuator(phz.mesh[6], Math.PI / 2, 1, 2);
 
-
-phz.attachSpringActuator(a0);
-phz.attachSpringActuator(a1);
-phz.attachSpringActuator(a2);
+phz.attachActuator(a0);
+phz.attachActuator(a1);
+phz.attachActuator(a2);
+phz.attachActuator(a3);
+phz.attachActuator(a4);
+phz.attachActuator(a5);
 // Run constructor animation.
 frame();
