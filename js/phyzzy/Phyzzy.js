@@ -305,6 +305,7 @@ class PhyzzyModel {
     remM(mass) {
         this.mesh.forEach(m => m.branch = m.branch.filter(leaf => leaf.m !== mass));
         this.mesh = this.mesh.filter(checkedMass => checkedMass !== mass);
+        this.springs = this.springs.filter(s => s.mA !== mass && s.mB !== mass);
     }
     remS(spring) {
         this.mesh.forEach(mass => mass.branch = mass.branch.filter(leaf => leaf.s !== spring));
