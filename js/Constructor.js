@@ -128,7 +128,6 @@ const user = {
     }
 };
 
-// Waveform settings.
 let amp = 1;
 let wSpd = 0.5;
 let t = 0;
