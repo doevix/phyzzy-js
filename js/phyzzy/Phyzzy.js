@@ -279,31 +279,48 @@ class RelaxationSpringActuator
         const factor = (1 + Math.sin(wSpd * t + this.phase / Math.abs(wSpd))) / 2;
         this.spring.stiffness = this.default * amp * (1 - factor);
     }
+    restore()
+    {
+        this.spring.stiffness = this.default;
+    }
 };
 
-// class MassActuator
-// {
-//     constructor(mass, mode, maxMult = 1)
-//     {
-//         this.mass = mass;
-//         this.mode = mode; // 0 = modify radius, 1 = modify mass
-//         this.defaultRad = mass.rad;
-//         this.defaultMass = mass.mass;
-//         this.maxMult = maxMult; // increment multiplier.
-//         this.phase = phase;
-//         this.sense = sense;
-//     }
-//     act(amp, wSpd, t) {
-//         // Waveform oscillates between zero and 1
-//         const factor = 0.5 * this.sense * amp * (1 + Math.sin(wSpd * t * this.mult + this.phase / wSpd));
-//         if (mode === 0)
-//         {
-//             this.mass.rad = this.defaultRad * (1 + factor * this.maxMult);
-//         } else {
-//             this.mass.mass = this.defaultMass * (1 + factor * this.maxMult);
-//         }
-//     }
-// };
+// Modifies mass radius by waveform.
+class BalloonMassActuator {
+    constructor(mass, phase = 0, sense = 0.5, multiplier = 1) {
+        this.mass = mass;
+        this.phase = phase;
+        this.sense = sense;
+        this.mult = multiplier; // Max times the mass's radius increases by.
+
+        this.default = mass.rad;
+    }
+    act(amp, wSpd, t) {
+        const factor = (1 + Math.sin(wSpd * t + this.phase / Math.abs(wSpd))) / 2;
+        this.mass.rad = this.default * (1 + this.mult * amp * this.sense * factor);
+    }
+    restore() {
+        this.mass.rad = this.default;
+    }
+};
+// Modifies mass's mass by waveform.
+class VaryMassActuator {
+    constructor(mass, phase = 0, sense = 0.5, multiplier = 1) {
+        this.mass = mass;
+        this.phase = phase;
+        this.sense = sense;
+        this.mult = multiplier; // Max times the mass's radius increases by.
+
+        this.default = mass.mass;
+    }
+    act(amp, wSpd, t) {
+        const factor = (1 + Math.sin(wSpd * t + this.phase / Math.abs(wSpd))) / 2;
+        this.mass.mass = this.default * (1 + this.mult * amp * this.sense * factor);
+    }
+    restore() {
+        this.mass.mass = this.default;
+    }
+};
 
 class PhyzzyModel {
     constructor(scale)
@@ -349,7 +366,7 @@ class PhyzzyModel {
         this.mesh.forEach(mass => mass.branch = mass.branch.filter(leaf => leaf.s !== spring));
         this.springs.filter(s => s !== spring);
     }
-    attachSpringActuator(actuator)
+    attachActuator(actuator)
     {
         this.actuators.push(actuator);
     }
