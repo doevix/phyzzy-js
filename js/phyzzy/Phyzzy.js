@@ -243,29 +243,67 @@ class SpringActuator
     }
 };
 
-class MassActuator
+// Classic restlength-modifying muscle.
+class MuscleSpringActuator
 {
-    constructor(mass, mode, maxMult = 1)
-    {
-        this.mass = mass;
-        this.mode = mode; // 0 = modify radius, 1 = modify mass
-        this.defaultRad = mass.rad;
-        this.defaultMass = mass.mass;
-        this.maxMult = maxMult; // increment multiplier.
+    constructor(spring, phase = 0, sense = 0.5) {
+        this.spring = spring;
         this.phase = phase;
         this.sense = sense;
+
+        this.default = spring.restlength;
     }
-    act(amp, wSpd, t) {
-        // Waveform oscillates between zero and 1
-        const factor = 0.5 * this.sense * amp * (1 + Math.sin(wSpd * t * this.mult + this.phase / wSpd));
-        if (mode === 0)
-        {
-            this.mass.rad = this.defaultRad * (1 + factor * this.maxMult);
-        } else {
-            this.mass.mass = this.defaultMass * (1 + factor * this.maxMult);
-        }
+    act(amp, wSpd, t)
+    {
+        const factor = 1 + Math.sin(wSpd * t + (this.phase / Math.abs(wSpd)));
+        this.spring.restlength = this.default * (1 + amp * this.sense * factor);
+    }
+    restore()
+    {
+        this.spring.restlength = this.default;
     }
 };
+
+// Relaxation stiffness-modifying muscle.
+class RelaxationSpringActuator
+{
+    constructor(spring, phase = 0, sense = 0.5) {
+        this.spring = spring;
+        this.phase = phase;
+        this.sense = sense;
+
+        this.default = spring.stiffness;
+    }
+    act(amp, wSpd, t) {
+        // Muscle stiffness travels from default value to a lower value.
+        const factor = (1 + Math.sin(wSpd * t + this.phase / Math.abs(wSpd))) / 2;
+        this.spring.stiffness = this.default * amp * (1 - factor);
+    }
+};
+
+// class MassActuator
+// {
+//     constructor(mass, mode, maxMult = 1)
+//     {
+//         this.mass = mass;
+//         this.mode = mode; // 0 = modify radius, 1 = modify mass
+//         this.defaultRad = mass.rad;
+//         this.defaultMass = mass.mass;
+//         this.maxMult = maxMult; // increment multiplier.
+//         this.phase = phase;
+//         this.sense = sense;
+//     }
+//     act(amp, wSpd, t) {
+//         // Waveform oscillates between zero and 1
+//         const factor = 0.5 * this.sense * amp * (1 + Math.sin(wSpd * t * this.mult + this.phase / wSpd));
+//         if (mode === 0)
+//         {
+//             this.mass.rad = this.defaultRad * (1 + factor * this.maxMult);
+//         } else {
+//             this.mass.mass = this.defaultMass * (1 + factor * this.maxMult);
+//         }
+//     }
+// };
 
 class PhyzzyModel {
     constructor(scale)
@@ -311,15 +349,15 @@ class PhyzzyModel {
         this.mesh.forEach(mass => mass.branch = mass.branch.filter(leaf => leaf.s !== spring));
         this.springs.filter(s => s !== spring);
     }
-    attachSpringActuator(s, mode, phase, sense)
+    attachSpringActuator(actuator)
     {
-        const a = new SpringActuator(s, mode, phase, sense);
-        this.actuators.push(a);
+        this.actuators.push(actuator);
     }
     clear()
     {
         this.mesh = [];
         this.springs = [];
+        this.actuators = [];
     }
     locateMass(pos, rad)
     {
