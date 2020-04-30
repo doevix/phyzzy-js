@@ -248,6 +248,16 @@ class PhyzzyModel {
             center.sumTo(m.Pi);
         return center.div(this.mesh.length);
     }
+    getMassCenter()
+    {
+        const center = new Vect();
+        let mSum = 0;
+        for(let m of this.mesh) {
+            center.sumTo(m.Pi.mul(m.mass));
+            mSum += m.mass;
+        }
+        return center.div(this.mesh.length * m.mass);
+    }
     update(forces, dt) {
         for (let i = 0; i < this.mesh.length; i++) {
             let mass = this.mesh[i];
