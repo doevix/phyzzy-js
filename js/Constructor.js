@@ -5,6 +5,17 @@
 const viewport = document.getElementById("viewport");
 const ctx = viewport.getContext("2d");
 
+// Initialize model.
+let delta = 1 / 60; // step time
+const phz = new PhyzzyModel(100);
+
+// Initialize environment.
+const env = new PhyzzyEnvironment(
+    {x: 0, y: 9.81},
+    1,
+    {x: 0, y: 0, w: viewport.width / phz.scale, h: viewport.height / phz.scale}
+);
+
 // Initialize buttons.
 const pauseButton = document.getElementById("userPause");
 const constructButton = document.getElementById("userConstruct");
@@ -57,16 +68,6 @@ pauseButton.addEventListener('click', () => {
 constructButton.addEventListener('click', () => setConstruct(!mode.construct), false);
 deleteButton.addEventListener('click', () => setDelete(!mode.udelete), false);
 
-// Initialize model.
-let delta = 1 / 60; // step time
-const phz = new PhyzzyModel(100);
-
-// Initialize environment.
-const env = new PhyzzyEnvironment(
-    {x: 0, y: 9.81},
-    1,
-    {x: 0, y: 0, w: viewport.width / phz.scale, h: viewport.height / phz.scale}
-);
 
 // Indicate state of user's interaction with model.
 const user = {
