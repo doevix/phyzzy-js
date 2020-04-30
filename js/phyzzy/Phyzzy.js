@@ -309,6 +309,7 @@ class PhyzzyModel {
     }
     remS(spring) {
         this.mesh.forEach(mass => mass.branch = mass.branch.filter(leaf => leaf.s !== spring));
+        this.springs.filter(s => s !== spring);
     }
     attachSpringActuator(s, mode, phase, sense)
     {
