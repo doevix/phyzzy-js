@@ -26,40 +26,40 @@ const clearButton = document.getElementById("userClear");
 const mode = {
     pause: false,
     construct: false,
-    udelete: false
+    udelete: false,
+    setPause: function(p) {
+        this.pause = p;
+        if (this.pause)
+        {
+            pauseButton.value = "play";
+        } else {
+            pauseButton.value = "pause";
+            this.setConstruct(false);
+        }
+    },
+    setConstruct: function(c) {
+        this.construct = c;
+        if (this.construct)
+        {
+            constructButton.value = "move/select";
+            this.setPause(true);
+            this.setDelete(false);
+        } else {
+            constructButton.value = "construct";
+        }
+        this.springFrom = undefined;
+    },
+    setDelete: function(d) {
+        this.udelete = d;
+        if (this.udelete)
+        {
+            this.deleteButton.value = "select";
+            setConstruct(false);
+        } else {
+            this.deleteButton.value = "delete";
+        }
+    }
 };
-const setPause = p => {
-    mode.pause = p;
-    if (mode.pause)
-    {
-        pauseButton.value = "play";
-    } else {
-        pauseButton.value = "pause";
-        setConstruct(false);
-    }
-}
-const setConstruct = c => {
-    mode.construct = c;
-    if (mode.construct)
-    {
-        constructButton.value = "move/select";
-        setPause(true);
-        setDelete(false);
-    } else {
-        constructButton.value = "construct";
-    }
-    user.springFrom = undefined;
-}
-const setDelete = d => {
-    mode.udelete = d;
-    if (mode.udelete)
-    {
-        deleteButton.value = "select";
-        setConstruct(false);
-    } else {
-        deleteButton.value = "delete";
-    }
-}
 // Button event listeners.
 pauseButton.addEventListener('click', () => {
     setPause(!mode.pause);
@@ -311,9 +311,9 @@ clearButton.addEventListener('click', () => {
 }, false);
 
 // Initilize modes.
-setPause(false);
-setConstruct(false);
-setDelete(false);
+mode.setPause(false);
+mode.setConstruct(false);
+mode.setDelete(false);
 
 // Construct a basic model.
 const mProp = {mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2};
