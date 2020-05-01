@@ -61,12 +61,9 @@ const mode = {
     }
 };
 // Button event listeners.
-pauseButton.addEventListener('click', () => {
-    setPause(!mode.pause);
-
-}, false);
-constructButton.addEventListener('click', () => setConstruct(!mode.construct), false);
-deleteButton.addEventListener('click', () => setDelete(!mode.udelete), false);
+pauseButton.addEventListener('click', () => mode.setPause(!mode.pause), false);
+constructButton.addEventListener('click', () => mode.setConstruct(!mode.construct), false);
+deleteButton.addEventListener('click', () => mode.setDelete(!mode.udelete), false);
 
 
 // Indicate state of user's interaction with model.
