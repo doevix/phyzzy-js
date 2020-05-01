@@ -11,36 +11,43 @@ class Vect {
     {
         this.x = x;
         this.y = y;
+        return new Vect(this.x, this.y);
     }
     // replace values of vector with given vector
     equ(A) {
         this.x = A.x;
         this.y = A.y;
+        return new Vect(this.x, this.y);
     }
     // resets vector to zero
     clr() {
         this.x = 0;
         this.y = 0;
+        return new Vect(this.x, this.y);
     }
     // mutating sum
     sumTo(A) {
         this.x += A.x;
         this.y += A.y;
+        return new Vect(this.x, this.y);
     }
     // mutating subtraction
     subTo(A) {
         this.x -= A.x;
         this.y -= A.y;
+        return new Vect(this.x, this.y);
     }
     // mutating scale
     mulTo(A) {
         this.x *= A.x;
         this.y *= A.y;
+        return new Vect(this.x, this.y);
     }
     // mutating division
     divTo(A) {
         this.x /= A.x;
         this.y /= A.y;
+        return new Vect(this.x, this.y);
     }
     // multiplies vector by a scalar value
     mul(s) {
