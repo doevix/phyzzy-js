@@ -330,9 +330,14 @@ class VaryMassActuator {
 };
 
 class PhyzzyModel {
-    constructor(scale)
+    constructor(scale, amp = 0.5, wSpd = 0.5)
     {
         this.scale = scale;
+        
+        this.amp = amp;
+        this.wSpd = wSpd;
+        this.t = 0;
+
         this.mesh = [];
         this.springs = [];
         this.actuators = [];
@@ -395,9 +400,6 @@ class PhyzzyModel {
             center.sumTo(m.Pi);
         return center.div(this.mesh.length);
     }
-    updateActuators(amp, wSpd, t) {
-        this.actuators.forEach(a => a.act(amp, wSpd, t));
-    }
     getMassCenter()
     {
         const center = new Vect();
@@ -407,6 +409,10 @@ class PhyzzyModel {
             mSum += m.mass;
         }
         return center.div(this.mesh.length * m.mass);
+    }
+    updateActuators(dt) {
+        this.actuators.forEach(a => a.act(this.amp, this.wSpd, this.t));
+        return this.t += dt;
     }
     update(forces, dt) {
         for (let i = 0; i < this.mesh.length; i++) {
@@ -424,6 +430,11 @@ class PhyzzyModel {
                 mass.Pi.equ(cC_current.Pi);
             }
         })
+    }
+    waveState()
+    {
+        // return value of wave at position 0
+        return this.amp * 1 + Math.sin(this.wSpd * this.t);
     }
     drawMass(ctx, colorM) {
         this.mesh.forEach(mass => mass.draw(ctx, this.scale, colorM));
