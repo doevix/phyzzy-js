@@ -53,10 +53,10 @@ const mode = {
         this.udelete = d;
         if (this.udelete)
         {
-            this.deleteButton.value = "select";
+            deleteButton.value = "select";
             setConstruct(false);
         } else {
-            this.deleteButton.value = "delete";
+            deleteButton.value = "delete";
         }
     }
 };
@@ -320,7 +320,6 @@ const mProp = {mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2};
 phz.addM(new Mass(mProp, {x: 2.5, y: 2}));
 phz.addM(new Mass(mProp, {x: 3.5, y: 2}));
 phz.addM(new Mass(mProp, {x: (2.5 + 3.5) / 2, y: 3}));
-
 
 phz.mesh[0].fix = true;
 phz.mesh[1].fix = true;
