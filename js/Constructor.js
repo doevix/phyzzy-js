@@ -22,6 +22,10 @@ const constructButton = document.getElementById("userConstruct");
 const deleteButton = document.getElementById("userDelete");
 const clearButton = document.getElementById("userClear");
 
+wbox.ampSlider.value = phz.amp;
+wbox.spdSlider.value = phz.wSpd;
+wbox.dirCheck.checked = false;
+
 // User mode control.
 const mode = {
     pause: false,
@@ -65,6 +69,19 @@ pauseButton.addEventListener('click', () => mode.setPause(!mode.pause), false);
 constructButton.addEventListener('click', () => mode.setConstruct(!mode.construct), false);
 deleteButton.addEventListener('click', () => mode.setDelete(!mode.udelete), false);
 
+// Wavebox event listeners.
+wbox.ampSlider.addEventListener('input', e => {
+    phz.amp = wbox.ampSlider.value;
+}, false);
+
+wbox.spdSlider.addEventListener('input', e => {
+    phz.wSpd = wbox.spdSlider.value;
+}, false);
+
+wbox.dirCheck.addEventListener("input", e => {
+    if (wbox.dirCheck.checked) phz.dir = -1;
+    else phz.dir = 1;
+}, false);
 
 // Indicate state of user's interaction with model.
 const user = {
@@ -151,6 +168,7 @@ const frame = () => {
     phz.drawMass(ctx, '#1DB322');
     user.highlight = phz.locateMass(phz.scaleV(user.mpos), 0.2);
     user.draw(phz);
+    wbox.draw(phz.amp, 1, phz.t);
 
     if (!mode.pause){
         phz.updateActuators(delta);
@@ -347,8 +365,6 @@ phz.attachActuator(a2);
 phz.attachActuator(a3);
 phz.attachActuator(a4);
 phz.attachActuator(a5);
-
-phz.wSpd = -1.5;
 
 // Run constructor animation.
 frame();

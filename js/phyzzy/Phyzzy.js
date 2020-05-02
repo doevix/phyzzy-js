@@ -336,6 +336,7 @@ class PhyzzyModel {
         
         this.amp = amp;
         this.wSpd = wSpd;
+        this.dir = 1;
         this.t = 0;
 
         this.mesh = [];
@@ -411,8 +412,8 @@ class PhyzzyModel {
         return center.div(this.mesh.length * m.mass);
     }
     updateActuators(dt) {
-        this.actuators.forEach(a => a.act(this.amp, this.wSpd, this.t));
-        return this.t += dt;
+        this.actuators.forEach(a => a.act(this.amp, 1, this.t));
+        return this.t += this.wSpd * this.dir * dt;
     }
     update(forces, dt) {
         for (let i = 0; i < this.mesh.length; i++) {

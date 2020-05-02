@@ -1,5 +1,6 @@
 body {
     background-color: #DBDBDB;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 canvas {
@@ -7,8 +8,8 @@ canvas {
     touch-action: none;
 }
 
-#viewerContainer {
+div {
     text-align: center;
     background-color: rgb(138, 138, 138);
-    position: relative;
+    float: right;
 }
