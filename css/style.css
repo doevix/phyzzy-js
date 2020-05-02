@@ -6,3 +6,9 @@ canvas {
     background-color: white;
     touch-action: none;
 }
+
+#viewerContainer {
+    text-align: center;
+    background-color: rgb(138, 138, 138);
+    position: relative;
+}
