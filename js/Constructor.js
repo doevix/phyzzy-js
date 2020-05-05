@@ -134,6 +134,11 @@ const user = {
                 0, 2 * Math.PI);
             ctx.closePath();
             ctx.stroke();
+
+            ctx.fillStyle = 'black';
+            const lenTxt = this.springFrom.Pi.len(
+                !this.highlight ? model.scaleV(this.mpos) : this.highlight.Pi);
+            ctx.fillText(lenTxt.toFixed(3), this.mpos.x + 20, this.mpos.y + 20);
         }
         if (this.select) {
             ctx.strokeStyle = "black";
