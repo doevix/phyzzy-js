@@ -21,7 +21,11 @@ const pauseButton = document.getElementById("userPause");
 const constructButton = document.getElementById("userConstruct");
 const deleteButton = document.getElementById("userDelete");
 const clearButton = document.getElementById("userClear");
+const gravSlider = document.getElementById("gravSlider");
+const dragSlider = document.getElementById("dragSlider");
 
+gravSlider.value = env.gravity.y;
+dragSlider.value = env.kd;
 wbox.ampSlider.value = phz.amp;
 wbox.spdSlider.value = phz.wSpd;
 wbox.dirCheck.checked = false;
@@ -68,6 +72,14 @@ const mode = {
 pauseButton.addEventListener('click', () => mode.setPause(!mode.pause), false);
 constructButton.addEventListener('click', () => mode.setConstruct(!mode.construct), false);
 deleteButton.addEventListener('click', () => mode.setDelete(!mode.udelete), false);
+
+// Environment slider event listeners.
+gravSlider.addEventListener('input', e => {
+    env.gravity.y = gravSlider.value;
+}, false);
+dragSlider.addEventListener('input', e => {
+    env.kd = dragSlider.value;
+}, false);
 
 // Wavebox event listeners.
 wbox.ampSlider.addEventListener('input', e => {
