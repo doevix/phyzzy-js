@@ -11,6 +11,9 @@ CanvasRenderingContext2D.prototype.v_line = function(A, B) {
     this.moveTo(A.x, A.y);
     this.lineTo(B.x, B.y);
 }
+CanvasRenderingContext2D.prototype.v_f_sqr = function(pos, r) {
+    this.fillRect(pos.x - r, pos.y - r, r, r);
+}
 
 class Mass {
     constructor(pos, radius = 0.08, mass = 0.16) {
@@ -43,9 +46,8 @@ class Mass {
     }
     // Translates the mass by a difference in movement.
     translate(D) {
-        const lpos = this.pos;
         this.pos.mAdd(D);
-        this.prv.mEqu(lpos);
+        this.prv.mEqu(this.pos);
     }
     // Get mass velocity [m/s]
     get_v(delta) {
@@ -88,10 +90,12 @@ class Mass {
         this.set_d_p(v1.sub(v1.sub(v2).pjt(this.pos.sub(mass2.pos)).mul(r * 2 * mass2.mass / (this.mass + mass2.mass))));
     }
     draw(ctx, scale, sum = 0) {
-        ctx.beginPath();
-        ctx.v_arc(this.pos.mul(scale), (this.radius + sum) * scale);
-        ctx.closePath();
-        ctx.fill();
+        if (!this.isFixed) {
+            ctx.beginPath();
+            ctx.v_arc(this.pos.mul(scale), (this.radius + sum) * scale);
+            ctx.closePath();
+            ctx.fill();
+        } else ctx.v_f_sqr(this.pos.mul(scale), this.radius);
     }
     drawIndicator(ctx, scale, rAdd) {
         ctx.beginPath();
