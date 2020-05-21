@@ -17,7 +17,6 @@
         <script src="./js/phyzzy/PhyzzyBuilders.js"></script>
         <script src="./js/Constructor.js"></script> -->
         <script src="./js/phyzzy/v2d.js"></script>
-        <script src="./js/phyzzy/components.js"></script>
         <script src="./js/phyzzy/model_driver.js"></script>
         <script src="./js/user_action.js"></script>
         <script src="./js/player.js"></script>
@@ -41,9 +40,9 @@
             let m3 = new Mass(randPos(0.5), 0.1, 0.2, 0.05);
             // let m4 = new Mass(randPos(0.5), 0.1, 0.2);
             // let m5 = new Mass(randPos(0.5), 0.1, 0.2);
-            let s1 = new Spring(m1, m2, 1, 100, 10);
-            let s2 = new Spring(m2, m3, 1, 100, 10);
-            let s3 = new Spring(m3, m1, 1, 100, 10);
+            let s1 = new Spring(m1, m2, 1) //, 100, 10);
+            let s2 = new Spring(m2, m3, 1) //, 100, 10);
+            let s3 = new Spring(m3, m1, 1) //, 100, 10);
             // let s4 = new Spring(m4, m5, 0.5);
             m1.c_group = 1;
             m2.c_group = 1;
