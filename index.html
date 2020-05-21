@@ -12,20 +12,9 @@
         <input id="userConstruct" type="button" value="construct">
         <input id="userDelete" type="button" value="delete">
         <input id="userClear" type="button" value="clear"><br>
-        <div class="viewContainer">
-            <canvas id="viewport" height="480" width="720"></canvas>
-        </div>
-        <div class="userContainer">
-            <input type="range" name="envSet" id="gravSlider" min="0" max="40" step="0.01"> gravity<br>
-            <input type="range" name="envSet" id="dragSlider" min="0" max="100" step="0.01"> drag<br>
-            <canvas id="wavebox" width="275" height="80"></canvas><br>
-            <input type="range" name="waveProp" id="amplitude" min="0" max="1" step="0.01"> amplitude<br>
-            <input type="range" name="waveProp" id="speed" min="0" max="20" step="0.01"> speed
-            <input type="checkbox" name="waveProp" id="direction"> reverse
-        </div>
+        <canvas id="viewport" height="480" width="720"></canvas>
         <script src="./js/phyzzy/Phyzzy.js"></script>
         <script src="./js/phyzzy/PhyzzyBuilders.js"></script>
-        <script src="./js/waveDraw.js"></script>
         <script src="./js/Constructor.js"></script>
     </body>
 </html>

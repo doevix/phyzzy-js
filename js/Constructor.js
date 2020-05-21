@@ -21,14 +21,6 @@ const pauseButton = document.getElementById("userPause");
 const constructButton = document.getElementById("userConstruct");
 const deleteButton = document.getElementById("userDelete");
 const clearButton = document.getElementById("userClear");
-const gravSlider = document.getElementById("gravSlider");
-const dragSlider = document.getElementById("dragSlider");
-
-gravSlider.value = env.gravity.y;
-dragSlider.value = env.kd;
-wbox.ampSlider.value = phz.amp;
-wbox.spdSlider.value = phz.wSpd;
-wbox.dirCheck.checked = false;
 
 // User mode control.
 const mode = {
@@ -73,27 +65,6 @@ pauseButton.addEventListener('click', () => mode.setPause(!mode.pause), false);
 constructButton.addEventListener('click', () => mode.setConstruct(!mode.construct), false);
 deleteButton.addEventListener('click', () => mode.setDelete(!mode.udelete), false);
 
-// Environment slider event listeners.
-gravSlider.addEventListener('input', e => {
-    env.gravity.y = gravSlider.value;
-}, false);
-dragSlider.addEventListener('input', e => {
-    env.kd = dragSlider.value;
-}, false);
-
-// Wavebox event listeners.
-wbox.ampSlider.addEventListener('input', e => {
-    phz.amp = wbox.ampSlider.value;
-}, false);
-
-wbox.spdSlider.addEventListener('input', e => {
-    phz.wSpd = wbox.spdSlider.value;
-}, false);
-
-wbox.dirCheck.addEventListener("input", e => {
-    if (wbox.dirCheck.checked) phz.dir = -1;
-    else phz.dir = 1;
-}, false);
 
 // Indicate state of user's interaction with model.
 const user = {
@@ -185,7 +156,6 @@ const frame = () => {
     phz.drawMass(ctx, '#1DB322');
     user.highlight = phz.locateMass(phz.scaleV(user.mpos), 0.2);
     user.draw(phz);
-    wbox.draw(phz.amp, 1, phz.t);
 
     if (!mode.pause){
         phz.updateActuators(delta);

@@ -9,16 +9,3 @@ canvas {
     padding-top: 0px;
     padding-bottom: 0px;
 }
-
-.viewContainer {
-    display: inline-block;
-    justify-content: space-evenly;
-    text-align: center;
-    background-color: rgb(138, 138, 138);
-}
-
-.userContainer {
-    display: inline-block;
-    /* margin-left: 80%; */
-    background-color: rgb(138, 138, 138);
-}
