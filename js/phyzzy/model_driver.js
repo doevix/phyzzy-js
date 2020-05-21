@@ -11,9 +11,11 @@ v2d.prototype.draw = function(ctx, origin, scale) {
 
 // Model driver singleton.
 const Model = (() => {
-    let scale = 100;
     let masses = []; // Holds all masses to be used.
     let springs = []; // Holds all springs that link masses.
+    
+    let scale = 100; // Model scale in pixels per meter.
+    let delta = 1 / 60; // Elapsed time between frames.
 
     // Elements under user influence.
     let highlight = undefined;
@@ -71,6 +73,8 @@ const Model = (() => {
         },
         getScale: () => scale,
         setScale: set => scale = set,
+        getDelta: () => delta,
+        setDelta: set => delta = set,
         addMass: nMass => masses.push(nMass),
         remMass: mToRemove => {
             masses = masses.filter(m => m !== mToRemove);
@@ -78,7 +82,7 @@ const Model = (() => {
         },
         addSpring: nSpring => springs.push(nSpring),
         remSpring: sToRemove => springs = springs.filter(s => s !== sToRemove),
-        update: (env, delta) => {
+        update: (env) => {
             if (pause) return;
             // Apply model spring forces.
             for(let i = 0; i < springs.length; ++i) springs[i].apply_F(delta);
@@ -134,7 +138,7 @@ const Model = (() => {
             const D = new v2d(dx, dy);
 
             if (drag !== undefined) {
-                drag.translate(D.div(scale));
+                drag.translate(D.div(scale), delta);
             }
         },
         clearDrag: () => {

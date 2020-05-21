@@ -47,7 +47,7 @@ class Mass {
     // Translates the mass by a difference in movement.
     translate(D) {
         this.prv.mEqu(this.pos);
-        this.pos.mAdd(D);
+        this.pos.mEqu(this.pos.add(D));
     }
     // Get mass velocity [m/s]
     get_v(delta) {
@@ -142,9 +142,9 @@ class Spring {
         const l = AB.mag();
         // Springing force.
         const Fk = AB.div(l).mul((l - this.rst) * this.stf);
-        // Damping force.
-        const v_A = !this.mA.ignore ? this.mA.d_p() : new v2d();
-        const v_B = !this.mB.ignore ? this.mB.d_p() : new v2d();
+        // Damping force. I'm not sure if it's right for dragging, but it looks ok.
+        const v_A = !this.mA.ignore ? this.mA.d_p() : this.mA.d_p().mul(delta);
+        const v_B = !this.mB.ignore ? this.mB.d_p() : this.mB.d_p().mul(delta);
         const Fd = v_B.sub(v_A).div(delta).pjt(AB).mul(this.dmp);
 
         return Fk.add(Fd);

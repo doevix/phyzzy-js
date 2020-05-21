@@ -22,7 +22,7 @@ const rSign = () => Math.random() > 0.5 ? 1 : -1;
 
 const frameTime = 1 / 60;
 const stepsPerFrame = 5;
-const lapse = frameTime / stepsPerFrame;
+Model.setDelta(frameTime / stepsPerFrame);
 
 // Generate the canvas element.
 const canvas = document.createElement('canvas');
@@ -52,6 +52,6 @@ const frame = () => {
     Model.draw(ctx, theme_dark);
     env.draw(ctx, 'white', Model.getScale());
     // Update model for next frame.
-    for (let i = 0; i < stepsPerFrame; i++) Model.update(env, lapse);
+    for (let i = 0; i < stepsPerFrame; i++) Model.update(env);
     requestAnimationFrame(frame);
 }
