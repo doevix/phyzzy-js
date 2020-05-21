@@ -15,6 +15,9 @@ class v2d {
         }
         return this;
     }
+    copy() {
+        return new v2d(this.x, this.y);
+    }
     add(A) {
         return new v2d(this.x + A.x, this.y + A.y);
     }
