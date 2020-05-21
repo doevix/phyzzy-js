@@ -81,15 +81,15 @@ class Mass {
         const r = (this.refl + mass2.refl) / 2;
         this.set_d_p(v1.sub(v1.sub(v2).pjt(this.pos.sub(mass2.pos)).mul(r * 2 * mass2.mass / (this.mass + mass2.mass))));
     }
-    draw(ctx, scale) {
+    draw(ctx, scale, sum = 0) {
         ctx.beginPath();
-        ctx.v_arc(this.pos.mul(scale), this.radius * scale);
+        ctx.v_arc(this.pos.mul(scale), (this.radius + sum) * scale);
         ctx.closePath();
         ctx.fill();
     }
-    drawPrv(ctx, scale) {
+    drawIndicator(ctx, scale, rAdd) {
         ctx.beginPath();
-        ctx.v_arc(this.prv.mul(scale), this.radius * scale);
+        ctx.v_arc(this.prv.mul(scale), (this.radius + rAdd) * scale);
         ctx.closePath();
         ctx.stroke();
     }
