@@ -1,11 +1,12 @@
 body {
     background-color: #DBDBDB;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin: 0px;
 }
 
 canvas {
-    background-color: white;
-    touch-action: none;
-    padding-top: 0px;
-    padding-bottom: 0px;
+    background-color: rgb(44, 44, 44);
+    /* touch-action: none; */
+    display: block;
+    position: absolute;
 }
