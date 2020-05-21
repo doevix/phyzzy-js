@@ -94,10 +94,10 @@ const Model = (() => {
                 env.boundCollide(m, true);
             }
         },
-        nearestMass: (pos, rad) => masses.find(m => m.pos.isInRad(pos, rad)),
+        nearestMass: (pos, rad) => masses.find(m => m.pos.isInRad(pos, m.radius + rad)),
         nearestSpring: (pos, rad) => springs.find(s => s.p_seg(pos, rad) !== undefined),
         setHighlight: element => highlight = element,
-        setSelect: element => select = element,
+        setSelect: () => select = highlight,
         draw: (ctx, theme, scale = 100) => {
             for (let i = 0; i < springs.length; ++i) {
                 const s = springs[i];
