@@ -41,13 +41,13 @@ class Mass {
         return this.pos.sub(this.prv);
     }
     // Set previous position according to a given segment.
-    set_d_p(d_p) {
+    set_d_p(d_p = new v2d()) {
         this.prv.mEqu(this.pos.sub(d_p));
     }
     // Translates the mass by a difference in movement.
     translate(D) {
-        this.pos.mAdd(D);
         this.prv.mEqu(this.pos);
+        this.pos.mAdd(D);
     }
     // Get mass velocity [m/s]
     get_v(delta) {
@@ -59,16 +59,21 @@ class Mass {
     }
     // Verlet integrator acceleration.
     v_accel(delta) {
-        this.pos.mAdd(this.F_sum.div(this.mass).mul(delta * delta));
+        if (!this.ignore) {
+            this.pos.mAdd(this.F_sum.div(this.mass).mul(delta * delta));
+        }
     }
     // Verlet inertia application.
     v_iner() {
-        const p = this.pos.mul(2).sub(this.prv);
-        this.prv.mEqu(this.pos);
-        this.pos.mEqu(p);
+        if (!this.ignore) {
+            const p = this.pos.mul(2).sub(this.prv);
+            this.prv.mEqu(this.pos);
+            this.pos.mEqu(p);
+        }
     }
     // Calculate and accumulate surface friction.
     f_k(S) {
+        // To to: make this work correctly.
         const F_S = this.F_sum.pjt(S);
         const V_S = this.d_p().pjt(S);
         const F_Sp = this.F_sum.pjt(S.prp());
@@ -90,23 +95,18 @@ class Mass {
         this.set_d_p(v1.sub(v1.sub(v2).pjt(this.pos.sub(mass2.pos)).mul(r * 2 * mass2.mass / (this.mass + mass2.mass))));
     }
     draw(ctx, scale, sum = 0) {
+        const rad = (this.radius + sum) * scale;
         if (!this.isFixed) {
             ctx.beginPath();
-            ctx.v_arc(this.pos.mul(scale), (this.radius + sum) * scale);
+            ctx.v_arc(this.pos.mul(scale), rad);
             ctx.closePath();
             ctx.fill();
-        } else ctx.v_f_sqr(this.pos.mul(scale), this.radius);
-    }
-    drawIndicator(ctx, scale, rAdd) {
-        ctx.beginPath();
-        ctx.v_arc(this.prv.mul(scale), (this.radius + rAdd) * scale);
-        ctx.closePath();
-        ctx.stroke();
+        } else ctx.v_f_sqr(this.pos.mul(scale), rad * 2);
     }
 };
 
 class Spring {
-    constructor(mA, mB, restlength, stiffness = 20, damping = 2) {
+    constructor(mA, mB, restlength, stiffness = 50, damping = 5) {
         this.mA = mA;
         this.mB = mB;
         this.rst = restlength;
@@ -143,15 +143,17 @@ class Spring {
         // Springing force.
         const Fk = AB.div(l).mul((l - this.rst) * this.stf);
         // Damping force.
-        const Fd = this.mB.d_p().sub(this.mA.d_p()).div(delta).pjt(AB).mul(this.dmp);
+        const v_A = !this.mA.ignore ? this.mA.d_p() : new v2d();
+        const v_B = !this.mB.ignore ? this.mB.d_p() : new v2d();
+        const Fd = v_B.sub(v_A).div(delta).pjt(AB).mul(this.dmp);
 
         return Fk.add(Fd);
     }
     // Calculates forces and mutably sums to masses.
     apply_F(delta) {
         const F = this.F(delta);
-        this.mA.F_sum.mAdd(F);
-        this.mB.F_sum.mAdd(F.inv());
+        if (!this.mA.ignore) this.mA.F_sum.mAdd(F);
+        if (!this.mB.ignore) this.mB.F_sum.mAdd(F.inv());
     }
     draw(ctx, scale) {
         ctx.beginPath();
@@ -221,7 +223,7 @@ class Environment {
     }
     screenFriction(m) {
         if (this.s_bounds.h != undefined && m.pos.y + m.radius >= this.s_bounds.h) {
-            const fk = Math.abs(m.F_sum.y) * m.mu_k * -(m.d_p().x / Math.abs(m.d_p().x));
+            const fk = m.d_p().x !== 0 ? Math.abs(m.F_sum.y) * m.mu_k * -(m.d_p().x / Math.abs(m.d_p().x)) : 0;
             m.F_sum.x += fk;
         }
     }

@@ -20,7 +20,6 @@ const rSign = () => Math.random() > 0.5 ? 1 : -1;
 
 // Main function starts here.
 
-const scale = 100; // Model canvas scale in pixels per meter.
 const frameTime = 1 / 60;
 const stepsPerFrame = 5;
 const lapse = frameTime / stepsPerFrame;
@@ -32,25 +31,26 @@ canvas.style = 'background-color: ' + theme_dark.background;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 document.body.appendChild(canvas);
-const mouse = MouseHandler(canvas, scale);
+const mouse = MouseHandler(canvas, Model.getScale());
 mouse.attachEvents(canvas);
 
 
-const scaledRect = { w: canvas.width / scale, h: canvas.height / scale };
+const scaledRect = { w: canvas.width / Model.getScale(), h: canvas.height / Model.getScale() };
 
 const env = new Environment(new v2d(0, 9.81), 0, 0, 0, scaledRect.w, scaledRect.h);
-env.addBound(
-    {x: scaledRect.w / 2 - 1, y: scaledRect.h / 2 - 1},
-    {x: scaledRect.w / 2 + 1, y: scaledRect.h / 2 + 1});
+// env.addBound(
+//     {x: scaledRect.w / 2 - 1, y: scaledRect.h / 2 - 1},
+//     {x: scaledRect.w / 2 + 1, y: scaledRect.h / 2 + 1});
 
 const frame = () => {
     // Catch the element nearest to the pointer.
     Model.setHighlight(
-        Model.nearestMass(mouse.getPos(scale), 0.05) || Model.nearestSpring(mouse.getPos(scale), 0.1));
+        Model.nearestMass(mouse.getPos(Model.getScale()), 0.05) 
+        || Model.nearestSpring(mouse.getPos(Model.getScale()), 0.1));
     // Draw model.
     ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-    Model.draw(ctx, theme_dark, scale);
-    env.draw(ctx, 'white', scale);
+    Model.draw(ctx, theme_dark);
+    env.draw(ctx, 'white', Model.getScale());
     // Update model for next frame.
     for (let i = 0; i < stepsPerFrame; i++) Model.update(env, lapse);
     requestAnimationFrame(frame);

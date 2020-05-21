@@ -1,6 +1,14 @@
 // model_driver.js
 'use strict';
 
+v2d.prototype.draw = function(ctx, origin, scale) {
+    ctx.beginPath();
+    ctx.moveTo(origin.x, origin.y);
+    ctx.lineTo(origin.x + this.x * scale, origin.y + this.y * scale);
+    ctx.closePath();
+    ctx.stroke();
+}
+
 // Model driver singleton.
 const Model = (() => {
     let scale = 100;
@@ -11,6 +19,7 @@ const Model = (() => {
     let highlight = undefined;
     let select = undefined;
     let drag = undefined;
+    let pause = false;
 
     // Mass-mass collisions.
     const mm_collide = (m, preserve) => {
@@ -54,6 +63,13 @@ const Model = (() => {
     }
 
     return {
+        isPaused: () => pause,
+        togglePause: () => {
+            if (pause) pause = false;
+            else pause = true;
+            return pause;
+        },
+        getScale: () => scale,
         setScale: set => scale = set,
         addMass: nMass => masses.push(nMass),
         remMass: mToRemove => {
@@ -63,6 +79,7 @@ const Model = (() => {
         addSpring: nSpring => springs.push(nSpring),
         remSpring: sToRemove => springs = springs.filter(s => s !== sToRemove),
         update: (env, delta) => {
+            if (pause) return;
             // Apply model spring forces.
             for(let i = 0; i < springs.length; ++i) springs[i].apply_F(delta);
             
@@ -82,6 +99,7 @@ const Model = (() => {
                 }
                 env.boundCollide(m, false);
                 env.s_boundHit(m, false);
+
                 // Model inertia.
                 m.v_iner();
                 
@@ -99,15 +117,35 @@ const Model = (() => {
         setSelect: () => {
             select = highlight;
             drag = select;
-        },
-        dragAction: (dx, dy) => {
-            const D = new v2d(dx / scale, dy / scale);
-
-            if (drag !== undefined) {
-                drag.translate(D);
+            if (drag !== undefined)
+            {
+                if (drag.mA && drag.mB) {
+                    drag.mA.ignore = true;
+                    drag.mB.ignore = true;
+                    drag.mA.prv.mEqu(drag.mA.pos);
+                    drag.mB.prv.mEqu(drag.mB.pos);
+                } else {
+                    drag.ignore = true;
+                    drag.prv.mEqu(drag.pos);
+                }
             }
         },
-        clearDrag: () => drag = undefined,
+        dragAction: (dx, dy) => {
+            const D = new v2d(dx, dy);
+
+            if (drag !== undefined) {
+                drag.translate(D.div(scale));
+            }
+        },
+        clearDrag: () => {
+            if (drag !== undefined) {
+                if (drag.mA) {
+                    drag.mA.ignore = false;
+                    drag.mB.ignore = false;
+                } else drag.ignore = false;
+                drag = undefined
+            }
+        },
         draw: (ctx, theme) => {
             for (let i = 0; i < springs.length; ++i) {
                 const s = springs[i];
