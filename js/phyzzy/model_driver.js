@@ -3,10 +3,14 @@
 
 // Model driver singleton.
 const Model = (() => {
+    let scale = 100;
     let masses = []; // Holds all masses to be used.
     let springs = []; // Holds all springs that link masses.
+
+    // Elements under user influence.
     let highlight = undefined;
     let select = undefined;
+    let drag = undefined;
 
     // Mass-mass collisions.
     const mm_collide = (m, preserve) => {
@@ -49,13 +53,8 @@ const Model = (() => {
         }
     }
 
-    const replacer = function(key, value) {
-        let n;
-        if (key !== 'mA' && key !== 'mB') return value;
-        else return masses.indexOf(value);
-    }
-
     return {
+        setScale: set => scale = set,
         addMass: nMass => masses.push(nMass),
         remMass: mToRemove => {
             masses = masses.filter(m => m !== mToRemove);
@@ -97,25 +96,59 @@ const Model = (() => {
         nearestMass: (pos, rad) => masses.find(m => m.pos.isInRad(pos, m.radius + rad)),
         nearestSpring: (pos, rad) => springs.find(s => s.p_seg(pos, rad) !== undefined),
         setHighlight: element => highlight = element,
-        setSelect: () => select = highlight,
-        draw: (ctx, theme, scale = 100) => {
+        setSelect: () => {
+            select = highlight;
+            drag = select;
+        },
+        dragAction: (dx, dy) => {
+            const D = new v2d(dx / scale, dy / scale);
+
+            if (drag !== undefined) {
+                console.log(D);
+            }
+        },
+        clearDrag: () => drag = undefined,
+        draw: (ctx, theme) => {
             for (let i = 0; i < springs.length; ++i) {
                 const s = springs[i];
+                const widthHold = ctx.lineWidth;
                 let s_color = theme.spring;
-                if (s === highlight) s_color = theme.s_highlighted;
-                if (s === select) s_color = theme.s_selected;
+                if (s === highlight) {
+                    ctx.lineWidth = 5
+                    s_color = theme.s_highlighted;
+                }
+                if (s === select) {
+                    ctx.lineWidth = 5
+                    s_color = theme.s_selected;
+                }
                 ctx.strokeStyle = s_color;
                 s.draw(ctx, scale);
+                ctx.lineWidth = widthHold;
             };
             for (let i = 0; i < masses.length; ++i) {
                 const m = masses[i];
                 let m_color = theme.mass;
-                if (m === highlight) m_color = theme.m_highlighted;
-                if (m === select) m_color = theme.m_selected;
+                let addedSize = 0;
+                // Set user indicators.
+                if (m === highlight) {
+                    m_color = theme.m_highlighted;
+                    addedSize = 0.01;
+                }
+                if (m === select) {
+                    m_color = theme.m_selected;
+                    addedSize = 0.015;
+                }
+                
+                // Draw the mass.
                 ctx.fillStyle = m_color;
-                m.draw(ctx, scale);
+                m.draw(ctx, scale, addedSize);
             };
         },
-        export: (env) => JSON.stringify({masses: masses, springs: springs, environment: env}, replacer, 4)
+        export: (env) => JSON.stringify(
+            { masses: masses, springs: springs, environment: env },
+            function(key, value) {
+                if (key !== 'mA' && key !== 'mB') return value;
+                else return masses.indexOf(value);
+            }, 4)
     };
 })();
