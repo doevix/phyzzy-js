@@ -7,7 +7,6 @@ const MouseHandler = (cv) => {
     const listeners = () => {
         cv.addEventListener('mousemove', e => {
             pos.set(e.clientX - cv.offsetLeft, e.clientY - cv.offsetTop);
-            console.log(pos);
             Model.dragAction(e.movementX, e.movementY);
         }, false);
         cv.addEventListener('mousedown', Model.setSelect, false);

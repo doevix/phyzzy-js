@@ -41,6 +41,12 @@ class Mass {
     set_d_p(d_p) {
         this.prv.mEqu(this.pos.sub(d_p));
     }
+    // Translates the mass by a difference in movement.
+    translate(D) {
+        const lpos = this.pos;
+        this.pos.mAdd(D);
+        this.prv.mEqu(lpos);
+    }
     // Get mass velocity [m/s]
     get_v(delta) {
         return this.pos.sub(this.prv).div(delta);
@@ -103,6 +109,10 @@ class Spring {
         this.stf = stiffness;
         this.dmp = damping;
         this.c_group = 0; // Collision group. Equal values above 0 will collide.
+    }
+    translate(D) {
+        this.mA.translate(D);
+        this.mB.translate(D);
     }
     // Returns the spring's geometric center.
     centroid() {

@@ -104,7 +104,7 @@ const Model = (() => {
             const D = new v2d(dx / scale, dy / scale);
 
             if (drag !== undefined) {
-                console.log(D);
+                drag.translate(D);
             }
         },
         clearDrag: () => drag = undefined,
