@@ -10,7 +10,7 @@ const MouseHandler = (cv) => {
             Model.dragAction(e.movementX, e.movementY);
         }, false);
         cv.addEventListener('mousedown', Model.setSelect, false);
-        cv.addEventListener('mouseUp', Model.clearDrag, false);
+        cv.addEventListener('mouseup', Model.clearDrag, false);
     }
 
     return {
