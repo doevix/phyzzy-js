@@ -27,6 +27,7 @@ canvas.style = 'background-color: ' + theme_dark.background;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 document.body.appendChild(canvas);
+// Attach mouse event handlers to the canvas.
 const mouse = MouseHandler(canvas, Model.getScale());
 mouse.attachEvents(canvas);
 
