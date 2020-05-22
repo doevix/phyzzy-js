@@ -368,13 +368,19 @@ const Model = (() => {
         },
         nearestMass: (pos, rad) => masses.find(m => m.pos.isInRad(pos, m.radius + rad)),
         nearestSpring: (pos, rad) => springs.find(s => s.p_seg(pos, rad) !== undefined),
+        getCenter: () => {
+            let center = new v2d();
+            for (let i = 0; i < masses.length; ++i)
+                center.mAdd(masses[i].pos);
+            return center.div(masses.length);
+        },
         setHighlight: element => highlight = element,
         setSelect: () => {
             select = highlight;
             drag = select;
-            if (drag !== undefined)
+            if (drag) // drag can be either a spring or a mass.
             {
-                if (drag.mA && drag.mB) {
+                if (Spring.prototype.isPrototypeOf(drag)) {
                     drag.mA.ignore = true;
                     drag.mB.ignore = true;
                     drag.mA.prv.mEqu(drag.mA.pos);
@@ -394,7 +400,7 @@ const Model = (() => {
         },
         clearDrag: () => {
             if (drag !== undefined) {
-                if (drag.mA) {
+                if (Spring.prototype.isPrototypeOf(drag)) {
                     drag.mA.ignore = false;
                     drag.mB.ignore = false;
                     drag.mA.set_d_p(drgD_final.div(stepsPerFrame));

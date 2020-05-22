@@ -22,7 +22,7 @@
         <script src="./js/player.js"></script>
         <script>
             // Generate random masses.
-            const maxCount = 10;
+            const maxCount = 0;
             for (let i = 0; i < maxCount; i++) {
                 const p = { x: rand(0, scaledRect.w), y: rand(0, scaledRect.h / 2) };
                 const v = { x: rand(-5, 5), y: rand(-5, 5) };
@@ -48,22 +48,22 @@
             m1.c_group = 1;
             m2.c_group = 1;
             m3.c_group = 1;
-            m4.c_group = 1;
-            m5.c_group = 1;
+            // m4.c_group = 1;
+            // m5.c_group = 1;
             s1.c_group = 1;
             s2.c_group = 1;
             s3.c_group = 1;
-            s4.c_group = 1;
+            // s4.c_group = 1;
 
             Model.addMass(m1);
             Model.addMass(m2);
             Model.addMass(m3);
-            Model.addMass(m4);
-            Model.addMass(m5);
+            // Model.addMass(m4);
+            // Model.addMass(m5);
             Model.addSpring(s1);
             Model.addSpring(s2);
             Model.addSpring(s3);
-            Model.addSpring(s4);
+            // Model.addSpring(s4);
             frame(); // Initiate simulation.
         </script>
     </body>
