@@ -31,24 +31,25 @@ document.body.appendChild(canvas);
 const mouse = MouseHandler(canvas, Model.getScale());
 mouse.attachEvents(canvas);
 
+// Environment for the model.
+const env = new Environment(new v2d(0, 9.81), 0,
+    0, 0, canvas.width / Model.getScale(), canvas.height / Model.getScale());
 
-const scaledRect = { w: canvas.width / Model.getScale(), h: canvas.height / Model.getScale() };
 
-const env = new Environment(new v2d(0, 9.81), 0, 0, 0, scaledRect.w, scaledRect.h);
-// env.addBound(
-//     {x: scaledRect.w / 2 - 1, y: scaledRect.h / 2 - 1},
-//     {x: scaledRect.w / 2 + 1, y: scaledRect.h / 2 + 1});
-
-const frame = () => {
+const CanvasModelUpdate = (env, theme) => {
     // Catch the element nearest to the pointer.
     Model.setHighlight(
         Model.nearestMass(mouse.getPos(Model.getScale()), 0.1) 
         || Model.nearestSpring(mouse.getPos(Model.getScale()), 0.1));
     // Draw model.
     ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-    Model.draw(ctx, theme_dark);
-    env.draw(ctx, theme_dark.bound, Model.getScale());
+    Model.draw(ctx, theme);
+    env.draw(ctx, theme.bound, Model.getScale());
     // Update model for next frame.
     for (let i = 0; i < Model.getStepsPerFrame(); i++) Model.update(env);
+}
+
+const frame = () => {
+    CanvasModelUpdate(env, theme_dark);
     requestAnimationFrame(frame);
 }

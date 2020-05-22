@@ -22,24 +22,24 @@
         <script src="./js/player.js"></script>
         <script>
             // Generate random masses.
-            const maxCount = 0;
+            const maxCount = 1;
             for (let i = 0; i < maxCount; i++) {
-                const p = { x: rand(0, scaledRect.w), y: rand(0, scaledRect.h / 2) };
+                const p = { x: rand(0, env.s_bounds.w), y: rand(0, env.s_bounds.h / 2) };
                 const v = { x: rand(-5, 5), y: rand(-5, 5) };
                 const mr = rand(0.1, 0.1);
                 const m = new Mass(p, mr, mr * 10);
                 // m.set_v(new v2d(v.x, v.y), Model.getDelta());
-                m.refl = rand(0.5, 1);
+                m.refl = rand(0.5, 0.8);
                 m.c_group = 1;
                 Model.addMass(m);
             }
 
-            const randPos = rad => ({ x: rand(rad, scaledRect.w - rad), y: rand(rad, scaledRect.h - rad) });
-            let m1 = new Mass(randPos(0.5), 0.1, 0.2, 0.05);
-            let m2 = new Mass(randPos(0.5), 0.1, 0.2, 0.05);
-            let m3 = new Mass(randPos(0.5), 0.1, 0.2, 0.05);
-            let m4 = new Mass(randPos(0.5), 0.1, 0.2);
-            let m5 = new Mass(randPos(0.5), 0.1, 0.2);
+            const randPos = (rad, b) => ({ x: rand(rad, b.w - rad), y: rand(rad, b.h - rad) });
+            let m1 = new Mass(randPos(0.5, env.s_bounds), 0.1, 0.2, 0.05);
+            let m2 = new Mass(randPos(0.5, env.s_bounds), 0.1, 0.2, 0.05);
+            let m3 = new Mass(randPos(0.5, env.s_bounds), 0.1, 0.2, 0.05);
+            let m4 = new Mass(randPos(0.5, env.s_bounds), 0.1, 0.2);
+            let m5 = new Mass(randPos(0.5, env.s_bounds), 0.1, 0.2);
             let s1 = new Spring(m1, m2, 1, 100, 10) //, 100, 10);
             let s2 = new Spring(m2, m3, 1, 100, 10) //, 100, 10);
             let s3 = new Spring(m3, m1, 1, 100, 10) //, 100, 10);
@@ -64,7 +64,8 @@
             Model.addSpring(s2);
             Model.addSpring(s3);
             // Model.addSpring(s4);
-            frame(); // Initiate simulation.
+
+            frame();
         </script>
     </body>
 </html>
