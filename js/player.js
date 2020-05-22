@@ -10,6 +10,8 @@ const theme_dark = {
     s_selected: "#D7BC27",
     m_highlighted: "#47DE4C",
     s_highlighted: "#B3D6B1",
+    m_delete: "#FF0000",
+    s_delete: "#FF0000",
     bound: "#FFFFFF"
 };
 
@@ -30,11 +32,6 @@ document.body.appendChild(canvas);
 // Attach mouse event handlers to the canvas.
 const mouse = MouseHandler(canvas, Model.getScale());
 mouse.attachEvents(canvas);
-
-// Environment for the model.
-const env = new Environment(new v2d(0, 9.81), 0,
-    0, 0, canvas.width / Model.getScale(), canvas.height / Model.getScale());
-
 
 const CanvasModelUpdate = (env, theme) => {
     // Catch the element nearest to the pointer.
