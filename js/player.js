@@ -46,7 +46,7 @@ const frame = () => {
     // Draw model.
     ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
     Model.draw(ctx, theme_dark);
-    env.draw(ctx, 'white', Model.getScale());
+    env.draw(ctx, theme_dark.bound, Model.getScale());
     // Update model for next frame.
     for (let i = 0; i < Model.getStepsPerFrame(); i++) Model.update(env);
     requestAnimationFrame(frame);
