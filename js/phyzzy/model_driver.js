@@ -1,25 +1,12 @@
 // model_driver.js
 'use strict';
 
-// Simplifies drawing with v2d class.
-// Draw arc, defaults to circle.
-CanvasRenderingContext2D.prototype.v_arc = function(pos, rad, start = 0, end = 2 * Math.PI, counter = false) {
-    this.arc(pos.x, pos.y, rad, start, end, counter);
-}
-// Draw line.
-CanvasRenderingContext2D.prototype.v_line = function(A, B) {
-    this.moveTo(A.x, A.y);
-    this.lineTo(B.x, B.y);
-}
-// Draw square with radius like a circle.
-CanvasRenderingContext2D.prototype.v_f_sqr = function(pos, r) {
-    this.fillRect(pos.x - r, pos.y - r, r, r);
-}
 // Draws the vector on the screen.
 v2d.prototype.draw = function(ctx, origin, scale) {
+    const v = this.mul(scale);
     ctx.beginPath();
     ctx.moveTo(origin.x, origin.y);
-    ctx.lineTo(origin.x + this.x * scale, origin.y + this.y * scale);
+    ctx.lineTo(origin.x + p.x, origin.y + p.y);
     ctx.closePath();
     ctx.stroke();
 }
@@ -106,8 +93,9 @@ class Mass {
     }
     draw(ctx, scale, sum = 0) {
         const rad = (this.radius + sum) * scale;
+        const p = this.pos.mul(scale);
         ctx.beginPath();
-        ctx.v_arc(this.pos.mul(scale), rad);
+        ctx.arc(p.x, p.y, rad, 0, 2 * Math.PI);
         ctx.closePath();
         ctx.fill();
     }
@@ -165,8 +153,11 @@ class Spring {
         this.mB.F_sum.mAdd(F.inv());
     }
     draw(ctx, scale) {
+        const pA = this.mA.pos.mul(scale);
+        const pB = this.mB.pos.mul(scale);
         ctx.beginPath();
-        ctx.v_line(this.mA.pos.mul(scale), this.mB.pos.mul(scale));
+        ctx.moveTo(pA.x, pA.y);
+        ctx.lineTo(pB.x, pB.y);
         ctx.closePath();
         ctx.stroke();
     }
