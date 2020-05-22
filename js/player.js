@@ -41,7 +41,7 @@ const env = new Environment(new v2d(0, 9.81), 0, 0, 0, scaledRect.w, scaledRect.
 const frame = () => {
     // Catch the element nearest to the pointer.
     Model.setHighlight(
-        Model.nearestMass(mouse.getPos(Model.getScale()), 0.05) 
+        Model.nearestMass(mouse.getPos(Model.getScale()), 0.1) 
         || Model.nearestSpring(mouse.getPos(Model.getScale()), 0.1));
     // Draw model.
     ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
