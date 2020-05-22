@@ -56,8 +56,9 @@ class Mass {
     }
     // Translates the mass by a difference in movement.
     translate(D) {
+        this.ignore = true;
         this.prv.mEqu(this.pos);
-        this.pos.mEqu(this.pos.add(D));
+        this.pos.mAdd(D);
     }
     // Get mass velocity [m/s]
     get_v(delta) {
@@ -71,15 +72,17 @@ class Mass {
     v_accel(delta) {
         if (!this.ignore) {
             this.pos.mAdd(this.F_sum.div(this.mass).mul(delta * delta));
+        } else {
+            this.prv.mEqu(this.pos);
         }
     }
     // Verlet inertia application.
     v_iner() {
-        if (!this.ignore) {
+        // if (!this.ignore) {
             const p = this.pos.mul(2).sub(this.prv);
             this.prv.mEqu(this.pos);
             this.pos.mEqu(p);
-        }
+        // }
     }
     // Calculate and accumulate surface friction.
     f_k(S) {
@@ -126,6 +129,8 @@ class Spring {
         this.c_group = 0; // Collision group. Equal values above 0 will collide.
     }
     translate(D) {
+        this.mA.ignore = true;
+        this.mB.ignore = true;
         this.mA.translate(D);
         this.mB.translate(D);
     }
@@ -256,7 +261,9 @@ const Model = (() => {
     let springs = []; // Holds all springs that link masses.
     
     let scale = 100; // Model scale in pixels per meter.
-    let delta = 1 / 60; // Elapsed time between frames.
+    let frameTime = 1 / 60;
+    let stepsPerFrame = 1;
+    let delta = frameTime / stepsPerFrame; // Elapsed time between frames.
 
     // Elements under user influence.
     let highlight = undefined;
@@ -315,7 +322,16 @@ const Model = (() => {
         getScale: () => scale,
         setScale: set => scale = set,
         getDelta: () => delta,
-        setDelta: set => delta = set,
+        setFrameTime: set => {
+            frameTime = set;
+            delta = frameTime / stepsPerFrame;
+        },
+        getFrameTime: () => frameTime = get,
+        setStepsPerFrame: set => {
+            stepsPerFrame = set
+            delta = frameTime / stepsPerFrame;
+        },
+        getStepsPerFrame: () => stepsPerFrame,
         addMass: nMass => masses.push(nMass),
         remMass: mToRemove => {
             masses = masses.filter(m => m !== mToRemove);
@@ -365,12 +381,12 @@ const Model = (() => {
             if (drag !== undefined)
             {
                 if (drag.mA && drag.mB) {
-                    drag.mA.ignore = true;
-                    drag.mB.ignore = true;
+                    // drag.mA.ignore = true;
+                    // drag.mB.ignore = true;
                     drag.mA.prv.mEqu(drag.mA.pos);
                     drag.mB.prv.mEqu(drag.mB.pos);
                 } else {
-                    drag.ignore = true;
+                    // drag.ignore = true;
                     drag.prv.mEqu(drag.pos);
                 }
             }
@@ -379,7 +395,7 @@ const Model = (() => {
             const D = new v2d(dx, dy);
 
             if (drag !== undefined) {
-                drag.translate(D.div(scale), delta);
+                drag.translate(D.div(scale));
             }
         },
         clearDrag: () => {
