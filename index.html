@@ -21,6 +21,11 @@
         <script src="./js/user_action.js"></script>
         <script src="./js/player.js"></script>
         <script>
+            // Return a random value within range.
+            const rand = (min = 0, max = 1) => min + (max - min) * Math.random();
+            // Return a 1 or -1 for multiplying.
+            const rSign = () => Math.random() > 0.5 ? 1 : -1;
+
             // Define environment for the model.
             const env = new Environment(new v2d(0, 9.81), 0,
                 0, 0, canvas.width / Model.getScale(), canvas.height / Model.getScale());
@@ -71,7 +76,7 @@
             // Model.addMass(m5);
             // Model.addSpring(s4);
 
-
+            Model.setStepsPerFrame(5);
             frame();
         </script>
     </body>

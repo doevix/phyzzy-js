@@ -1,6 +1,7 @@
 // player.js
 "use strict";
 
+// Theme to use for colors.
 const theme_dark = {
     background: "#2C2C2C",
     mass: "#1DB322",
@@ -15,38 +16,37 @@ const theme_dark = {
     bound: "#FFFFFF"
 };
 
-// Return a random value within range.
-const rand = (min = 0, max = 1) => min + (max - min) * Math.random();
-// Return a 1 or -1 for multiplying.
-const rSign = () => Math.random() > 0.5 ? 1 : -1;
-
-// Main function starts here.
-Model.setStepsPerFrame(5);
 // Generate the canvas element.
-const canvas = document.createElement('canvas');
-const ctx = canvas.getContext('2d');
-canvas.style = 'background-color: ' + theme_dark.background;
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-document.body.appendChild(canvas);
-// Attach mouse event handlers to the canvas.
-const mouse = MouseHandler(canvas, Model.getScale());
-mouse.attachEvents(canvas);
-
-const CanvasModelUpdate = (env, theme) => {
+const generateCanvas = theme => {
+    const canvas = document.createElement('canvas');
+    canvas.style = 'background-color: ' + theme.background;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    document.body.appendChild(canvas);
+    return canvas;
+}
+// Updates and draws the model to the canvas.
+const CanvasModelUpdate = (ctx, env, theme, width, height) => {
     // Catch the element nearest to the pointer.
     Model.setHighlight(
         Model.nearestMass(mouse.getPos(Model.getScale()), 0.1) 
         || Model.nearestSpring(mouse.getPos(Model.getScale()), 0.1));
     // Draw model.
-    ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+    ctx.clearRect(0, 0, width, height);
     Model.draw(ctx, theme);
     env.draw(ctx, theme.bound, Model.getScale());
     // Update model for next frame.
     for (let i = 0; i < Model.getStepsPerFrame(); i++) Model.update(env);
 }
+// Model player initialization
+const canvas = generateCanvas(theme_dark);
+const context = canvas.getContext('2d');
+// Attach mouse event handlers to the canvas.
+const mouse = MouseHandler(canvas, Model.getScale());
+mouse.attachEvents(canvas);
+
 
 const frame = () => {
-    CanvasModelUpdate(env, theme_dark);
+    CanvasModelUpdate(context, env, theme_dark, canvas.width, canvas.height);
     requestAnimationFrame(frame);
 }
