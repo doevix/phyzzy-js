@@ -56,8 +56,7 @@ class Mass {
     }
     // Translates the mass by a difference in movement.
     translate(D) {
-        this.ignore = true;
-        this.prv.mEqu(this.pos);
+        // this.prv.mEqu(this.pos);
         this.pos.mAdd(D);
     }
     // Get mass velocity [m/s]
@@ -70,7 +69,7 @@ class Mass {
     }
     // Verlet integrator acceleration.
     v_accel(delta) {
-        if (!this.ignore) {
+        if (!this.ignore && !this.isFixed) {
             this.pos.mAdd(this.F_sum.div(this.mass).mul(delta * delta));
         } else {
             this.prv.mEqu(this.pos);
@@ -78,11 +77,9 @@ class Mass {
     }
     // Verlet inertia application.
     v_iner() {
-        // if (!this.ignore) {
             const p = this.pos.mul(2).sub(this.prv);
             this.prv.mEqu(this.pos);
             this.pos.mEqu(p);
-        // }
     }
     // Calculate and accumulate surface friction.
     f_k(S) {
@@ -109,12 +106,10 @@ class Mass {
     }
     draw(ctx, scale, sum = 0) {
         const rad = (this.radius + sum) * scale;
-        if (!this.isFixed) {
-            ctx.beginPath();
-            ctx.v_arc(this.pos.mul(scale), rad);
-            ctx.closePath();
-            ctx.fill();
-        } else ctx.v_f_sqr(this.pos.mul(scale), rad * 2);
+        ctx.beginPath();
+        ctx.v_arc(this.pos.mul(scale), rad);
+        ctx.closePath();
+        ctx.fill();
     }
 };
 
@@ -129,8 +124,6 @@ class Spring {
         this.c_group = 0; // Collision group. Equal values above 0 will collide.
     }
     translate(D) {
-        this.mA.ignore = true;
-        this.mB.ignore = true;
         this.mA.translate(D);
         this.mB.translate(D);
     }
@@ -158,7 +151,7 @@ class Spring {
         const l = AB.mag();
         // Springing force.
         const Fk = AB.div(l).mul((l - this.rst) * this.stf);
-        // Damping force. I'm not sure if it's right for dragging, but it looks ok.
+        // Damping force.
         const v_A = this.mA.d_p();
         const v_B = this.mB.d_p();
         const Fd = v_B.sub(v_A).div(delta).pjt(AB).mul(this.dmp);
@@ -269,6 +262,7 @@ const Model = (() => {
     let highlight = undefined;
     let select = undefined;
     let drag = undefined;
+    let drgD_final = new v2d();
     let pause = false;
 
     // Mass-mass collisions.
@@ -381,20 +375,20 @@ const Model = (() => {
             if (drag !== undefined)
             {
                 if (drag.mA && drag.mB) {
-                    // drag.mA.ignore = true;
-                    // drag.mB.ignore = true;
+                    drag.mA.ignore = true;
+                    drag.mB.ignore = true;
                     drag.mA.prv.mEqu(drag.mA.pos);
                     drag.mB.prv.mEqu(drag.mB.pos);
                 } else {
-                    // drag.ignore = true;
+                    drag.ignore = true;
                     drag.prv.mEqu(drag.pos);
                 }
             }
         },
         dragAction: (dx, dy) => {
             const D = new v2d(dx, dy);
-
             if (drag !== undefined) {
+                drgD_final.mEqu(D.div(scale));
                 drag.translate(D.div(scale));
             }
         },
@@ -403,8 +397,13 @@ const Model = (() => {
                 if (drag.mA) {
                     drag.mA.ignore = false;
                     drag.mB.ignore = false;
-                } else drag.ignore = false;
-                drag = undefined
+                    drag.mA.set_d_p(drgD_final.div(stepsPerFrame));
+                    drag.mB.set_d_p(drgD_final.div(stepsPerFrame));
+                } else {
+                    drag.ignore = false;
+                    drag.set_d_p(drgD_final.div(stepsPerFrame));
+                }
+                drag = undefined;
             }
         },
         draw: (ctx, theme) => {
@@ -441,6 +440,10 @@ const Model = (() => {
                 // Draw the mass.
                 ctx.fillStyle = m_color;
                 m.draw(ctx, scale, addedSize);
+                if (m.isFixed) {
+                    ctx.fillStyle = theme.fixed_center;
+                    m.draw(ctx, scale, -m.radius / 2);
+                }
             };
         },
         export: (env) => JSON.stringify(

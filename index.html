@@ -28,7 +28,7 @@
                 const v = { x: rand(-5, 5), y: rand(-5, 5) };
                 const mr = rand(0.1, 0.1);
                 const m = new Mass(p, mr, mr * 10);
-                m.set_v(new v2d(v.x, v.y), Model.getDelta());
+                // m.set_v(new v2d(v.x, v.y), Model.getDelta());
                 m.refl = rand(0.5, 1);
                 m.c_group = 1;
                 Model.addMass(m);
@@ -38,31 +38,32 @@
             let m1 = new Mass(randPos(0.5), 0.1, 0.2, 0.05);
             let m2 = new Mass(randPos(0.5), 0.1, 0.2, 0.05);
             let m3 = new Mass(randPos(0.5), 0.1, 0.2, 0.05);
-            // let m4 = new Mass(randPos(0.5), 0.1, 0.2);
-            // let m5 = new Mass(randPos(0.5), 0.1, 0.2);
-            let s1 = new Spring(m1, m2, 1) //, 100, 10);
-            let s2 = new Spring(m2, m3, 1) //, 100, 10);
-            let s3 = new Spring(m3, m1, 1) //, 100, 10);
-            // let s4 = new Spring(m4, m5, 0.5);
+            let m4 = new Mass(randPos(0.5), 0.1, 0.2);
+            let m5 = new Mass(randPos(0.5), 0.1, 0.2);
+            let s1 = new Spring(m1, m2, 1, 100, 10) //, 100, 10);
+            let s2 = new Spring(m2, m3, 1, 100, 10) //, 100, 10);
+            let s3 = new Spring(m3, m1, 1, 100, 10) //, 100, 10);
+            let s4 = new Spring(m4, m5, 0.5);
+            // m1.isFixed = true;
             m1.c_group = 1;
             m2.c_group = 1;
             m3.c_group = 1;
-            // m4.c_group = 1;
-            // m5.c_group = 1;
+            m4.c_group = 1;
+            m5.c_group = 1;
             s1.c_group = 1;
             s2.c_group = 1;
             s3.c_group = 1;
-            // s4.c_group = 1;
+            s4.c_group = 1;
 
             Model.addMass(m1);
             Model.addMass(m2);
             Model.addMass(m3);
-            // Model.addMass(m4);
-            // Model.addMass(m5);
+            Model.addMass(m4);
+            Model.addMass(m5);
             Model.addSpring(s1);
             Model.addSpring(s2);
             Model.addSpring(s3);
-            // Model.addSpring(s4);
+            Model.addSpring(s4);
             frame(); // Initiate simulation.
         </script>
     </body>

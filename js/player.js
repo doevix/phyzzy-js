@@ -4,12 +4,12 @@
 const theme_dark = {
     background: "#2C2C2C",
     mass: "#1DB322",
+    fixed_center: "#2C2C2C",    
     spring: "#FFFFFF",
     m_selected: "#D7BC27",
     s_selected: "#D7BC27",
     m_highlighted: "#47DE4C",
     s_highlighted: "#B3D6B1",
-    indicator: "#FFFFFF",    
     bound: "#FFFFFF"
 };
 
@@ -19,7 +19,7 @@ const rand = (min = 0, max = 1) => min + (max - min) * Math.random();
 const rSign = () => Math.random() > 0.5 ? 1 : -1;
 
 // Main function starts here.
-
+Model.setStepsPerFrame(5);
 // Generate the canvas element.
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
