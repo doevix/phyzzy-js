@@ -99,7 +99,8 @@ class Mass {
         const v1 = mem ? mem.va : this.d_p();
         const v2 = mem ? mem.vb : mass2.d_p();
         const r = (this.refl + mass2.refl) / 2;
-        this.set_d_p(v1.sub(v1.sub(v2).pjt(this.pos.sub(mass2.pos)).mul(r * 2 * mass2.mass / (this.mass + mass2.mass))));
+        this.set_d_p(v1.sub(v1.sub(v2).pjt(this.pos.sub(mass2.pos))
+        .mul(r * 2 * mass2.mass / (this.mass + mass2.mass))));
     }
     draw(ctx, scale, sum = 0) {
         const rad = (this.radius + sum) * scale;
@@ -400,12 +401,7 @@ const Model = (() => {
         },
         nearestMass: (pos, rad) => masses.find(m => m.pos.isInRad(pos, m.radius + rad)),
         nearestSpring: (pos, rad) => springs.find(s => s.p_seg(pos, rad) !== undefined),
-        getCenter: () => {
-            let center = new v2d();
-            for (let i = 0; i < masses.length; ++i)
-                center.mAdd(masses[i].pos);
-            return center.div(masses.length);
-        },
+        getCenter: () => masses.reduce((c, m) => m.pos.add(c), new v2d()).div(masses.length),
         setHighlight: element => highlight = element,
         setSelect: (dragEnable) => {
             select = highlight;
