@@ -258,6 +258,7 @@ const Model = (() => {
     let frameTime = 1 / 60;
     let stepsPerFrame = 1;
     let delta = frameTime / stepsPerFrame; // Elapsed time between frames.
+    let collisions_enabled = false; // Free collisions disabled by default.
 
     // Elements under user influence.
     let highlight = undefined;
@@ -270,7 +271,7 @@ const Model = (() => {
         for (let i = 0; i < masses.length; ++i) {
             const c = masses[i];
             // Check groups.
-            if (m !== c && (m.c_group === c.c_group || m.c_group === -1 || c.c_group === -1)) {
+            if (m !== c && ((m.c_group === c.c_group && m.c_group !== 0 && c.c_group !== 0) || m.c_group === -1 || c.c_group === -1)) {
                 // Check overlap.
                 if (m.pos.isInRad(c.pos, m.radius + c.radius)) {
                     const seg = m.pos.sub(c.pos);
@@ -301,7 +302,8 @@ const Model = (() => {
         for (let i = 0; i < springs.length; ++i) {
             const s = springs[i];
             // Check groups.
-            if ((m !== s.mA && m !== s.mB) && (m.c_group === s.c_group || m.c_group === -1 || s.c_group === -1)) {
+            if ((m !== s.mA && m !== s.mB) 
+            && ((m.c_group === s.c_group && m.c_group !== 0 && s.c_group !== 0)|| m.c_group === -1 || s.c_group === -1)) {
                 const S = s.p_seg(m.pos, m.radius);
                 // Check overlap.
                 if (S !== undefined) {
@@ -337,6 +339,11 @@ const Model = (() => {
             else pause = true;
             return pause;
         },
+        toggleCollisions: () => {
+            if (collisions_enabled) collisions_enabled = false;
+            else collisions_enabled = true;
+            return collisions_enabled;
+        },
         getScale: () => scale,
         setScale: set => scale = set,
         getDelta: () => delta,
@@ -370,9 +377,10 @@ const Model = (() => {
                 env.screenFriction(m);
                 m.v_accel(delta);
                 m.F_sum.set();
-                
+            
                 // Collision corrections.
-                if (m.c_group > 0) {
+                if (collisions_enabled)
+                {
                     ms_collide(m);
                     mm_collide(m, false);
                 }
@@ -383,9 +391,9 @@ const Model = (() => {
                 m.v_iner();
                 
                 // Collision deflections.
-                if (m.c_group > 0) {
+                if (collisions_enabled)
                     mm_collide(m, true);
-                }
+
                 env.s_boundHit(m, true);
                 env.boundCollide(m, true);
             }
