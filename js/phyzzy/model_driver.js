@@ -23,7 +23,16 @@ class Mass {
         this.refl = 0.75; // Surface reflection.
         this.mu_s = 0.8; // Static friction coefficient.
         this.mu_k = 0.3; // Dynamic friction coefficient.
-        this.c_group = 0; // Collision group. Equal values above 0 will collide.
+
+        // Collision group.
+        // Every mass and spring is found inside a collision group.
+        // When in group -1 the mass or spring will collide with any other
+        // element regardless of group.
+        // When in group 0, the mass or spring will not collide with any
+        // other element other than in group -1.
+        // When in any group above 0, the mass or spring will only collide
+        // of any element in the same group as well as group -1.
+        this.c_group = 0;
 
         // Forces that can't be accumulated instantaneously (springs & surface friction).
         this.F_sum = new v2d();
