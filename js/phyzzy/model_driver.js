@@ -262,17 +262,23 @@ const Model = (() => {
             const c = masses[i];
             if (m !== c && m.c_group === c.c_group && m.pos.isInRad(c.pos, m.radius + c.radius)) {
                 const seg = m.pos.sub(c.pos);
-                const D = seg.nrm().mul(m.radius + c.radius).sub(seg).div(2);
+                const D = seg.nrm().mul(m.radius + c.radius).sub(seg);
 
                 const v_memA = {va: m.d_p(), vb: c.d_p()}
                 const v_memB = {va: c.d_p(), vb: m.d_p()}
                 
-                m.pos.mAdd(D);
-                c.pos.mSub(D);
+                if (!m.isFixed && !c.isFixed) {
+                    m.pos.mAdd(D.div(2));
+                    c.pos.mSub(D.div(2));
+                } else if(m.isFixed && !c.isFixed) {
+                    c.pos.mSub(D);
+                } else if(!m.isFixed && c.isFixed) {
+                    m.pos.mAdd(D);
+                }
 
                 if (preserve) {
-                    m.deflect(c, v_memA);
-                    c.deflect(m, v_memB);
+                    if (!m.isFixed) m.deflect(c, v_memA);
+                    if (!c.isFixed) c.deflect(m, v_memB);
                 }
             }
         }
@@ -286,12 +292,21 @@ const Model = (() => {
                 if (S !== undefined) {
                     const R = S.nrm().mul(m.radius);
                     const D = R.sub(S);
-                    m.pos.mSub(D.div(2));
-                    s.mA.pos.mAdd(D.div(2));
-                    s.mB.pos.mAdd(D.div(2));
-                    m.prv.mAdd(D.div(2));
-                    s.mA.prv.mSub(D.div(2));
-                    s.mB.prv.mSub(D.div(2));
+                    
+                    
+                    if (!m.isFixed) {
+                        m.pos.mSub(D.div(2));
+                        s.mA.pos.mAdd(D.div(2));
+                        s.mB.pos.mAdd(D.div(2));
+                        m.prv.mAdd(D.div(2));
+                        s.mA.prv.mSub(D.div(2));
+                        s.mB.prv.mSub(D.div(2));
+                    } else {
+                        s.mA.pos.mAdd(D);
+                        s.mB.pos.mAdd(D);
+                        s.mA.prv.mSub(D);
+                        s.mB.prv.mSub(D);
+                    }
                 }
             }
         }
