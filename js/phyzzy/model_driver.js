@@ -294,18 +294,22 @@ const Model = (() => {
                     const D = R.sub(S);
                     
                     
-                    if (!m.isFixed) {
+                    if (!m.isFixed && !s.mA.isFixed && !s.mB.isFixed) {
                         m.pos.mSub(D.div(2));
+                        m.prv.mAdd(D.div(2));
                         s.mA.pos.mAdd(D.div(2));
                         s.mB.pos.mAdd(D.div(2));
-                        m.prv.mAdd(D.div(2));
                         s.mA.prv.mSub(D.div(2));
                         s.mB.prv.mSub(D.div(2));
-                    } else {
+                    } else if (m.isFixed) {
                         s.mA.pos.mAdd(D);
                         s.mB.pos.mAdd(D);
                         s.mA.prv.mSub(D);
                         s.mB.prv.mSub(D);
+                    } else if (s.mA.isFixed || s.mB.isFixed) {
+                        m.pos.mSub(D.div(2));
+                        m.prv.mAdd(D.div(2));
+                        
                     }
                 }
             }
