@@ -488,7 +488,8 @@ const Model = (() => {
             };
         },
         export: (env) => JSON.stringify(
-            { masses: masses, springs: springs, environment: env },
+            { init: {scale, frameTime, stepsPerFrame, delta, collisions_enabled},
+            masses, springs, environment: env },
             function(key, value) {
                 if (key !== 'mA' && key !== 'mB') return value;
                 else return masses.indexOf(value);
