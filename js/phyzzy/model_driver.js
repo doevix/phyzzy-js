@@ -260,7 +260,8 @@ const Model = (() => {
     const mm_collide = (m, preserve) => {
         for (let i = 0; i < masses.length; ++i) {
             const c = masses[i];
-            if (m !== c && m.c_group === c.c_group && m.pos.isInRad(c.pos, m.radius + c.radius)) {
+            if (m !== c && (m.c_group === c.c_group || m.c_group === -1 || c.c_group === -1)
+            && m.pos.isInRad(c.pos, m.radius + c.radius)) {
                 const seg = m.pos.sub(c.pos);
                 const D = seg.nrm().mul(m.radius + c.radius).sub(seg);
 
@@ -287,7 +288,8 @@ const Model = (() => {
     const ms_collide = m => {
         for (let i = 0; i < springs.length; ++i) {
             const s = springs[i];
-            if (m.c_group === s.c_group && m !== s.mA && m !== s.mB) {
+            if ((m.c_group === s.c_group || m.c_group === -1 || s.c_group === -1)
+            && m !== s.mA && m !== s.mB) {
                 const S = s.p_seg(m.pos, m.radius);
                 if (S !== undefined) {
                     const R = S.nrm().mul(m.radius);
