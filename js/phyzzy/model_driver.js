@@ -42,9 +42,10 @@ class Mass {
         this.prv.mEqu(this.pos.sub(d_p));
     }
     // Translates the mass by a difference in movement.
-    translate(D) {
-        // this.prv.mEqu(this.pos);
+    translate(D, preserve_vel = true) {
+        let p = this.pos.copy();
         this.pos.mAdd(D);
+        this.prv.mEqu(preserve_vel ? p : this.pos);
     }
     // Get mass velocity [m/s]
     get_v(delta) {
@@ -111,9 +112,9 @@ class Spring {
         this.dmp = damping;
         this.c_group = 0; // Collision group. Equal values above 0 will collide.
     }
-    translate(D) {
-        this.mA.translate(D);
-        this.mB.translate(D);
+    translate(D, preserve_vel = true) {
+        this.mA.translate(D, preserve_vel);
+        this.mB.translate(D, preserve_vel);
     }
     // Returns the spring's geometric center.
     centroid() {
@@ -253,7 +254,6 @@ const Model = (() => {
     let highlight = undefined;
     let select = undefined;
     let drag = undefined;
-    let drgD_final = new v2d();
     let pause = false;
 
     // Mass-mass collisions.
@@ -366,28 +366,33 @@ const Model = (() => {
             return center.div(masses.length);
         },
         setHighlight: element => highlight = element,
-        setSelect: () => {
+        setSelect: (dragEnable) => {
             select = highlight;
-            drag = select;
-            if (drag) // drag can be either a spring or a mass.
-            {
-                if (Spring.prototype.isPrototypeOf(drag)) {
-                    drag.mA.ignore = true;
-                    drag.mB.ignore = true;
-                    drag.mA.prv.mEqu(drag.mA.pos);
-                    drag.mB.prv.mEqu(drag.mB.pos);
-                } else {
-                    drag.ignore = true;
-                    drag.prv.mEqu(drag.pos);
+            if (select) // drag can be either a spring or a mass.
+                {
+                    if (Spring.prototype.isPrototypeOf(select)) {
+                        select.mA.ignore = true;
+                        select.mB.ignore = true;
+                        if (dragEnable) {
+                            select.mA.prv.mEqu(select.mA.pos);
+                            select.mB.prv.mEqu(select.mB.pos);
+                        }
+                    } else {
+                        select.ignore = true;
+                        if (dragEnable) select.prv.mEqu(select.pos);
+                    }
                 }
+            if (dragEnable) {
+                drag = select;
+
             }
             return select;
         },
         dragAction: (dx, dy) => {
             const D = new v2d(dx, dy);
             if (drag !== undefined) {
-                drgD_final.mEqu(D.div(scale));
-                drag.translate(D.div(scale));
+                // Prevent velocity changes in pause mode when user moves elements.
+                drag.translate(D.div(scale), !pause);
             }
         },
         clearDrag: () => {
@@ -395,11 +400,8 @@ const Model = (() => {
                 if (Spring.prototype.isPrototypeOf(drag)) {
                     drag.mA.ignore = false;
                     drag.mB.ignore = false;
-                    drag.mA.set_d_p(drgD_final.div(stepsPerFrame));
-                    drag.mB.set_d_p(drgD_final.div(stepsPerFrame));
                 } else {
                     drag.ignore = false;
-                    drag.set_d_p(drgD_final.div(stepsPerFrame));
                 }
                 drag = undefined;
             }

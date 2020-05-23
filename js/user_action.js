@@ -8,6 +8,11 @@ const makeMenuContainer = () => {
     return div;
 }
 
+document.addEventListener('keypress', e =>  {
+    if (e.key === ' ')
+        Model.togglePause();
+}, false);
+
 const MouseHandler = (cv) => {
     const pos = new v2d();
     let selectMenu = undefined;
@@ -17,25 +22,19 @@ const MouseHandler = (cv) => {
             Model.dragAction(e.movementX, e.movementY);
         }, false);
         cv.addEventListener('mousedown', e => {
-            const s = Model.setSelect();
-
-        }, false);
-        cv.addEventListener('mouseup', () => Model.clearDrag(pos), false);
-
-        cv.addEventListener('dblclick', () => {
-            const s = Model.setSelect();
-            Model.clearDrag(pos);
-            if (s) {
+            const s = Model.setSelect(true);
+            if (s && e.which === 3) {
                 if (selectMenu !== undefined) {
                     document.body.removeChild(selectMenu);
                 }
                 selectMenu = makeMenuContainer();
                 selectMenu.innerHTML = JSON.stringify(s, null, '\t');
-            } else if (selectMenu !== undefined) {
+            } else if (selectMenu !== undefined && e.which === 3) {
                 document.body.removeChild(selectMenu);
                 selectMenu = undefined;
             }
         }, false);
+        cv.addEventListener('mouseup', () => Model.clearDrag(pos), false);
         cv.addEventListener('contextmenu', e => e.preventDefault(), false);
     }
 
