@@ -269,26 +269,29 @@ const Model = (() => {
     const mm_collide = (m, preserve) => {
         for (let i = 0; i < masses.length; ++i) {
             const c = masses[i];
-            if (m !== c && (m.c_group === c.c_group || m.c_group === -1 || c.c_group === -1)
-            && m.pos.isInRad(c.pos, m.radius + c.radius)) {
-                const seg = m.pos.sub(c.pos);
-                const D = seg.nrm().mul(m.radius + c.radius).sub(seg);
+            // Check groups.
+            if (m !== c && (m.c_group === c.c_group || m.c_group === -1 || c.c_group === -1)) {
+                // Check overlap.
+                if (m.pos.isInRad(c.pos, m.radius + c.radius)) {
+                    const seg = m.pos.sub(c.pos);
+                    const D = seg.nrm().mul(m.radius + c.radius).sub(seg);
 
-                const v_memA = {va: m.d_p(), vb: c.d_p()}
-                const v_memB = {va: c.d_p(), vb: m.d_p()}
-                
-                if (!m.isFixed && !c.isFixed) {
-                    m.pos.mAdd(D.div(2));
-                    c.pos.mSub(D.div(2));
-                } else if(m.isFixed && !c.isFixed) {
-                    c.pos.mSub(D);
-                } else if(!m.isFixed && c.isFixed) {
-                    m.pos.mAdd(D);
-                }
+                    const v_memA = {va: m.d_p(), vb: c.d_p()}
+                    const v_memB = {va: c.d_p(), vb: m.d_p()}
+                    
+                    if (!m.isFixed && !c.isFixed) {
+                        m.pos.mAdd(D.div(2));
+                        c.pos.mSub(D.div(2));
+                    } else if(m.isFixed && !c.isFixed) {
+                        c.pos.mSub(D);
+                    } else if(!m.isFixed && c.isFixed) {
+                        m.pos.mAdd(D);
+                    }
 
-                if (preserve) {
-                    if (!m.isFixed) m.deflect(c, v_memA);
-                    if (!c.isFixed) c.deflect(m, v_memB);
+                    if (preserve) {
+                        if (!m.isFixed) m.deflect(c, v_memA);
+                        if (!c.isFixed) c.deflect(m, v_memB);
+                    }
                 }
             }
         }
@@ -297,13 +300,13 @@ const Model = (() => {
     const ms_collide = m => {
         for (let i = 0; i < springs.length; ++i) {
             const s = springs[i];
-            if ((m.c_group === s.c_group || m.c_group === -1 || s.c_group === -1)
-            && m !== s.mA && m !== s.mB) {
+            // Check groups.
+            if ((m !== s.mA && m !== s.mB) && (m.c_group === s.c_group || m.c_group === -1 || s.c_group === -1)) {
                 const S = s.p_seg(m.pos, m.radius);
+                // Check overlap.
                 if (S !== undefined) {
                     const R = S.nrm().mul(m.radius);
                     const D = R.sub(S);
-                    
                     
                     if (!m.isFixed && !s.mA.isFixed && !s.mB.isFixed) {
                         m.pos.mSub(D.div(2));
