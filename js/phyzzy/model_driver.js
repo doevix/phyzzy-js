@@ -381,6 +381,7 @@ const Model = (() => {
                     drag.prv.mEqu(drag.pos);
                 }
             }
+            return select;
         },
         dragAction: (dx, dy) => {
             const D = new v2d(dx, dy);

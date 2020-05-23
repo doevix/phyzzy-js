@@ -1,21 +1,6 @@
 // player.js
 "use strict";
 
-// Theme to use for colors.
-const theme_dark = {
-    background: "#2C2C2C",
-    mass: "#1DB322",
-    fixed_center: "#2C2C2C",    
-    spring: "#FFFFFF",
-    m_selected: "#D7BC27",
-    s_selected: "#D7BC27",
-    m_highlighted: "#47DE4C",
-    s_highlighted: "#B3D6B1",
-    m_delete: "#FF0000",
-    s_delete: "#FF0000",
-    bound: "#FFFFFF"
-};
-
 // Generate the canvas element.
 const generateCanvas = theme => {
     const canvas = document.createElement('canvas');
@@ -38,6 +23,22 @@ const CanvasModelUpdate = (ctx, env, theme, width, height) => {
     // Update model for next frame.
     for (let i = 0; i < Model.getStepsPerFrame(); i++) Model.update(env);
 }
+
+// Theme to use for colors.
+const theme_dark = {
+    background: "#2C2C2C",
+    mass: "#1DB322",
+    fixed_center: "#2C2C2C",    
+    spring: "#FFFFFF",
+    m_selected: "#D7BC27",
+    s_selected: "#D7BC27",
+    m_highlighted: "#47DE4C",
+    s_highlighted: "#B3D6B1",
+    m_delete: "#FF0000",
+    s_delete: "#FF0000",
+    bound: "#FFFFFF"
+};
+
 // Model player initialization
 const canvas = generateCanvas(theme_dark);
 const context = canvas.getContext('2d');

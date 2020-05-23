@@ -8,4 +8,12 @@ canvas {
     /* touch-action: none; */
     display: block;
     position: absolute;
+    z-index: -1;
+}
+
+.menuContainer {
+    background-color: white;
+    position: absolute;
+    right: 10;
+    top: 10;
 }
