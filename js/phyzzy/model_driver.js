@@ -31,7 +31,7 @@ class Mass {
         // When in group 0, the mass or spring will not collide with any
         // other element other than in group -1.
         // When in any group above 0, the mass or spring will only collide
-        // of any element in the same group as well as group -1.
+        // against any element in the same group as well as group -1.
         this.c_group = 0;
 
         // Forces that can't be accumulated instantaneously (springs & surface friction).
