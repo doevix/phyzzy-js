@@ -34,7 +34,8 @@ const MouseHandler = (cv) => {
                 selectMenu = undefined;
             }
         }, false);
-        cv.addEventListener('mouseup', () => Model.clearDrag(pos), false);
+        cv.addEventListener('mouseup', () => Model.clearDrag(), false);
+        cv.addEventListener('mouseleave', () => Model.clearDrag(), false);
         cv.addEventListener('contextmenu', e => e.preventDefault(), false);
     }
 
