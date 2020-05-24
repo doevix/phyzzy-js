@@ -403,28 +403,24 @@ const Model = (() => {
         nearestSpring: (pos, rad) => springs.find(s => s.p_seg(pos, rad) !== undefined),
         getCenter: () => masses.reduce((c, m) => m.pos.add(c), new v2d()).div(masses.length),
         setHighlight: element => highlight = element,
-        setSelect: (dragEnable) => {
+        setSelect: () => {
             select = highlight;
             if (select) // drag can be either a spring or a mass.
                 {
                     if (Spring.prototype.isPrototypeOf(select)) {
                         select.mA.ignore = true;
                         select.mB.ignore = true;
-                        if (dragEnable) {
-                            select.mA.prv.mEqu(select.mA.pos);
-                            select.mB.prv.mEqu(select.mB.pos);
-                        }
+                        select.mA.prv.mEqu(select.mA.pos);
+                        select.mB.prv.mEqu(select.mB.pos);
                     } else {
                         select.ignore = true;
-                        if (dragEnable) select.prv.mEqu(select.pos);
+                        select.prv.mEqu(select.pos);
                     }
                 }
-            if (dragEnable) {
-                drag = select;
-
-            }
+            drag = select;
             return select;
         },
+        getSelect: () => select,
         dragAction: (dx, dy) => {
             const D = new v2d(dx, dy);
             if (drag !== undefined) {

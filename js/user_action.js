@@ -116,7 +116,7 @@ const MouseHandler = (cv) => {
             Model.dragAction(e.movementX, e.movementY);
         }, false);
         cv.addEventListener('mousedown', e => {
-            selected = Model.setSelect(true);
+            selected = Model.setSelect();
             if (selected) {
                 if (selectMenu !== undefined) {
                     document.body.removeChild(selectMenu.menu);
@@ -140,7 +140,6 @@ const MouseHandler = (cv) => {
 
     return {
         attachEvents: listeners,
-        getPos: (scale = 1) => pos.div(scale),
-        getSel: () => selected
+        getPos: (scale = 1) => pos.div(scale)
     };
 }
