@@ -135,9 +135,6 @@ const MouseHandler = (cv) => {
         }, false);
         cv.addEventListener('mouseup', () => Model.clearDrag(), false);
         cv.addEventListener('mouseleave', () => Model.clearDrag(), false);
-        cv.addEventListener('dblclick', e => {
-            
-        }, false);
         cv.addEventListener('contextmenu', e => e.preventDefault(), false);
     }
 
