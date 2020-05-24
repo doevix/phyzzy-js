@@ -7,23 +7,98 @@ const makeMenuContainer = () => {
     return div;
 }
 
-const createSelectedMassMenu = m => {
-    const menu_div = document.createElement('div');
+const makeParagraph = inner => {
     const p = document.createElement('p');
-    p.innerHTML = "Mass selected";
-    menu_div.appendChild(p);
-    const container = makeMenuContainer();
-    container.appendChild((menu_div));
-    return container;
+    p.innerHTML = inner;
+    return p;
 }
-const createSelectedSpringMenu = s => {
-    const menu_div = document.createElement('div');
-    const p = document.createElement('p');
-    p.innerHTML = "Spring selected";
-    menu_div.appendChild(p);
-    const container = makeMenuContainer();
-    container.appendChild((menu_div));
-    return container;
+
+// Creates an input label element.
+const makeInputLabel = (l_for, inner) => {
+    const l = l_for = document.createElement('label');
+    l.htmlFor = l_for;
+    l.innerHTML = inner;
+    return l;
+}
+
+// Creates an input range element.
+const makeRangeInput = (id, min, max, step, val) => {
+    const range = document.createElement('input');
+    range.type = 'range';
+    range.id = id;
+    range.min = min;
+    range.max = max;
+    range.step = step;
+    range.value = val;
+    return range;    
+}
+
+// Creates an option input.
+const makeOptionInput = (id, values, val) => {
+    const sel = document.createElement('select');
+    sel.id = id;
+    values.forEach(v => {
+        const opt = document.createElement('option');
+        opt.innerHTML = v.name;
+        opt.value = v.val;
+        sel.appendChild(opt);
+    });
+    sel.value = val;
+    return sel;
+}
+
+const makeMassMenu = m => {
+    const menu = makeMenuContainer();
+    const innerDiv = document.createElement('div');
+    const m_range = makeRangeInput('massRange', 0.08, 1, 0.01, m.mass);
+    const r_range = makeRangeInput('radRange', 0.05, 0.5, 0.01, m.radius);
+    const c_sel = makeOptionInput('colGroupSel', [
+        { name: 'Default', val: 0 },
+        { name: 'Universal', val: -1 },
+        { name: '1', val: 1 },
+        { name: '2', val: 2 },
+        { name: '3', val: 3 },
+        { name: '4', val: 4 },
+        { name: '5', val: 5 }
+    ], m.c_group);
+    innerDiv.className = 'massMenuContainer';
+    
+    innerDiv.appendChild(makeParagraph('Mass'));
+    innerDiv.appendChild(makeInputLabel('massRange', 'Mass'));
+    innerDiv.appendChild(m_range);
+    innerDiv.appendChild(makeInputLabel('radRange', 'Radius'));
+    innerDiv.appendChild(r_range);
+    innerDiv.appendChild(makeInputLabel('colGroupSel', 'Collision Group:'));
+    innerDiv.appendChild(c_sel);
+    menu.appendChild(innerDiv);
+    
+    return { menu, m_range, r_range, c_sel };
+}
+
+const makeSpringMenu = s => {
+    menu = makeMenuContainer();
+    const innerDiv = document.createElement('div');
+    const s_range = makeRangeInput('stfRange', 0.0, 100, 0.01, s.stf);
+    const d_range = makeRangeInput('dmpRange', 0.0, 20, 0.01, s.dmp);
+    const c_sel = makeOptionInput('colGroupSel', [
+        { name: 'Default', val: 0 },
+        { name: 'Universal', val: -1 },
+        { name: '1', val: 1 },
+        { name: '2', val: 2 },
+        { name: '3', val: 3 },
+        { name: '4', val: 4 },
+        { name: '5', val: 5 }
+    ], s.c_group);
+    innerDiv.className = 'springMenuContainer';
+    innerDiv.appendChild(makeParagraph('Spring'));
+    innerDiv.appendChild(makeInputLabel('stfRange', 'Stiff'));
+    innerDiv.appendChild(s_range);
+    innerDiv.appendChild(makeInputLabel('dmpRange', 'Damp'));
+    innerDiv.appendChild(d_range);
+    innerDiv.appendChild(makeInputLabel('colGroupSel', 'Collision Group:'));
+    innerDiv.appendChild(c_sel);
+    menu.appendChild(innerDiv);
+    return { menu, s_range, d_range, c_sel };
 }
 
 document.addEventListener('keypress', e =>  {
@@ -32,9 +107,9 @@ document.addEventListener('keypress', e =>  {
 }, false);
 
 const MouseHandler = (cv) => {
-    const pos = new v2d();
-    let selectMenu = undefined;
     let selected = undefined;
+    let selectMenu = undefined;
+    const pos = new v2d();
     const listeners = () => {
         cv.addEventListener('mousemove', e => {
             pos.set(e.clientX - cv.offsetLeft + window.scrollX, e.clientY - cv.offsetTop + window.scrollY);
@@ -42,28 +117,33 @@ const MouseHandler = (cv) => {
         }, false);
         cv.addEventListener('mousedown', e => {
             selected = Model.setSelect(true);
-            
+            if (selected) {
+                if (selectMenu !== undefined) {
+                    document.body.removeChild(selectMenu.menu);
+                }
+                if (Mass.prototype.isPrototypeOf(selected)){
+                    selectMenu = makeMassMenu(selected);
+                } else {
+                    menu_sel = selected; 
+                    selectMenu = makeSpringMenu(selected);
+                }
+                document.body.appendChild(selectMenu.menu);
+            } else if (selectMenu !== undefined) {
+                document.body.removeChild(selectMenu.menu);
+                selectMenu = undefined;
+            }
         }, false);
         cv.addEventListener('mouseup', () => Model.clearDrag(), false);
         cv.addEventListener('mouseleave', () => Model.clearDrag(), false);
         cv.addEventListener('dblclick', e => {
-            if (selected) {
-                if (selectMenu !== undefined) {
-                    document.body.removeChild(selectMenu);
-                }
-                selectMenu = Mass.prototype.isPrototypeOf(selected) ?
-                    createSelectedMassMenu(selected) : createSelectedSpringMenu(selected);
-                document.body.appendChild(selectMenu);
-            } else if (selectMenu !== undefined) {
-                document.body.removeChild(selectMenu);
-                selectMenu = undefined;
-            }
+            
         }, false);
         cv.addEventListener('contextmenu', e => e.preventDefault(), false);
     }
 
     return {
         attachEvents: listeners,
-        getPos: (scale = 1) => pos.div(scale)
+        getPos: (scale = 1) => pos.div(scale),
+        getSel: () => selected
     };
 }
