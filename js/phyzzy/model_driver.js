@@ -420,6 +420,7 @@ const Model = (() => {
             drag = select;
             return select;
         },
+        getHighlight: () => highlight,
         getSelect: () => select,
         dragAction: (dx, dy) => {
             const D = new v2d(dx, dy);
