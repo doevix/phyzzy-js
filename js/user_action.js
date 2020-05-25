@@ -61,8 +61,12 @@ const makeMassMenu = m => {
         { name: '4', val: 4 },
         { name: '5', val: 5 }
     ], m.c_group);
-    innerDiv.className = 'massMenuContainer';
     
+    m_range.oninput = () => m.mass = Number(m_range.value);
+    r_range.oninput = () => m.radius = Number(r_range.value);
+    c_sel.oninput = () => m.c_group = Number(c_sel.value);
+
+    innerDiv.className = 'massMenuContainer';
     innerDiv.appendChild(makeParagraph('Mass'));
     innerDiv.appendChild(makeInputLabel('massRange', 'Mass'));
     innerDiv.appendChild(m_range);
@@ -89,6 +93,12 @@ const makeSpringMenu = s => {
         { name: '4', val: 4 },
         { name: '5', val: 5 }
     ], s.c_group);
+
+    s_range.oninput = () => s.stf = Number(s_range.value);
+    d_range.oninput = () => s.dmp = Number(d_range.value);
+    c_sel.oninput = () => s.c_group = Number(c_sel.value);
+
+
     innerDiv.className = 'springMenuContainer';
     innerDiv.appendChild(makeParagraph('Spring'));
     innerDiv.appendChild(makeInputLabel('stfRange', 'Stiff'));
@@ -120,7 +130,6 @@ const MouseHandler = (cv) => {
                 if (Mass.prototype.isPrototypeOf(selected)){
                     selectMenu = makeMassMenu(selected);
                 } else {
-                    menu_sel = selected; 
                     selectMenu = makeSpringMenu(selected);
                 }
                 document.body.appendChild(selectMenu.menu);

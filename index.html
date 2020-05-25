@@ -29,7 +29,7 @@
                 0, 0, canvas.width / Model.getScale(), canvas.height / Model.getScale());
 
             // Generate random masses.
-            const maxCount = 0;
+            const maxCount = 20;
             for (let i = 0; i < maxCount; i++) {
                 const p = { x: rand(0, env.s_bounds.w), y: rand(0, env.s_bounds.h / 4) };
                 // const v = { x: rand(-5, 5), y: rand(-5, 5) };
@@ -43,7 +43,7 @@
             }
 
             const m = [];
-            const links = 50;
+            const links = 5
             for (let i = 0; i <= links; i++) {
                 m.push(new Mass({
                     x: i * env.s_bounds.w / links,
@@ -53,12 +53,12 @@
                 Model.addMass(m[i]);
                 if (i > 0) {
                     s = new Spring(m[i], m[i - 1], 0, 100, 20);
-                    s.c_group = 0;
+                    s.c_group = -1;
                     Model.addSpring(s);
                 }
-                // if (i === 0 || i === links) {
-                //     m[i].isFixed = true;
-                // }
+                if (i === 0 || i === links) {
+                    m[i].isFixed = true;
+                }
             }
 
             Model.setStepsPerFrame(5);
