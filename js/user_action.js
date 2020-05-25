@@ -101,14 +101,10 @@ const makeSpringMenu = s => {
     return { menu, s_range, d_range, c_sel };
 }
 
-document.addEventListener('keypress', e =>  {
-    if (e.key === ' ')
-        Model.togglePause();
-}, false);
-
 const MouseHandler = (cv) => {
     let selected = undefined;
     let selectMenu = undefined;
+    let menuEnable = true;
     const pos = new v2d();
     const listeners = () => {
         cv.addEventListener('mousemove', e => {
@@ -117,7 +113,7 @@ const MouseHandler = (cv) => {
         }, false);
         cv.addEventListener('mousedown', e => {
             selected = Model.setSelect();
-            if (selected) {
+            if (selected && menuEnable) {
                 if (selectMenu !== undefined) {
                     document.body.removeChild(selectMenu.menu);
                 }
@@ -140,6 +136,18 @@ const MouseHandler = (cv) => {
 
     return {
         attachEvents: listeners,
-        getPos: (scale = 1) => pos.div(scale)
+        getPos: (scale = 1) => pos.div(scale),
+        toggleMenus: () => {
+            if (menuEnable) menuEnable = false;
+            else menuEnable = true;
+            return menuEnable;
+        },
+        isMenuEnabled: () => menuEnable
     };
 }
+
+document.addEventListener('keypress', e =>  {
+    if (e.key === ' ')
+        Model.togglePause();
+    else if (e.key === 'z') mouse.toggleMenus();
+}, false);
