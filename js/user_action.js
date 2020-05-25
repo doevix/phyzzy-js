@@ -33,6 +33,15 @@ const makeRangeInput = (id, min, max, step, val) => {
     return range;    
 }
 
+// Makes a checkbox.
+const makeCheckboxInput = (id, val) => {
+    const check = document.createElement('input');
+    check.type = 'checkbox';
+    check.id = id;
+    check.checked = val;
+    return check;
+}
+
 // Creates an option input.
 const makeOptionInput = (id, values, val) => {
     const sel = document.createElement('select');
@@ -52,6 +61,7 @@ const makeMassMenu = m => {
     const innerDiv = document.createElement('div');
     const m_range = makeRangeInput('massRange', 0.08, 1, 0.01, m.mass);
     const r_range = makeRangeInput('radRange', 0.05, 0.5, 0.01, m.radius);
+    const m_chFix = makeCheckboxInput('massFixCheck', m.isFixed);
     const c_sel = makeOptionInput('colGroupSel', [
         { name: 'Default', val: 0 },
         { name: 'Universal', val: -1 },
@@ -64,6 +74,7 @@ const makeMassMenu = m => {
     
     m_range.oninput = () => m.mass = Number(m_range.value);
     r_range.oninput = () => m.radius = Number(r_range.value);
+    m_chFix.oninput = () => m.isFixed = m_chFix.checked;
     c_sel.oninput = () => m.c_group = Number(c_sel.value);
 
     innerDiv.className = 'massMenuContainer';
@@ -72,6 +83,8 @@ const makeMassMenu = m => {
     innerDiv.appendChild(m_range);
     innerDiv.appendChild(makeInputLabel('radRange', 'Radius'));
     innerDiv.appendChild(r_range);
+    innerDiv.appendChild(makeInputLabel('massFixCheck', 'Fixed'));
+    innerDiv.appendChild(m_chFix);
     innerDiv.appendChild(makeInputLabel('colGroupSel', 'Collision Group:'));
     innerDiv.appendChild(c_sel);
     menu.appendChild(innerDiv);
