@@ -97,7 +97,7 @@ class v2d {
     }
     // Vector projection of this onto a given vector.
     pjt(A) {
-        return A.mul((this.dot(A) / A.mag2()));
+        return A.mag2() > 0 ? A.mul((this.dot(A) / A.mag2())) : new v2d();
     }
     // Distance between the segment of this and a given vector.
     len(A) {
