@@ -6,13 +6,9 @@ class v2d {
         this.x = x;
         this.y = y;
     }
-    set(x = 0, y = 0, scaling = 1) {
+    set(x = 0, y = 0) {
         this.x = x;
         this.y = y;
-        if (scaling !== 1) {
-            this.x *= scaling;
-            this.y *= scaling;
-        }
         return this;
     }
     copy() {
