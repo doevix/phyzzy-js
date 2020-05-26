@@ -182,6 +182,85 @@ class Spring {
     }
 }
 
+// Classic restlength-modifying muscle.
+class MuscleSpringActuator
+{
+    constructor(spring, phase = 0, sense = 0.5) {
+        this.spring = spring;
+        this.phase = phase;
+        this.sense = sense;
+
+        this.default = spring.rst;
+    }
+    act(amp, wSpd, t)
+    {
+        const factor = 1 + Math.sin(wSpd * t + (this.phase / Math.abs(wSpd)));
+        this.spring.rst = this.default * (1 + amp * this.sense * factor);
+    }
+    restore()
+    {
+        this.spring.rst = this.default;
+    }
+};
+
+// Actuators. The following classes modify element properties according to a waveform.
+// Relaxation stiffness-modifying muscle.
+class RelaxationSpringActuator
+{
+    constructor(spring, phase = 0, sense = 0.5) {
+        this.spring = spring;
+        this.phase = phase;
+        this.sense = sense;
+
+        this.default = spring.stf;
+    }
+    act(amp, wSpd, t) {
+        // Muscle stiffness travels from default value to a lower value.
+        const factor = (1 + Math.sin(wSpd * t + this.phase / Math.abs(wSpd))) / 2;
+        this.spring.stf = this.default * amp * (1 - factor);
+    }
+    restore()
+    {
+        this.spring.stf = this.default;
+    }
+};
+// Modifies mass radius by waveform.
+class BalloonMassActuator {
+    constructor(mass, phase = 0, sense = 0.5, multiplier = 1) {
+        this.mass = mass;
+        this.phase = phase;
+        this.sense = sense;
+        this.mult = multiplier; // Max times the mass's radius increases by.
+
+        this.default = mass.radius;
+    }
+    act(amp, wSpd, t) {
+        const factor = (1 + Math.sin(wSpd * t + this.phase / Math.abs(wSpd))) / 2;
+        this.mass.radius = this.default * (1 + this.mult * amp * this.sense * factor);
+    }
+    restore() {
+        this.mass.radius = this.default;
+    }
+};
+// Modifies mass's mass by waveform.
+class VaryMassActuator {
+    constructor(mass, phase = 0, sense = 0.5, multiplier = 1) {
+        this.mass = mass;
+        this.phase = phase;
+        this.sense = sense;
+        this.mult = multiplier; // Max times the mass's radius increases by.
+
+        this.default = mass.mass;
+    }
+    act(amp, wSpd, t) {
+        const factor = (1 + Math.sin(wSpd * t + this.phase / Math.abs(wSpd))) / 2;
+        this.mass.mass = this.default * (1 + this.mult * amp * this.sense * factor);
+    }
+    restore() {
+        this.mass.mass = this.default;
+    }
+};
+
 // Environment that acts on the model.
 class Environment {
     constructor(gravity = new v2d(), drag = 0, x = undefined, y = undefined, w = undefined, h = undefined)
