@@ -14,8 +14,8 @@ const generateCanvas = theme => {
 const CanvasModelUpdate = (ctx, env, theme, width, height) => {
     // Catch the element nearest to the pointer.
     Model.setHighlight(
-        Model.nearestMass(mouse.getPos(Model.getScale()), 0.1) 
-        || Model.nearestSpring(mouse.getPos(Model.getScale()), 0.1));
+        Model.nearestMass(mouse.getPos(Model.getScale()), 0.15) 
+        || Model.nearestSpring(mouse.getPos(Model.getScale()), 0.15));
     // Draw model.
     ctx.clearRect(0, 0, width, height);
     MouseConstructor.draw(ctx, mouse.getPos(), Model.getHighlight());
