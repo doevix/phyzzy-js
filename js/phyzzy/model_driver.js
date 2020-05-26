@@ -234,7 +234,8 @@ class Environment {
     }
     screenFriction(m) {
         if (this.s_bounds.h != undefined && m.pos.y + m.radius >= this.s_bounds.h) {
-            const fk = m.d_p().x !== 0 ? Math.abs(m.F_sum.y) * m.mu_k * -(m.d_p().x / Math.abs(m.d_p().x)) : 0;
+            const magX = Math.abs(m.d_p().x);
+            const fk = magX > 0 ? Math.abs(m.F_sum.y) * m.mu_k * -(m.d_p().x / magX) : 0;
             m.F_sum.x += fk;
         }
     }
@@ -364,7 +365,11 @@ const Model = (() => {
             masses = masses.filter(m => m !== mToRemove);
             springs = springs.filter(s => s.mA !== mToRemove && s.mB !== mToRemove);
         },
-        addSpring: nSpring => springs.push(nSpring),
+        addSpring: nSpring => {
+            if (!springs.some(s =>
+                (nSpring.mA === s.mA && nSpring.mB === s.mB)|| (nSpring.mA === s.mB && nSpring.mB === s.mA)))
+                springs.push(nSpring)
+        },
         remSpring: sToRemove => springs = springs.filter(s => s !== sToRemove),
         update: () => {
             if (pause) return;
