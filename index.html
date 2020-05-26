@@ -35,7 +35,7 @@
             env.g.y = 9.81;
 
             // Generate random masses.
-            const maxCount = 20;
+            const maxCount = 0;
             for (let i = 0; i < maxCount; i++) {
                 const p = { x: rand(0, env.s_bounds.w), y: rand(0, env.s_bounds.h / 4) };
                 // const v = { x: rand(-5, 5), y: rand(-5, 5) };
@@ -49,7 +49,7 @@
             }
 
             const m = [];
-            const links = 5
+            const links = 5;
             for (let i = 0; i <= links; i++) {
                 m.push(new Mass({
                     x: i * env.s_bounds.w / links,

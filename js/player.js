@@ -18,6 +18,7 @@ const CanvasModelUpdate = (ctx, env, theme, width, height) => {
         || Model.nearestSpring(mouse.getPos(Model.getScale()), 0.1));
     // Draw model.
     ctx.clearRect(0, 0, width, height);
+    MouseConstructor.draw(ctx, mouse.getPos(), Model.getHighlight());
     Model.draw(ctx, theme);
     env.draw(ctx, theme.bound, Model.getScale());
     // Update model for next frame.
