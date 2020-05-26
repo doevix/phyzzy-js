@@ -145,23 +145,31 @@ class Spring {
         return isInRange && S.mag2() < rad * rad ? S : undefined;
     }
     // Returns resulting force respect to mA.
-    F(delta) {
+    Fs(delta) {
         const AB = this.mB.pos.sub(this.mA.pos);
         const l = AB.mag();
         // Springing force.
-        const Fk = AB.div(l).mul((l - this.rst) * this.stf);
+        return AB.div(l).mul((l - this.rst) * this.stf);
+    }
+    Fd_A(delta) {
         // Damping force.
+        const AB = this.mB.pos.sub(this.mA.pos);
         const v_A = this.mA.d_p();
         const v_B = this.mB.d_p();
-        const Fd = v_B.sub(v_A).div(delta).pjt(AB).mul(this.dmp);
-
-        return Fk.add(Fd);
+        return v_B.sub(v_A).div(delta).pjt(AB).mul(this.dmp);
+    }
+    Fd_B(delta) {
+        // Damping force.
+        const AB = this.mB.pos.sub(this.mA.pos);
+        const v_A = this.mA.d_p();
+        const v_B = this.mB.d_p();
+        return v_A.sub(v_B).div(delta).pjt(AB).mul(this.dmp);
     }
     // Calculates forces and mutably sums to masses.
     apply_F(delta) {
-        const F = this.F(delta);
-        this.mA.F_sum.mAdd(F);
-        this.mB.F_sum.mAdd(F.inv());
+        const Fs = this.Fs();
+        this.mA.F_sum.mAdd(Fs.add(this.Fd_A(delta)));
+        this.mB.F_sum.mAdd(Fs.inv().add(this.Fd_B(delta)));
     }
     draw(ctx, scale) {
         const pA = this.mA.pos.mul(scale);
