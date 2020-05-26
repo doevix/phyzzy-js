@@ -142,13 +142,17 @@ const MouseConstructor = (() => {
             const m = new Mass(p.div(Model.getScale()));
             const l = m.pos.len(spr.pos);
             Model.addMass(m);
-            Model.addSpring(new Spring(spr, m, l));
-            spr = m;
+            if (spr !== m) {
+                Model.addSpring(new Spring(spr, m, l));
+                spr = m;
+            }
         },
         (sel, p) => spr = sel,
         (sel, p) => {
-            Model.addSpring(new Spring(spr, sel, sel.pos.len(spr.pos)));
-            spr = sel;
+            if (spr !== sel) {
+                Model.addSpring(new Spring(spr, sel, sel.pos.len(spr.pos)));
+                spr = sel;
+            }
         }
     ];
 

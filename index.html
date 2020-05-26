@@ -55,11 +55,11 @@
                     x: i * env.s_bounds.w / links,
                     y: env.s_bounds.h / 2},
                     0.1, 0.2));
-                m[i].c_group = -1;
+                m[i].c_group = 0;
                 Model.addMass(m[i]);
                 if (i > 0) {
                     s = new Spring(m[i], m[i - 1], 0, 100, 20);
-                    s.c_group = -1;
+                    s.c_group = 0;
                     Model.addSpring(s);
                 }
                 if (i === 0 || i === links) {
