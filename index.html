@@ -25,8 +25,14 @@
             const rand = (min = 0, max = 1) => min + (max - min) * Math.random();
             const coinFlip = (p_true = 0.5) => Math.random() > p_true ? true : false;
             // Define environment for the model.
-            const env = new Environment(new v2d(0, 9.81), 0,
-                0, 0, canvas.width / Model.getScale(), canvas.height / Model.getScale());
+            const env = Model.environment();
+            env.s_bounds = {
+                x: 0, 
+                y: 0, 
+                w: canvas.width / Model.getScale(), 
+                h: canvas.height / Model.getScale()
+            };
+            env.g.y = 9.81;
 
             // Generate random masses.
             const maxCount = 20;

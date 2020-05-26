@@ -252,6 +252,7 @@ class Environment {
 
 // Model driver singleton. Manages all movement, dynamics and user input.
 const Model = (() => {
+    const env = new Environment(new v2d(0, 0), 0);
     let masses = []; // Holds all masses to be used.
     let springs = []; // Holds all springs that link masses.
     
@@ -365,7 +366,7 @@ const Model = (() => {
         },
         addSpring: nSpring => springs.push(nSpring),
         remSpring: sToRemove => springs = springs.filter(s => s !== sToRemove),
-        update: (env) => {
+        update: () => {
             if (pause) return;
             // Apply model spring forces.
             for(let i = 0; i < springs.length; ++i) springs[i].apply_F(delta);
@@ -399,6 +400,7 @@ const Model = (() => {
                 env.boundCollide(m, true);
             }
         },
+        environment: () => env,
         nearestMass: (pos, rad) => masses.find(m => m.pos.isInRad(pos, m.radius + rad)),
         nearestSpring: (pos, rad) => springs.find(s => s.p_seg(pos, rad) !== undefined),
         getCenter: () => masses.reduce((c, m) => m.pos.add(c), new v2d()).div(masses.length),
@@ -480,7 +482,7 @@ const Model = (() => {
                 }
             };
         },
-        export: (env) => JSON.stringify(
+        export: () => JSON.stringify(
             { init: {scale, frameTime, stepsPerFrame, delta, collisions_enabled},
             masses, springs, environment: env },
             function(key, value) {
