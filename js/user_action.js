@@ -191,10 +191,11 @@ const MouseConstructor = (() => {
         spr = undefined;
     }
 
-    const draw = (ctx, p, hlt) => {
+    const draw = (ctx, p, hlt, theme) => {
         if (spr) {
             const sp = spr.pos.mul(Model.getScale())
             const mp = !isMass(hlt) ? p : hlt.pos.mul(Model.getScale());
+            ctx.strokeStyle = theme.s_construct;
             ctx.beginPath();
             ctx.moveTo(sp.x, sp.y);
             ctx.lineTo(mp.x, mp.y);

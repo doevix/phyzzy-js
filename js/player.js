@@ -18,7 +18,7 @@ const CanvasModelUpdate = (ctx, env, theme, width, height) => {
         || Model.nearestSpring(mouse.getPos(Model.getScale()), 0.15));
     // Draw model.
     ctx.clearRect(0, 0, width, height);
-    MouseConstructor.draw(ctx, mouse.getPos(), Model.getHighlight());
+    MouseConstructor.draw(ctx, mouse.getPos(), Model.getHighlight(), theme);
     Model.draw(ctx, theme);
     env.draw(ctx, theme.bound, Model.getScale());
     // Update model for next frame.
@@ -35,6 +35,7 @@ const theme_dark = {
     s_selected: "#D7BC27",
     m_highlighted: "#47DE4C",
     s_highlighted: "#B3D6B1",
+    s_construct: "#ACACAC",
     m_delete: "#FF0000",
     s_delete: "#FF0000",
     bound: "#FFFFFF"
