@@ -35,6 +35,7 @@ const makeRangeInput = (id, min, max, step, val) => {
     const range = document.createElement('input');
     range.type = 'range';
     range.id = id;
+    range.className = 'slider';
     range.min = min;
     range.max = max;
     range.step = step;
