@@ -483,14 +483,15 @@ const Model = (() => {
             actuators = actuators.filter(a => a !== aToRemove);
         },
         setWaveSpeed: n => wSpd = n,
-        setWaveAmplitute: a => amp = a,
+        setWaveAmplitude: a => amp = a,
+        getWaveStats: () => ({ amp, wspd, t }),
         toggleWaveDirection: () => dir = dir > 0 ? -1 : 1,
         update: () => {
             if (pause) return;
 
             // Apply model actuators.
             for (let i = 0; i < actuators.length; i++) actuators[i].act(amp, 1, t);
-            t += wSpd * delta; // update actuator wave time.
+            t += dir * wSpd * delta; // update actuator wave time.
 
             // Apply model spring forces.
             for(let i = 0; i < springs.length; ++i) springs[i].apply_F(delta);
