@@ -186,7 +186,8 @@ class Spring {
 class MuscleSpringActuator
 {
     constructor(spring, phase = 0, sense = 0.5) {
-        this.spring = spring;
+        this.type = "SpringMuscle";
+        this.acted = spring;
         this.phase = phase;
         this.sense = sense;
 
@@ -195,11 +196,11 @@ class MuscleSpringActuator
     act(amp, wSpd, t)
     {
         const factor = 1 + Math.sin(wSpd * t + (this.phase / Math.abs(wSpd)));
-        this.spring.rst = this.default * (1 + amp * this.sense * factor);
+        this.acted.rst = this.default * (1 + amp * this.sense * factor);
     }
     restore()
     {
-        this.spring.rst = this.default;
+        this.acted.rst = this.default;
     }
 };
 
@@ -208,7 +209,8 @@ class MuscleSpringActuator
 class RelaxationSpringActuator
 {
     constructor(spring, phase = 0, sense = 0.5) {
-        this.spring = spring;
+        this.type = "SpringRelax";
+        this.acted = spring;
         this.phase = phase;
         this.sense = sense;
 
@@ -217,17 +219,18 @@ class RelaxationSpringActuator
     act(amp, wSpd, t) {
         // Muscle stiffness travels from default value to a lower value.
         const factor = (1 + Math.sin(wSpd * t + this.phase / Math.abs(wSpd))) / 2;
-        this.spring.stf = this.default * amp * (1 - factor);
+        this.acted.stf = this.default * amp * (1 - factor);
     }
     restore()
     {
-        this.spring.stf = this.default;
+        this.acted.stf = this.default;
     }
 };
 // Modifies mass radius by waveform.
 class BalloonMassActuator {
     constructor(mass, phase = 0, sense = 0.5, multiplier = 1) {
-        this.mass = mass;
+        this.type = "MassBalloon";
+        this.acted = mass;
         this.phase = phase;
         this.sense = sense;
         this.mult = multiplier; // Max times the mass's radius increases by.
@@ -236,16 +239,17 @@ class BalloonMassActuator {
     }
     act(amp, wSpd, t) {
         const factor = (1 + Math.sin(wSpd * t + this.phase / Math.abs(wSpd))) / 2;
-        this.mass.radius = this.default * (1 + this.mult * amp * this.sense * factor);
+        this.acted.radius = this.default * (1 + this.mult * amp * this.sense * factor);
     }
     restore() {
-        this.mass.radius = this.default;
+        this.acted.radius = this.default;
     }
 };
 // Modifies mass's mass by waveform.
 class VaryMassActuator {
     constructor(mass, phase = 0, sense = 0.5, multiplier = 1) {
-        this.mass = mass;
+        this.type = "MassVary";
+        this.acted = mass;
         this.phase = phase;
         this.sense = sense;
         this.mult = multiplier; // Max times the mass's radius increases by.
@@ -254,10 +258,10 @@ class VaryMassActuator {
     }
     act(amp, wSpd, t) {
         const factor = (1 + Math.sin(wSpd * t + this.phase / Math.abs(wSpd))) / 2;
-        this.mass.mass = this.default * (1 + this.mult * amp * this.sense * factor);
+        this.acted.mass = this.default * (1 + this.mult * amp * this.sense * factor);
     }
     restore() {
-        this.mass.mass = this.default;
+        this.acted.mass = this.default;
     }
 };
 
@@ -466,11 +470,7 @@ const Model = (() => {
         },
         remSpring: sToRemove => springs = springs.filter(s => s !== sToRemove),
         attachActuator: actuator => actuators.push(actuator),
-        getActuator: element => actuators.find(a => {
-            if (Spring.prototype.isPrototypeOf(element))
-                return a.spring === element;
-            else return a.mass === element;
-        }),
+        getActuator: element => actuators.find(a => element === a.acted),
         remActuator: aToRemove => {
             aToRemove.restore();
             actuators = actuators.filter(a => a !== aToRemove);
@@ -600,11 +600,17 @@ const Model = (() => {
             };
         },
         export: () => JSON.stringify(
-            { init: {scale, frameTime, stepsPerFrame, delta, collisions_enabled},
-            masses, springs, environment: env },
+            { init: { environment: env, waveform: { amp, wSpd, t },
+                scale, frameTime, stepsPerFrame, delta, collisions_enabled },
+            masses, springs, actuators },
             function(key, value) {
-                if (key !== 'mA' && key !== 'mB') return value;
-                else return masses.indexOf(value);
+                if (key === 'mA' || key === 'mB') return masses.indexOf(value);
+                else if (key === 'acted') {
+                    let iAct = masses.indexOf(value);
+                    if (iAct > 0) return iAct;
+                    else return springs.indexOf(value);
+                }
+                else return value;
             }, 4)
     };
 })();
