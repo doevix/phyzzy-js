@@ -284,12 +284,19 @@ const MouseHandler = (cv) => {
         },
         toggleConstructor: () => {
             if (constructEnable) constructEnable = false;
-            else constructEnable = true;
+            else {
+                constructEnable = true;
+                if (deleteEnable) deleteEnable = false;
+            }
             MouseConstructor.stateReset();
         },
         toggleDelete: () => {
             if (deleteEnable) deleteEnable = false;
-            else deleteEnable = true;
+            else {
+                deleteEnable = true;
+                if (constructEnable) constructEnable = false;
+                MouseConstructor.stateReset();
+            }
         },
         isMenuEnabled: () => menuEnable,
         isConstructEnabled: () => constructEnable,
