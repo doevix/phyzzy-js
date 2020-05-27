@@ -13,12 +13,7 @@ canvas {
 
 .menuContainer {
     background-color: white;
-    opacity: 0.75;
     position: absolute;
     right: 0;
     top: 0;
-}
-
-.menuContainer:hover {
-    opacity: 1.0;
 }
