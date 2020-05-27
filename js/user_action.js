@@ -6,7 +6,16 @@ const makeMenuContainer = () => {
     div.className = 'menuContainer';
     return div;
 }
-
+const makeDiv = className => {
+    const div = document.createElement('div');
+    div.className = className;
+    return div;
+}
+const makeContainer = (contClass, childElement) => {
+    const cont = makeDiv(contClass);
+    cont.appendChild(childElement);
+    return cont;
+}
 const makeParagraph = inner => {
     const p = document.createElement('p');
     p.innerHTML = inner;
@@ -77,14 +86,18 @@ const makeMassMenu = m => {
     m_chFix.oninput = () => m.isFixed = m_chFix.checked;
     c_sel.oninput = () => m.c_group = Number(c_sel.value);
 
+    const m_setting = makeContainer('rangeContainer', m_range);
+    const r_setting = makeContainer('rangeContainer', r_range);
+
     innerDiv.className = 'massMenuContainer';
     innerDiv.appendChild(makeParagraph('Mass'));
     innerDiv.appendChild(makeInputLabel('massRange', 'Mass'));
-    innerDiv.appendChild(m_range);
+    innerDiv.appendChild(m_setting);
     innerDiv.appendChild(makeInputLabel('radRange', 'Radius'));
-    innerDiv.appendChild(r_range);
+    innerDiv.appendChild(r_setting);
     innerDiv.appendChild(makeInputLabel('massFixCheck', 'Fixed'));
     innerDiv.appendChild(m_chFix);
+    innerDiv.appendChild(document.createElement('br'));
     innerDiv.appendChild(makeInputLabel('colGroupSel', 'Collision Group:'));
     innerDiv.appendChild(c_sel);
     menu.appendChild(innerDiv);
@@ -107,6 +120,9 @@ const makeSpringMenu = s => {
         { name: '5', val: 5 }
     ], s.c_group);
 
+    const s_setting = makeContainer('rangeContainer', s_range);
+    const d_setting = makeContainer('rangeContainer', d_range);
+
     s_range.oninput = () => s.stf = Number(s_range.value);
     d_range.oninput = () => s.dmp = Number(d_range.value);
     c_sel.oninput = () => s.c_group = Number(c_sel.value);
@@ -115,9 +131,9 @@ const makeSpringMenu = s => {
     innerDiv.className = 'springMenuContainer';
     innerDiv.appendChild(makeParagraph('Spring'));
     innerDiv.appendChild(makeInputLabel('stfRange', 'Stiff'));
-    innerDiv.appendChild(s_range);
+    innerDiv.appendChild(s_setting);
     innerDiv.appendChild(makeInputLabel('dmpRange', 'Damp'));
-    innerDiv.appendChild(d_range);
+    innerDiv.appendChild(d_setting);
     innerDiv.appendChild(makeInputLabel('colGroupSel', 'Collision Group:'));
     innerDiv.appendChild(c_sel);
     menu.appendChild(innerDiv);
@@ -251,8 +267,13 @@ const MouseHandler = (cv) => {
         attachEvents: listeners,
         getPos: (scale = 1) => pos.div(scale),
         toggleMenus: () => {
-            if (menuEnable) menuEnable = false;
-            else menuEnable = true;
+            if (menuEnable) {
+                menuEnable = false;
+                menuSelect = genSelectMenu();
+            } else {
+                menuEnable = true;
+                menuSelect = genSelectMenu();
+            }
             return menuEnable;
         },
         toggleConstructor: () => {
