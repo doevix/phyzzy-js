@@ -604,7 +604,9 @@ const Model = (() => {
                 scale, frameTime, stepsPerFrame, delta, collisions_enabled },
             masses, springs, actuators },
             function(key, value) {
+                // Replace masses in spring with indices to masses.
                 if (key === 'mA' || key === 'mB') return masses.indexOf(value);
+                // Replace elements in actuator with their indices to arrays.
                 else if (key === 'acted') {
                     let iAct = masses.indexOf(value);
                     if (iAct > 0) return iAct;
