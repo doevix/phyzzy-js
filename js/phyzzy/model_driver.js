@@ -466,6 +466,11 @@ const Model = (() => {
         },
         remSpring: sToRemove => springs = springs.filter(s => s !== sToRemove),
         attachActuator: actuator => actuators.push(actuator),
+        getActuator: element => actuators.find(a => {
+            if (Spring.prototype.isPrototypeOf(element))
+                return a.spring === element;
+            else return a.mass === element;
+        }),
         remActuator: aToRemove => {
             aToRemove.restore();
             actuators = actuators.filter(a => a !== aToRemove);
