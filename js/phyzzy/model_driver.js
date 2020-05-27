@@ -433,6 +433,17 @@ const Model = (() => {
         }
     }
 
+    const remSpring = sToRemove => {
+        springs = springs.filter(s => s !== sToRemove);
+        actuators = actuators.filter(a => a.acted !== sToRemove);
+    }
+    const remMass = mToRemove => {
+        masses = masses.filter(m => m !== mToRemove);
+        actuators = actuators.filter(a => a.acted !== mToRemove);
+        springs.filter(s => s.mA === mToRemove || s.mB === mToRemove)
+        .forEach(s => remSpring(s));
+    }
+
     return {
         isPaused: () => pause,
         togglePause: () => {
@@ -459,16 +470,12 @@ const Model = (() => {
         },
         getStepsPerFrame: () => stepsPerFrame,
         addMass: nMass => masses.push(nMass),
-        remMass: mToRemove => {
-            masses = masses.filter(m => m !== mToRemove);
-            springs = springs.filter(s => s.mA !== mToRemove && s.mB !== mToRemove);
-        },
         addSpring: nSpring => {
-            if (!springs.some(s =>
-                (nSpring.mA === s.mA && nSpring.mB === s.mB) || (nSpring.mA === s.mB && nSpring.mB === s.mA)))
-                springs.push(nSpring)
-        },
-        remSpring: sToRemove => springs = springs.filter(s => s !== sToRemove),
+            if (!springs.some(s => (nSpring.mA === s.mA && nSpring.mB === s.mB) || (nSpring.mA === s.mB && nSpring.mB === s.mA)))
+                springs.push(nSpring);
+            },
+        remSpring,
+        remMass,
         attachActuator: actuator => actuators.push(actuator),
         getActuator: element => actuators.find(a => element === a.acted),
         remActuator: aToRemove => {

@@ -229,6 +229,7 @@ const MouseHandler = (cv) => {
     let selectMenu = undefined;
     let menuEnable = false;
     let constructEnable = false;
+    let deleteEnable = false;
     const pos = new v2d();
 
     const genSelectMenu = () => {
@@ -257,6 +258,10 @@ const MouseHandler = (cv) => {
             selected = Model.setSelect();
             genSelectMenu();
             if (constructEnable) MouseConstructor.stateApply(selected, pos, e.which);
+            else if (deleteEnable) {
+                if (Mass.prototype.isPrototypeOf(selected)) Model.remMass(selected);
+                else if (Spring.prototype.isPrototypeOf(selected)) Model.remSpring(selected);
+            }
         }, false);
         cv.addEventListener('mouseup', () => Model.clearDrag(), false);
         cv.addEventListener('mouseleave', () => Model.clearDrag(), false);
@@ -281,8 +286,13 @@ const MouseHandler = (cv) => {
             else constructEnable = true;
             MouseConstructor.stateReset();
         },
+        toggleDelete: () => {
+            if (deleteEnable) deleteEnable = false;
+            else deleteEnable = true;
+        },
         isMenuEnabled: () => menuEnable,
-        isConstructEnabled: () => constructEnable
+        isConstructEnabled: () => constructEnable,
+        isDeleteEnabled: () => deleteEnable
     };
 }
 
@@ -291,4 +301,5 @@ document.addEventListener('keypress', e =>  {
         Model.togglePause();
     else if (e.key === 'z') mouse.toggleMenus();
     else if (e.key === 'c') mouse.toggleConstructor();
+    else if (e.key === 'd') mouse.toggleDelete();
 }, false);
