@@ -32,7 +32,6 @@
                 w: canvas.width / Model.getScale(), 
                 h: canvas.height / Model.getScale()
             };
-            env.g.y = 9.81;
 
             // Generate random masses.
             const maxCount = 0;
@@ -66,6 +65,16 @@
                     m[i].isFixed = true;
                 }
             }
+
+            const mA = new Mass({x: 2, y: 2});
+            const mB = new Mass({x: 3, y: 2});
+            const s = new Spring(mA, mB, 1);
+            const a = new MuscleSpringActuator(s);
+            Model.addMass(mA);
+            Model.addMass(mB);
+            Model.addSpring(s);
+            Model.attachActuator(a);
+
 
             Model.setStepsPerFrame(5);
             Model.toggleCollisions();

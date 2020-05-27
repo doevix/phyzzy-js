@@ -349,6 +349,13 @@ const Model = (() => {
     let stepsPerFrame = 1;
     let delta = frameTime / stepsPerFrame; // Elapsed time between frames.
     let collisions_enabled = false; // Free collisions disabled by default.
+    
+    // Actuator properties.
+    let actuators = []; // Holds all active actuators.
+    let amp = 0.5; // Wave amplitude.
+    let wSpd = 0.5; // Wave speed.
+    let dir = 1; // Wave direction.
+    let t = 0; // Wave time.
 
     // Elements under user influence.
     let highlight = undefined;
@@ -454,12 +461,25 @@ const Model = (() => {
         },
         addSpring: nSpring => {
             if (!springs.some(s =>
-                (nSpring.mA === s.mA && nSpring.mB === s.mB)|| (nSpring.mA === s.mB && nSpring.mB === s.mA)))
+                (nSpring.mA === s.mA && nSpring.mB === s.mB) || (nSpring.mA === s.mB && nSpring.mB === s.mA)))
                 springs.push(nSpring)
         },
         remSpring: sToRemove => springs = springs.filter(s => s !== sToRemove),
+        attachActuator: actuator => actuators.push(actuator),
+        remActuator: aToRemove => {
+            aToRemove.restore();
+            actuators = actuators.filter(a => a !== aToRemove);
+        },
+        setWaveSpeed: n => wSpd = n,
+        setWaveAmplitute: a => amp = a,
+        toggleWaveDirection: () => dir = dir > 0 ? -1 : 1,
         update: () => {
             if (pause) return;
+
+            // Apply model actuators.
+            for (let i = 0; i < actuators.length; i++) actuators[i].act(amp, 1, t);
+            t += wSpd * delta; // update actuator wave time.
+
             // Apply model spring forces.
             for(let i = 0; i < springs.length; ++i) springs[i].apply_F(delta);
             
