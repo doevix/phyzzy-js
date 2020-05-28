@@ -17,3 +17,9 @@ canvas {
     right: 0;
     top: 0;
 }
+.envMenuContainer {
+    background-color: white;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
