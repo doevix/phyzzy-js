@@ -3,7 +3,7 @@
 
 // Draws the vector on the screen.
 v2d.prototype.draw = function(ctx, origin, scale) {
-    const v = this.mul(scale);
+    const p = this.mul(scale);
     ctx.beginPath();
     ctx.moveTo(origin.x, origin.y);
     ctx.lineTo(origin.x + p.x, origin.y + p.y);
