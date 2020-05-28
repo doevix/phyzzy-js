@@ -327,7 +327,12 @@ class Environment {
         if (this.s_bounds.h != undefined && m.pos.y + m.radius >= this.s_bounds.h) {
             const magX = Math.abs(m.d_p().x);
             const fk = magX > 0 ? Math.abs(m.F_sum.y) * m.mu_k * -(m.d_p().x / magX) : 0;
-            m.F_sum.x += fk;
+            
+            if (magX < 1E-3 && Math.abs(m.F_sum.x) < m.F_sum.y * m.mu_s) {
+                m.F_sum.x = 0;
+                m.prv.x = m.pos.x;
+            } 
+            else m.F_sum.x += fk;
         }
     }
     draw(ctx, color, scale = 100) {
@@ -484,7 +489,7 @@ const Model = (() => {
         },
         setWaveSpeed: n => wSpd = n,
         setWaveAmplitude: a => amp = a,
-        getWaveStats: () => ({ amp, wspd, t }),
+        getWaveStats: () => ({ amp, wSpd, t }),
         toggleWaveDirection: () => dir = dir > 0 ? -1 : 1,
         update: () => {
             if (pause) return;
