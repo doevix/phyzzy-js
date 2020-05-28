@@ -23,3 +23,11 @@ canvas {
     right: 0;
     bottom: 0;
 }
+
+.helperText {
+    position: absolute;
+    color: white;
+    opacity: 0.2;
+    left: 0;
+    top: 0;
+}
