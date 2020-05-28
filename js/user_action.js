@@ -1,5 +1,6 @@
 // user_action.js
 // Defines mouse and touch event handlers for the model.
+'use strict';
 
 const makeMenuContainer = () => {
     const div = document.createElement('div');
@@ -103,11 +104,11 @@ const makeMassMenu = m => {
     innerDiv.appendChild(c_sel);
     menu.appendChild(innerDiv);
     
-    return { menu, m_range, r_range, c_sel };
+    return menu;
 }
 
 const makeSpringMenu = s => {
-    menu = makeMenuContainer();
+    const menu = makeMenuContainer();
     const innerDiv = document.createElement('div');
     const s_range = makeRangeInput('stfRange', 0.0, 100, 0.01, s.stf);
     const d_range = makeRangeInput('dmpRange', 0.0, 20, 0.01, s.dmp);
@@ -128,7 +129,6 @@ const makeSpringMenu = s => {
     d_range.oninput = () => s.dmp = Number(d_range.value);
     c_sel.oninput = () => s.c_group = Number(c_sel.value);
 
-
     innerDiv.className = 'springMenuContainer';
     innerDiv.appendChild(makeParagraph('Spring'));
     innerDiv.appendChild(makeInputLabel('stfRange', 'Stiff'));
@@ -138,7 +138,28 @@ const makeSpringMenu = s => {
     innerDiv.appendChild(makeInputLabel('colGroupSel', 'Collision Group:'));
     innerDiv.appendChild(c_sel);
     menu.appendChild(innerDiv);
-    return { menu, s_range, d_range, c_sel };
+    return menu;
+}
+
+const makeEnvMenu = () => {
+    const env = Model.environment();
+    const w = Model.getWaveStats();
+    const innerDiv = makeDiv('envMenuContainer');
+    const g_range = makeRangeInput('grvRange', 0, 9.81 * 5, 0.01, env.g.y);
+    const d_range = makeRangeInput('drgRange', 0, 5, 0.1, env.d);
+    
+    g_range.oninput = () => env.g.y = Number(g_range.value);    
+    d_range.oninput = () => env.d = Number(d_range.value);    
+    
+    const g_setting = makeContainer('rangeContainer', g_range);
+    const d_setting = makeContainer('rangeContainer', d_range);
+
+    innerDiv.appendChild(makeParagraph('Environment'));
+    innerDiv.appendChild(makeInputLabel('grvRange', 'Gravity'));
+    innerDiv.appendChild(g_setting);
+    innerDiv.appendChild(makeInputLabel('drgRange', 'Drag'));
+    innerDiv.appendChild(d_setting);
+    return innerDiv;
 }
 
 // Graphical construction, acts like a finite state machine.
@@ -236,16 +257,16 @@ const MouseHandler = (cv) => {
     const genSelectMenu = () => {
         if (selected && menuEnable) {
             if (selectMenu !== undefined) {
-                document.body.removeChild(selectMenu.menu);
+                document.body.removeChild(selectMenu);
             }
             if (Mass.prototype.isPrototypeOf(selected)){
                 selectMenu = makeMassMenu(selected);
             } else {
                 selectMenu = makeSpringMenu(selected);
             }
-            document.body.appendChild(selectMenu.menu);
+            document.body.appendChild(selectMenu);
         } else if (selectMenu !== undefined) {
-            document.body.removeChild(selectMenu.menu);
+            document.body.removeChild(selectMenu);
             selectMenu = undefined;
         }
     }
@@ -275,10 +296,10 @@ const MouseHandler = (cv) => {
         toggleMenus: () => {
             if (menuEnable) {
                 menuEnable = false;
-                menuSelect = genSelectMenu();
+                genSelectMenu();
             } else {
                 menuEnable = true;
-                menuSelect = genSelectMenu();
+                genSelectMenu();
             }
             return menuEnable;
         },
@@ -295,6 +316,7 @@ const MouseHandler = (cv) => {
             else {
                 deleteEnable = true;
                 if (constructEnable) constructEnable = false;
+                if (menuEnable) menuEnable = false;
                 MouseConstructor.stateReset();
             }
         },
@@ -304,10 +326,20 @@ const MouseHandler = (cv) => {
     };
 }
 
+let envMenu = undefined;
 document.addEventListener('keypress', e =>  {
     if (e.key === ' ')
         Model.togglePause();
     else if (e.key === 'z') mouse.toggleMenus();
     else if (e.key === 'c') mouse.toggleConstructor();
     else if (e.key === 'd') mouse.toggleDelete();
+    else if (e.key === 'e') {
+        if (envMenu) {
+            document.body.removeChild(envMenu);
+            envMenu = undefined;
+        } else {
+            envMenu = makeEnvMenu();
+            document.body.appendChild(envMenu);
+        }
+    }
 }, false);
