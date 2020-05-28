@@ -21,7 +21,7 @@ class Mass {
 
         // These are default values expected to be rarely changed.
         this.refl = 0.75; // Surface reflection.
-        this.mu_s = 0.8; // Static friction coefficient.
+        this.mu_s = 0.6; // Static friction coefficient.
         this.mu_k = 0.3; // Dynamic friction coefficient.
 
         // Collision group.
@@ -327,8 +327,8 @@ class Environment {
         if (this.s_bounds.h != undefined && m.pos.y + m.radius >= this.s_bounds.h) {
             const magX = Math.abs(m.d_p().x);
             const fk = magX > 0 ? Math.abs(m.F_sum.y) * m.mu_k * -(m.d_p().x / magX) : 0;
-            
-            if (magX < 1E-3 && Math.abs(m.F_sum.x) < m.F_sum.y * m.mu_s) {
+            const sTol = 1E-4;
+            if (magX < sTol && Math.abs(m.F_sum.x) < m.F_sum.y * m.mu_s) {
                 m.F_sum.x = 0;
                 m.prv.x = m.pos.x;
             } 
