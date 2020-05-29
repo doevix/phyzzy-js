@@ -52,9 +52,9 @@ class Mass {
     }
     // Translates the mass by a difference in movement.
     translate(D, preserve_vel = true) {
-        let p = this.pos.copy();
+        this.prv.mEqu(this.pos);
         this.pos.mAdd(D);
-        this.prv.mEqu(preserve_vel ? p : this.pos);
+        if (!preserve_vel) this.prv.mEqu(this.pos);
     }
     // Get mass velocity [m/s]
     get_v(delta) {

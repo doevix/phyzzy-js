@@ -299,6 +299,7 @@ const MouseHandler = (cv) => {
     let constructEnable = false;
     let deleteEnable = false;
     const pos = new v2d();
+    const prv = new v2d();
 
     const genSelectMenu = () => {
         if (selected && menuEnable) {
@@ -319,8 +320,10 @@ const MouseHandler = (cv) => {
 
     const listeners = () => {
         cv.addEventListener('mousemove', e => {
+            prv.mEqu(pos);
             pos.set(e.clientX - cv.offsetLeft + window.scrollX, e.clientY - cv.offsetTop + window.scrollY);
-            Model.dragAction(e.movementX, e.movementY);
+            const D = pos.sub(prv);
+            Model.dragAction(D.x, D.y);
         }, false);
         cv.addEventListener('mousedown', e => {
             selected = Model.setSelect();
