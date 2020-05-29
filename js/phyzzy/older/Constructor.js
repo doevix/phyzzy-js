@@ -21,14 +21,6 @@ const pauseButton = document.getElementById("userPause");
 const constructButton = document.getElementById("userConstruct");
 const deleteButton = document.getElementById("userDelete");
 const clearButton = document.getElementById("userClear");
-const gravSlider = document.getElementById("gravSlider");
-const dragSlider = document.getElementById("dragSlider");
-
-gravSlider.value = env.gravity.y;
-dragSlider.value = env.kd;
-wbox.ampSlider.value = phz.amp;
-wbox.spdSlider.value = phz.wSpd;
-wbox.dirCheck.checked = false;
 
 // User mode control.
 const mode = {
@@ -73,27 +65,6 @@ pauseButton.addEventListener('click', () => mode.setPause(!mode.pause), false);
 constructButton.addEventListener('click', () => mode.setConstruct(!mode.construct), false);
 deleteButton.addEventListener('click', () => mode.setDelete(!mode.udelete), false);
 
-// Environment slider event listeners.
-gravSlider.addEventListener('input', e => {
-    env.gravity.y = gravSlider.value;
-}, false);
-dragSlider.addEventListener('input', e => {
-    env.kd = dragSlider.value;
-}, false);
-
-// Wavebox event listeners.
-wbox.ampSlider.addEventListener('input', e => {
-    phz.amp = wbox.ampSlider.value;
-}, false);
-
-wbox.spdSlider.addEventListener('input', e => {
-    phz.wSpd = wbox.spdSlider.value;
-}, false);
-
-wbox.dirCheck.addEventListener("input", e => {
-    if (wbox.dirCheck.checked) phz.dir = -1;
-    else phz.dir = 1;
-}, false);
 
 // Indicate state of user's interaction with model.
 const user = {
@@ -185,7 +156,6 @@ const frame = () => {
     phz.drawMass(ctx, '#1DB322');
     user.highlight = phz.locateMass(phz.scaleV(user.mpos), 0.2);
     user.draw(phz);
-    wbox.draw(phz.amp, 1, phz.t);
 
     if (!mode.pause){
         phz.updateActuators(delta);
@@ -346,42 +316,6 @@ clearButton.addEventListener('click', () => {
 mode.setPause(false);
 mode.setConstruct(false);
 mode.setDelete(false);
-
-// Construct a basic model.
-const mProp = {mass: 0.1, rad: 0.05, refl: 0.7, mu_s: 0.4, mu_k: 0.2};
-phz.addM(new Mass(mProp, {x: 2.5, y: 2}));
-phz.addM(new Mass(mProp, {x: 3.5, y: 2}));
-phz.addM(new Mass(mProp, {x: (2.5 + 3.5) / 2, y: 3}));
-
-phz.mesh[0].fix = true;
-phz.mesh[1].fix = true;
-
-phz.addS(phz.mesh[0], phz.mesh[2], new Spring(phz.mesh[0].Pi.len(phz.mesh[2].Pi), 100, 50));
-phz.addS(phz.mesh[1], phz.mesh[2], new Spring(phz.mesh[1].Pi.len(phz.mesh[2].Pi), 100, 50));
-
-Builders.generateLine({x: 4, y: 2}, {x: 4, y: 3}, mProp, 100, 50, phz);
-phz.mesh[3].fix = true;
-
-Builders.generateLine({x: 2.5, y: 1}, {x: 4, y: 1}, mProp, 100, 50, phz);
-phz.springs[3].restlength *= 3 / 2;
-phz.addM(new Mass(mProp, {x: 3.25, y: 1}));
-phz.mesh[7].fix = true;
-phz.addS(phz.mesh[5], phz.mesh[7], new Spring(0, 100, 50));
-phz.addS(phz.mesh[6], phz.mesh[7], new Spring(0, 100, 50));
-
-const a0 = new MuscleSpringActuator(phz.springs[0], 0, 0.5);
-const a1 = new MuscleSpringActuator(phz.springs[1], Math.PI / 4, 0.5);
-const a2 = new RelaxationSpringActuator(phz.springs[2], 0, 0.5);
-const a3 = new BalloonMassActuator(phz.mesh[4], 0, 1, 5);
-const a4 = new VaryMassActuator(phz.mesh[5], 0, 1, 2);
-const a5 = new VaryMassActuator(phz.mesh[6], Math.PI / 2, 1, 2);
-
-phz.attachActuator(a0);
-phz.attachActuator(a1);
-phz.attachActuator(a2);
-phz.attachActuator(a3);
-phz.attachActuator(a4);
-phz.attachActuator(a5);
 
 // Run constructor animation.
 frame();

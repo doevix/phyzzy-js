@@ -7,25 +7,38 @@
         <link href="css/style.css" rel="stylesheet">
     </head>
     <body>
-        <h2>Phyzzy</h2>
+        <!-- <h2>Phyzzy</h2>
         <input id="userPause" type="button" value="pause">
         <input id="userConstruct" type="button" value="construct">
         <input id="userDelete" type="button" value="delete">
-        <input id="userClear" type="button" value="clear"><br>
-        <div class="viewContainer">
-            <canvas id="viewport" height="480" width="720"></canvas>
-        </div>
-        <div class="userContainer">
-            <input type="range" name="gravSet" id="gravSlider" min="0" max="40" step="0.01"> gravity<br>
-            <input type="range" name="dragSet" id="dragSlider" min="0" max="100" step="0.01"> drag<br>
-            <canvas id="wavebox" width="275" height="80"></canvas><br>
-            <input type="range" name="waveProp" id="amplitude" min="0" max="1" step="0.01"> amplitude<br>
-            <input type="range" name="waveProp" id="speed" min="0" max="20" step="0.01"> speed
-            <input type="checkbox" name="waveProp" id="direction"> reverse
-        </div>
-        <script src="./js/phyzzy/Phyzzy.js"></script>
+        <input id="userClear" type="button" value="clear"><br> -->
+        <!-- <canvas id="viewport" height="480" width="720"></canvas> -->
+        <!-- <script src="./js/phyzzy/Phyzzy.js"></script>
         <script src="./js/phyzzy/PhyzzyBuilders.js"></script>
-        <script src="./js/waveDraw.js"></script>
-        <script src="./js/Constructor.js"></script>
+        <script src="./js/Constructor.js"></script> -->
+        <script src="./js/phyzzy/v2d.js"></script>
+        <script src="./js/phyzzy/model_driver.js"></script>
+        <script src="./js/user_action.js"></script>
+        <script src="./js/player.js"></script>
+        <script>
+            // Return a random value within range.
+            const rand = (min = 0, max = 1) => min + (max - min) * Math.random();
+            const coinFlip = (p_true = 0.5) => Math.random() > p_true ? true : false;
+            // Define environment for the model.
+            const env = Model.environment();
+            env.s_bounds = {
+                x: 0, 
+                y: 0, 
+                w: canvas.width / Model.getScale(), 
+                h: canvas.height / Model.getScale()
+            };
+
+            Model.setStepsPerFrame(5);
+            Model.toggleCollisions();
+            frame();
+        </script>
+        <div class="helperText">
+            Keys: 'space' = play/pause; 'e' = environment options; 'z' = spring/mass options; 'c' = construct; 'd' = delete
+        </div>
     </body>
 </html>
