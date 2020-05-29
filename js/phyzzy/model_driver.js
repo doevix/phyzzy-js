@@ -195,8 +195,8 @@ class MuscleSpringActuator
     }
     act(amp, wSpd, t)
     {
-        const factor = 1 + Math.sin(wSpd * t + (this.phase / Math.abs(wSpd)));
-        this.acted.rst = this.default * (1 + amp * this.sense * factor);
+        const factor = 1 + amp * this.sense * Math.sin(wSpd * t + (this.phase / Math.abs(wSpd)));
+        this.acted.rst = this.default * (factor);
     }
     restore()
     {
