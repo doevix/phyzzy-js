@@ -78,9 +78,9 @@ const makeActuatorMenu = a => {
     const menu = makeDiv('actuatorMenu');
     if (MuscleSpringActuator.prototype.isPrototypeOf(a)) {
         const s_range = makeRangeInput('senseRange', 0, 1, 0.01, a.sense);
-        const p_range = makeRangeInput('phaseRange', 0, 2 * 3.14, 0.01, a.phase);
+        const p_range = makeRangeInput('phaseRange', 0, 1, 0.01, a.phase / (2 * Math.PI));
         s_range.oninput = () => a.sense = Number(s_range.value);
-        p_range.oninput = () => a.phase = Number(p_range.value);
+        p_range.oninput = () => a.phase = 2 * Math.PI * Number(p_range.value);
         const s_setting = makeContainer('senseContainer', s_range);
         const p_setting = makeContainer('phaseContainer', p_range);
         menu.appendChild(makeInputLabel('senseRange', "Sensitivity"));
