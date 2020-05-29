@@ -300,28 +300,36 @@ class Environment {
     s_boundHit(m, preserve) {
         const d_horz = new v2d(1, 0); // Horizontal direction
         const d_vert = new v2d(0, 1); // Vertical direction
+        let LR_Hit = undefined; // Returns if the mass hit left or right wall.
+        // Mass hits bottom bound.
         if (this.s_bounds.h !== undefined && m.pos.y + m.radius > this.s_bounds.h) {
             const p_temp = m.pos.y;
             m.pos.y = this.s_bounds.h - m.radius;
             m.prv.y += m.pos.y - p_temp;
             if (preserve) m.reflect(d_horz);
+        // Mass hits top bound.
         } else if (this.s_bounds.y !== undefined && m.pos.y - m.radius < this.s_bounds.y) {
             const p_temp = m.pos.y;
             m.pos.y = this.s_bounds.y + m.radius;
             m.prv.y += m.pos.y - p_temp;
             if (preserve) m.reflect(d_horz);
         }
+        // Mass hits right bound.
         if (this.s_bounds.w !== undefined && m.pos.x + m.radius > this.s_bounds.w) {
             const p_temp = m.pos.x;
+            LR_Hit = 'R';
             m.pos.x = this.s_bounds.w - m.radius;
             m.prv.x += m.pos.x - p_temp;
             if (preserve) m.reflect(d_vert);
+        // Mass hits left bound.
         } else if (this.s_bounds.x !== undefined && m.pos.x - m.radius < this.s_bounds.x) {
             const p_temp = m.pos.x;
+            LR_Hit = 'L';
             m.pos.x = this.s_bounds.x + m.radius;
             m.prv.x += m.pos.x - p_temp;
             if (preserve) m.reflect(d_vert);
         }
+        return LR_Hit;
     }
     screenFriction(m) {
         if (this.s_bounds.h != undefined && m.pos.y + m.radius >= this.s_bounds.h) {
@@ -438,6 +446,15 @@ const Model = (() => {
         }
     }
 
+    let LR_prv = undefined;
+    const toggleWaveDirection = () => dir = dir > 0 ? -1 : 1
+    const autoReverse = LR => {
+        if (LR !== undefined && LR !== LR_prv) {
+            LR_prv = LR;
+            toggleWaveDirection();
+        }
+    }
+
     const remSpring = sToRemove => {
         springs = springs.filter(s => s !== sToRemove);
         actuators = actuators.filter(a => a.acted !== sToRemove);
@@ -490,7 +507,10 @@ const Model = (() => {
         setWaveSpeed: n => wSpd = n,
         setWaveAmplitude: a => amp = a,
         getWaveStats: () => ({ amp, wSpd, t }),
-        toggleWaveDirection: () => dir = dir > 0 ? -1 : 1,
+        toggleWaveDirManual: () => {
+            LR_prv = undefined;
+            toggleWaveDirection()
+        },
         update: () => {
             if (pause) return;
 
@@ -517,7 +537,8 @@ const Model = (() => {
                     mm_collide(m, false);
                 }
                 env.boundCollide(m, false);
-                env.s_boundHit(m, false);
+                const LR = env.s_boundHit(m, false);
+                autoReverse(LR); // Check if model wave should reverse direction.
 
                 // Model inertia.
                 m.v_iner();
