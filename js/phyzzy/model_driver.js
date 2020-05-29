@@ -21,8 +21,8 @@ class Mass {
 
         // These are default values expected to be rarely changed.
         this.refl = 0.75; // Surface reflection.
-        this.mu_s = 0.6; // Static friction coefficient.
-        this.mu_k = 0.3; // Dynamic friction coefficient.
+        this.mu_s = 0.8; // Static friction coefficient.
+        this.mu_k = 0.6; // Dynamic friction coefficient.
 
         // Collision group.
         // Every mass and spring is found inside a collision group.
