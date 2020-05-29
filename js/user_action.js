@@ -52,6 +52,13 @@ const makeCheckboxInput = (id, val) => {
     check.checked = val;
     return check;
 }
+const makeButtonInput = (id, usrTxt) => {
+    const btn = document.createElement('input');
+    btn.type = 'button';
+    btn.id = id;
+    btn.value = usrTxt;
+    return btn;
+}
 
 // Creates an option input.
 const makeOptionInput = (id, values, val) => {
@@ -65,6 +72,23 @@ const makeOptionInput = (id, values, val) => {
     });
     sel.value = val;
     return sel;
+}
+
+const makeActuatorMenu = a => {
+    const menu = makeDiv('actuatorMenu');
+    if (MuscleSpringActuator.prototype.isPrototypeOf(a)) {
+        const s_range = makeRangeInput('senseRange', 0, 1, 0.01, a.sense);
+        const p_range = makeRangeInput('phaseRange', 0, 2 * 3.14, 0.01, a.phase);
+        s_range.oninput = () => a.sense = Number(s_range.value);
+        p_range.oninput = () => a.phase = Number(p_range.value);
+        const s_setting = makeContainer('senseContainer', s_range);
+        const p_setting = makeContainer('phaseContainer', p_range);
+        menu.appendChild(makeInputLabel('senseRange', "Sensitivity"));
+        menu.appendChild(s_setting);
+        menu.appendChild(makeInputLabel('phaseRange', "Phase"));
+        menu.appendChild(p_setting);
+    }
+    return menu;
 }
 
 const makeMassMenu = m => {
@@ -109,6 +133,7 @@ const makeMassMenu = m => {
 
 const makeSpringMenu = s => {
     const menu = makeMenuContainer();
+    const a = Model.getActuator(s);
     const innerDiv = document.createElement('div');
     const s_range = makeRangeInput('stfRange', 0.0, 100, 0.01, s.stf);
     const d_range = makeRangeInput('dmpRange', 0.0, 20, 0.01, s.dmp);
@@ -137,6 +162,17 @@ const makeSpringMenu = s => {
     innerDiv.appendChild(d_setting);
     innerDiv.appendChild(makeInputLabel('colGroupSel', 'Collision Group:'));
     innerDiv.appendChild(c_sel);
+    if (a) innerDiv.appendChild(makeActuatorMenu(a));
+    else {
+        const btn = makeButtonInput('makeActBtn', 'Make muscle');
+        innerDiv.appendChild(btn);
+        btn.onclick = () => {
+            const na = new MuscleSpringActuator(s, 0, 0);
+            Model.attachActuator(na);
+            innerDiv.appendChild(makeActuatorMenu(na));
+            innerDiv.removeChild(btn);
+        }
+    }
     menu.appendChild(innerDiv);
     return menu;
 }
@@ -159,7 +195,6 @@ const makeEnvMenu = () => {
     const d_setting = makeContainer('rangeContainer', d_range);
     const wa_setting = makeContainer('rangeContainer', wa_range);
     const ws_setting = makeContainer('rangeContainer', ws_range);
-
 
     innerDiv.appendChild(makeParagraph('Environment'));
     innerDiv.appendChild(makeInputLabel('grvRange', 'Gravity'));
