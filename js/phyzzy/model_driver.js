@@ -182,6 +182,7 @@ class Spring {
     }
 }
 
+// Actuators. The following classes modify element properties according to a waveform.
 // Classic restlength-modifying muscle.
 class MuscleSpringActuator
 {
@@ -204,7 +205,6 @@ class MuscleSpringActuator
     }
 };
 
-// Actuators. The following classes modify element properties according to a waveform.
 // Relaxation stiffness-modifying muscle.
 class RelaxationSpringActuator
 {
