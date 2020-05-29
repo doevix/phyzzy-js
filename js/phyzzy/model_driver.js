@@ -72,7 +72,7 @@ class Mass {
             this.prv.mEqu(this.pos);
         }
     }
-    // Verlet inertia application.
+    // Verlet integrator inertia.
     v_iner() {
             const p = this.pos.mul(2).sub(this.prv);
             this.prv.mEqu(this.pos);
