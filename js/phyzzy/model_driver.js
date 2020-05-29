@@ -626,6 +626,51 @@ const Model = (() => {
                     else return springs.indexOf(value);
                 }
                 else return value;
-            }, 4)
+            }, 4),
+        // Loads only bare model without environment or destroying current model.
+        import: model => {
+            const loaded = JSON.parse(model);
+            const ml = masses.length;
+            const sl = springs.length;
+            
+            loaded.masses.forEach(m => {
+                const x = new Mass({ x: m.pos.x, y: m.pos.y }, m.radius, m.mass);
+                x.prv.set(m.prv.x, m.prv.y);
+                x.refl = m.refl;
+                x.mu_s = m.mu_s;
+                x.mu_k = m.mu_k;
+                x.c_group = m.c_group;
+                x.F_sum.mEqu(m.F_sum);
+                x.fric_prv.mEqu(m.fric_prv);
+                x.isFixed = m.isFixed;
+                masses.push(x);
+            });
+
+            loaded.springs.forEach(s => {
+                const x = new Spring(masses[ml + s.mA], masses[ml + s.mB], s.rst, s.stf, s.dmp);
+                x.c_group = s.c_group;
+                springs.push(x);
+            });
+
+            loaded.actuators.forEach(a => {
+                let x;
+                switch (a.type) {
+                case 'SpringMuscle':
+                    x = new MuscleSpringActuator(springs[sl + a.acted], a.phase, a.sense);
+                    break;
+                case 'SpringRelax':
+                    x = new RelaxationSpringActuator(springs[sl + a.acted], a.phase, a.sense);
+                    break;
+                case 'MassBalloon':
+                    x = new BalloonMassActuator(masses[ml + a.acted], a.phase, a.sense, a.mult);
+                    break;
+                case 'MassVary':
+                    x = new VaryMassActuator(masses[ml + a.acted], a.phase, a.sense, a.mult);
+                    break;
+                }
+                x.default = a.default;
+                actuators.push(x);
+            });
+        }
     };
 })();
