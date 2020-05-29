@@ -147,18 +147,29 @@ const makeEnvMenu = () => {
     const innerDiv = makeDiv('envMenuContainer');
     const g_range = makeRangeInput('grvRange', 0, 9.81 * 5, 0.01, env.g.y);
     const d_range = makeRangeInput('drgRange', 0, 5, 0.1, env.d);
+    const wa_range = makeRangeInput('wampRange', 0, 1, 0.01, w.amp);
+    const ws_range = makeRangeInput('wspdRange', 0, 20, 0.01, w.wSpd);
     
     g_range.oninput = () => env.g.y = Number(g_range.value);    
     d_range.oninput = () => env.d = Number(d_range.value);    
-    
+    wa_range.oninput = () => Model.setWaveAmplitude(Number(wa_range.value));
+    ws_range.oninput = () => Model.setWaveSpeed(Number(ws_range.value));
+
     const g_setting = makeContainer('rangeContainer', g_range);
     const d_setting = makeContainer('rangeContainer', d_range);
+    const wa_setting = makeContainer('rangeContainer', wa_range);
+    const ws_setting = makeContainer('rangeContainer', ws_range);
+
 
     innerDiv.appendChild(makeParagraph('Environment'));
     innerDiv.appendChild(makeInputLabel('grvRange', 'Gravity'));
     innerDiv.appendChild(g_setting);
     innerDiv.appendChild(makeInputLabel('drgRange', 'Drag'));
     innerDiv.appendChild(d_setting);
+    innerDiv.appendChild(makeInputLabel('wampRange', 'Wave Amplitude'));
+    innerDiv.appendChild(wa_setting);
+    innerDiv.appendChild(makeInputLabel('wspdRange', 'Wave Speed'));
+    innerDiv.appendChild(ws_setting);
     return innerDiv;
 }
 
