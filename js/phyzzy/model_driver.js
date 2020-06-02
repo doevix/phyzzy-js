@@ -508,7 +508,7 @@ const Model = (() => {
         setWaveSpeed: n => wSpd = n,
         setWaveAmplitude: a => amp = a,
         getWaveStats: () => ({ amp, wSpd, t }),
-        toggleWaveDirManual: () => {
+        toggleWave: () => {
             LR_prv = undefined;
             toggleWaveDirection()
         },
