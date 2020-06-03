@@ -20,9 +20,8 @@ const CanvasModelUpdate = (ctx, env, theme, width, height) => {
     ctx.clearRect(0, 0, width, height);
     MouseConstructor.draw(ctx, mouse.getPos(), Model.getHighlight(), theme);
     Model.draw(ctx, theme);
-    env.draw(ctx, theme.bound, Model.getScale());
     // Update model for next frame.
-    for (let i = 0; i < Model.getStepsPerFrame(); i++) Model.update(env);
+    for (let i = 0; i < Model.getStepsPerFrame(); i++) Model.update();
 }
 
 // Theme to use for colors.
