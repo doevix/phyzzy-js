@@ -7,24 +7,36 @@
         <link href="css/style.css" rel="stylesheet">
     </head>
     <body>
-        <!-- <h2>Phyzzy</h2>
-        <input id="userPause" type="button" value="pause">
-        <input id="userConstruct" type="button" value="construct">
-        <input id="userDelete" type="button" value="delete">
-        <input id="userClear" type="button" value="clear"><br> -->
-        <!-- <canvas id="viewport" height="480" width="720"></canvas> -->
-        <!-- <script src="./js/phyzzy/Phyzzy.js"></script>
-        <script src="./js/phyzzy/PhyzzyBuilders.js"></script>
-        <script src="./js/Constructor.js"></script> -->
+
+        <div class="ctrlBar">
+            <div class="ctrlItem">
+                <input id="pseBtn" type="button" class="controlBtn" value="pause">
+            </div>
+            <div class="ctrlItem">
+                <input id="cstBtn" type="button" class="controlBtn" value="construct">
+            </div>
+            <div class="ctrlItem">
+                <input id="delBtn" type="button" class="controlBtn" value="delete">
+            </div>
+            <div class="ctrlItem">
+                <input id="clrBtn" type="button" class="controlBtn" value="clear">
+            </div>
+            <div id="appName" class="ctrlItem">
+                Phyzzy
+            </div>
+        </div>
+        <!-- <div class="toolBar"></div> -->
+        <div class="canvasContainer">
+            <canvas id="canvas"></canvas>
+        </div>
+        
+        <div class="footer">footer text</div>
+
         <script src="./js/phyzzy/v2d.js"></script>
         <script src="./js/phyzzy/model_driver.js"></script>
         <script src="./js/user_action.js"></script>
         <script src="./js/player.js"></script>
         <script>
-            // Return a random value within range.
-            const rand = (min = 0, max = 1) => min + (max - min) * Math.random();
-            const coinFlip = (p_true = 0.5) => Math.random() > p_true ? true : false;
-            // Define environment for the model.
             const env = Model.environment();
             env.s_bounds = {
                 x: 0, 
@@ -32,6 +44,7 @@
                 w: canvas.width / Model.getScale(), 
                 h: canvas.height / Model.getScale()
             };
+            Model.addMass(new Mass({x: env.s_bounds.w / 2, y: env.s_bounds.h / 2}));
 
             Model.setStepsPerFrame(5);
             Model.toggleCollisions();
