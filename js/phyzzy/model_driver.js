@@ -11,6 +11,10 @@ v2d.prototype.draw = function(ctx, origin, scale) {
     ctx.stroke();
 }
 
+v2d.prototype.toStr = function(fix) {
+    return '<' + this.x.toFixed(fix) + ', ' + this.y.toFixed(fix) + '>';
+}
+
 // Masses: Has weight and reacts to forces and velocity. Moved via verlet integrator.
 class Mass {
     constructor(pos, radius = 0.08, mass = 0.16) {
