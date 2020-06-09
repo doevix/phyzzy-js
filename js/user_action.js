@@ -321,7 +321,8 @@ const MouseHandler = (cv) => {
     const listeners = () => {
         cv.addEventListener('mousemove', e => {
             prv.mEqu(pos);
-            pos.set(e.clientX - cv.offsetLeft + window.scrollX, e.clientY - cv.offsetTop + window.scrollY);
+            pos.set(e.clientX - cv.offsetLeft + window.scrollX, e.clientY - cv.offsetTop + window.scrollY - 50);
+            document.getElementsByClassName('footer')[0].innerHTML = pos.toStr(3);
             const D = pos.sub(prv);
             Model.dragAction(D.x, D.y);
         }, false);

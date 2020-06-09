@@ -38,15 +38,23 @@ const theme_dark = {
 };
 
 // Model player initialization
+const cContainer = document.getElementsByClassName('canvasContainer')[0];
 const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
 scaleCanvas(canvas);
 // Attach mouse event handlers to the canvas.
 const mouse = MouseHandler(canvas, Model.getScale());
 mouse.attachEvents(canvas);
+
+
 // Resize canvas and scale when window changes size.
 window.onresize = () => scaleCanvas(canvas);
 
+// window.onmousemove = e => {
+//     const pos = new v2d(e.clientX, e.clientY);
+//     console.log(pos);
+//     document.getElementsByClassName('footer')[0].innerHTML = pos.toStr(3);
+// }
 
 const frame = () => {
     CanvasModelUpdate(context, env, theme_dark, canvas.width, canvas.height);
