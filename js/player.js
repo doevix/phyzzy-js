@@ -1,15 +1,12 @@
 // player.js
 "use strict";
 
-// Generate the canvas element.
-const generateCanvas = theme => {
-    const canvas = document.createElement('canvas');
-    canvas.style = 'background-color: ' + theme.background;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    document.body.appendChild(canvas);
-    return canvas;
+const scaleCanvas = (cvs) => {
+    cvs.height = window.innerHeight - 50 - 20;
+    cvs.width = cvs.height * (16 / 9); // Adjust width to aspect ratio.
+    Model.setScale(cvs.width / 12);
 }
+
 // Updates and draws the model to the canvas.
 const CanvasModelUpdate = (ctx, env, theme, width, height) => {
     // Catch the element nearest to the pointer.
@@ -20,9 +17,8 @@ const CanvasModelUpdate = (ctx, env, theme, width, height) => {
     ctx.clearRect(0, 0, width, height);
     MouseConstructor.draw(ctx, mouse.getPos(), Model.getHighlight(), theme);
     Model.draw(ctx, theme);
-    env.draw(ctx, theme.bound, Model.getScale());
     // Update model for next frame.
-    for (let i = 0; i < Model.getStepsPerFrame(); i++) Model.update(env);
+    for (let i = 0; i < Model.getStepsPerFrame(); i++) Model.update();
 }
 
 // Theme to use for colors.
@@ -42,12 +38,17 @@ const theme_dark = {
 };
 
 // Model player initialization
-const canvas = generateCanvas(theme_dark);
+const cContainer = document.getElementsByClassName('canvasContainer')[0];
+const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
+scaleCanvas(canvas);
 // Attach mouse event handlers to the canvas.
 const mouse = MouseHandler(canvas, Model.getScale());
 mouse.attachEvents(canvas);
 
+
+// Resize canvas and scale when window changes size.
+window.onresize = () => scaleCanvas(canvas);
 
 const frame = () => {
     CanvasModelUpdate(context, env, theme_dark, canvas.width, canvas.height);

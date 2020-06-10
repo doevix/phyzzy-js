@@ -78,9 +78,9 @@ const makeActuatorMenu = a => {
     const menu = makeDiv('actuatorMenu');
     if (MuscleSpringActuator.prototype.isPrototypeOf(a)) {
         const s_range = makeRangeInput('senseRange', 0, 1, 0.01, a.sense);
-        const p_range = makeRangeInput('phaseRange', 0, 2 * 3.14, 0.01, a.phase);
+        const p_range = makeRangeInput('phaseRange', 0, 1, 0.01, a.phase / (2 * Math.PI));
         s_range.oninput = () => a.sense = Number(s_range.value);
-        p_range.oninput = () => a.phase = Number(p_range.value);
+        p_range.oninput = () => a.phase = 2 * Math.PI * Number(p_range.value);
         const s_setting = makeContainer('senseContainer', s_range);
         const p_setting = makeContainer('phaseContainer', p_range);
         menu.appendChild(makeInputLabel('senseRange', "Sensitivity"));
@@ -321,7 +321,7 @@ const MouseHandler = (cv) => {
     const listeners = () => {
         cv.addEventListener('mousemove', e => {
             prv.mEqu(pos);
-            pos.set(e.clientX - cv.offsetLeft + window.scrollX, e.clientY - cv.offsetTop + window.scrollY);
+            pos.set(e.clientX - cv.offsetLeft + window.scrollX, e.clientY - cv.offsetTop + window.scrollY - 50);
             const D = pos.sub(prv);
             Model.dragAction(D.x, D.y);
         }, false);
@@ -392,3 +392,19 @@ document.addEventListener('keypress', e =>  {
         }
     }
 }, false);
+
+const ctrlButtons = document.getElementsByClassName('controlBtn');
+
+ctrlButtons['pseBtn'].addEventListener('click', e => {
+    Model.togglePause();
+}, true);
+ctrlButtons['cstBtn'].addEventListener('click', e => {
+    mouse.toggleConstructor();
+}, true);
+ctrlButtons['delBtn'].addEventListener('click', e => {
+    mouse.toggleDelete();
+}, true);
+ctrlButtons['clrBtn'].addEventListener('click', e => {
+    if (window.confirm('You are about to clear the model. Continue?'))
+        Model.clear();
+}, true);

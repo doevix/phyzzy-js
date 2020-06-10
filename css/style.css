@@ -2,13 +2,76 @@ body {
     background-color: black;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     margin: 0px;
+    padding: 0;
+}
+
+.ctrlBar {
+    background-color: #1f1f1f;
+    width: 100vw;
+    height: 50px;
+    position: fixed;
+    display: flex;
+    align-items: center;
+    z-index: 5;
+}
+
+.controlBtn {
+    background-color: #1DB322;
+    color: white;
+    font-size: large;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    display: inline-block;
+    margin: 4px 2px;
+}
+
+.controlBtn:hover {
+    background-color: #47DE4C;
+}
+
+.controlBtn:active { 
+    background-color: rgb(22, 129, 25);
+}
+
+.ctrlItem:last-child {
+    margin-left: auto;
+}
+
+#appName {
+    color: white;
+    font-size: large;
+    margin-right: 5px;
+}
+
+.toolBar {
+    background-color: #1f1f1f;
+    position: fixed;
+    height: 100vh;
+    width: 50px;
+    right: 0px;
+    z-index: 4;
+}
+
+.canvasContainer {
+    position: relative;
+    top: 50px;
+    text-align: center;
+}
+
+.footer {
+    background-color: #1f1f1f;
+    color: white;
+    position: fixed;
+    height: 20px;
+    width: 100vw;
+    bottom: 0;
 }
 
 canvas {
     /* touch-action: none; */
-    display: block;
-    position: absolute;
-    z-index: -1;
+    background-color: #2C2C2C;
+    vertical-align: bottom;
 }
 
 .menuContainer {
@@ -22,12 +85,4 @@ canvas {
     position: absolute;
     right: 0;
     bottom: 0;
-}
-
-.helperText {
-    position: absolute;
-    color: white;
-    opacity: 0.2;
-    left: 0;
-    top: 0;
 }
