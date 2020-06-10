@@ -30,7 +30,9 @@
             <canvas id="canvas"></canvas>
         </div>
         
-        <div class="footer">footer text</div>
+        <div class="footer">
+            Keys: 'e': Environment options; 'z': selected mass/spring options
+        </div>
 
         <script src="./js/phyzzy/v2d.js"></script>
         <script src="./js/phyzzy/model_driver.js"></script>
@@ -44,7 +46,6 @@
                 w: canvas.width / Model.getScale(), 
                 h: canvas.height / Model.getScale()
             };
-            Model.addMass(new Mass({x: env.s_bounds.w / 2, y: env.s_bounds.h / 2}));
 
             Model.setStepsPerFrame(5);
             Model.toggleCollisions();
