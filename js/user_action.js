@@ -405,5 +405,6 @@ ctrlButtons['delBtn'].addEventListener('click', e => {
     mouse.toggleDelete();
 }, true);
 ctrlButtons['clrBtn'].addEventListener('click', e => {
-    Model.clear();
+    if (window.confirm('You are about to clear the model. Continue?'))
+        Model.clear();
 }, true);
