@@ -50,12 +50,6 @@ mouse.attachEvents(canvas);
 // Resize canvas and scale when window changes size.
 window.onresize = () => scaleCanvas(canvas);
 
-// window.onmousemove = e => {
-//     const pos = new v2d(e.clientX, e.clientY);
-//     console.log(pos);
-//     document.getElementsByClassName('footer')[0].innerHTML = pos.toStr(3);
-// }
-
 const frame = () => {
     CanvasModelUpdate(context, env, theme_dark, canvas.width, canvas.height);
     requestAnimationFrame(frame);
