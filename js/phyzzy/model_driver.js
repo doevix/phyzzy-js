@@ -503,6 +503,14 @@ const Model = (() => {
             },
         remSpring,
         remMass,
+        clear: () => {
+            masses = [];
+            springs = [];
+            actuators = [];
+            highlight = undefined;
+            select = undefined;
+            drag = undefined;
+        },
         attachActuator: actuator => actuators.push(actuator),
         getActuator: element => actuators.find(a => element === a.acted),
         remActuator: aToRemove => {
