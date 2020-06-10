@@ -392,3 +392,18 @@ document.addEventListener('keypress', e =>  {
         }
     }
 }, false);
+
+const ctrlButtons = document.getElementsByClassName('controlBtn');
+
+ctrlButtons['pseBtn'].addEventListener('click', e => {
+    Model.togglePause();
+}, true);
+ctrlButtons['cstBtn'].addEventListener('click', e => {
+    mouse.toggleConstructor();
+}, true);
+ctrlButtons['delBtn'].addEventListener('click', e => {
+    mouse.toggleDelete();
+}, true);
+ctrlButtons['clrBtn'].addEventListener('click', e => {
+    Model.clear();
+}, true);
