@@ -221,11 +221,13 @@ const MouseConstructor = (() => {
         (sel, p) => {
             spr = new Mass(p.div(Model.getScale()));
             Model.addMass(spr);
+            Model.forceSelect(spr);
         },
         (sel, p) => {
             const m = new Mass(p.div(Model.getScale()));
             const l = m.pos.len(spr.pos);
             Model.addMass(m);
+            Model.forceSelect(m);
             if (spr !== m) {
                 Model.addSpring(new Spring(spr, m, l));
                 spr = m;
@@ -261,6 +263,7 @@ const MouseConstructor = (() => {
                 break;    
             case 4:
                 if (!isMass(sel)) state = 2;
+                else if(isMass(sel) && sel === spr) state = 0;
                 else state = 4;
                 break;    
             default:
