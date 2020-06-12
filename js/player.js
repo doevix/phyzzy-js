@@ -38,7 +38,6 @@ const theme_dark = {
 };
 
 // Model player initialization
-const cContainer = document.getElementsByClassName('canvasContainer')[0];
 const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
 scaleCanvas(canvas);
