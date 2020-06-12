@@ -588,6 +588,7 @@ const Model = (() => {
             drag = select;
             return select;
         },
+        forceSelect: m => select = m,
         getHighlight: () => highlight,
         getSelect: () => select,
         dragAction: (dx, dy) => {
