@@ -1,12 +1,22 @@
+:root {
+    --defaultColor: #1DB322;
+    --highlightColor: #47DE4C;
+    --selectedColor: #D7BC27;
+    --clickedColor: #168119;
+    --menuBarColor: #1F1F1F;
+    --canvasBackground: #2C2C2C;
+    --emptySpaceColor: black;
+}
+
 body {
-    background-color: black;
+    background-color: var(--emptySpaceColor);
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     margin: 0px;
     padding: 0;
 }
 
 .ctrlBar {
-    background-color: #1f1f1f;
+    background-color: var(--menuBarColor);
     width: 100vw;
     height: 50px;
     position: fixed;
@@ -16,7 +26,7 @@ body {
 }
 
 .controlBtn {
-    background-color: #1DB322;
+    background-color: var(--defaultColor);
     color: white;
     font-size: large;
     border: none;
@@ -27,11 +37,11 @@ body {
 }
 
 .controlBtn:hover {
-    background-color: #47DE4C;
+    background-color: var(--highlightColor);
 }
 
 .controlBtn:active { 
-    background-color: rgb(22, 129, 25);
+    background-color: var(--clickedColor);
 }
 
 .ctrlItem:last-child {
@@ -45,7 +55,7 @@ body {
 }
 
 .toolBar {
-    background-color: #1f1f1f;
+    background-color: var(--menuBarColor);
     position: fixed;
     height: 100vh;
     width: 50px;
@@ -60,7 +70,7 @@ body {
 }
 
 .footer {
-    background-color: #1f1f1f;
+    background-color: var(--menuBarColor);
     color: white;
     position: fixed;
     height: 20px;
@@ -70,7 +80,7 @@ body {
 
 canvas {
     /* touch-action: none; */
-    background-color: #2C2C2C;
+    background-color: var(--canvasBackground);
     vertical-align: bottom;
 }
 
