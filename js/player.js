@@ -25,8 +25,8 @@ const CanvasModelUpdate = (ctx, env, theme, width, height) => {
 const theme_dark = {
     // Window space colors.
     menuBar: "#1F1F1F",
-    menuBarTxt: "#FFFFFF",
-    btnText: "#FFFFFF",
+    barTxt: "#FFFFFF",
+    btnTxt: "#FFFFFF",
     btnDefault: "#1DB322",
     btnHighlight: "#47DE4C",
     btnSelected: "#D7BC27",
@@ -49,8 +49,8 @@ const theme_dark = {
 const theme_nostalgic = {
     // Window space colors.
     menuBar: "#D3D3D3",
-    menuBarTxt: "#000000",
-    btnText: "#FFFFFF",
+    barTxt: "#000000",
+    btnTxt: "#FFFFFF",
     btnDefault: "#1B8CD2",
     btnHighlight: "#65AEDC",
     btnSelected: "#D7BC27",
@@ -75,8 +75,8 @@ const theme_nostalgic = {
 let currentTheme = theme_dark;
 const setRootTheme = theme => {
     const root = document.documentElement;
-    root.style.setProperty('--btnTxt', theme.btnText);
-    root.style.setProperty('--barTxt', theme.barBarTxt);
+    root.style.setProperty('--btnTxt', theme.btnTxt);
+    root.style.setProperty('--barTxt', theme.barTxt);
     root.style.setProperty('--defaultColor', theme.btnDefault);
     root.style.setProperty('--highlightColor', theme.btnHighlight);
     root.style.setProperty('--selectedColor', theme.btnSelected);
