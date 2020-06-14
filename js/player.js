@@ -30,6 +30,7 @@ const theme_dark = {
     btnDefault: "#1DB322",
     btnHighlight: "#47DE4C",
     btnSelected: "#D7BC27",
+    btnSelected_h: "f0da60",
     btnClicked: "#168119",
     canvasNegative: "#000000",
     // Canvas space colors.
@@ -54,6 +55,7 @@ const theme_nostalgic = {
     btnDefault: "#1B8CD2",
     btnHighlight: "#65AEDC",
     btnSelected: "#D7BC27",
+    btnSelected_h: "#D7BC27",
     btnClicked: "#1872A9",
     canvasNegative: "#F0F0F0",
     // Canvas space colors.
@@ -99,7 +101,7 @@ mouse.attachEvents(canvas);
 // Resize canvas and scale when window changes size.
 window.onresize = () => scaleCanvas(canvas);
 
-setRootTheme(theme_nostalgic);
+setRootTheme(theme_dark);
 const frame = () => {
     CanvasModelUpdate(context, env, currentTheme, canvas.width, canvas.height);
     requestAnimationFrame(frame);

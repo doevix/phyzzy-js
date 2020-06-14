@@ -362,6 +362,7 @@ const MouseHandler = (cv) => {
                 if (deleteEnable) deleteEnable = false;
             }
             MouseConstructor.stateReset();
+            return constructEnable;
         },
         toggleDelete: () => {
             if (deleteEnable) deleteEnable = false;
@@ -371,6 +372,7 @@ const MouseHandler = (cv) => {
                 if (menuEnable) menuEnable = false;
                 MouseConstructor.stateReset();
             }
+            return deleteEnable;
         },
         isMenuEnabled: () => menuEnable,
         isConstructEnabled: () => constructEnable,
@@ -396,16 +398,31 @@ document.addEventListener('keypress', e =>  {
     }
 }, false);
 
+// I really don't like how this is, but it works for indication. Might be buggy...
 const ctrlButtons = document.getElementsByClassName('controlBtn');
-
 ctrlButtons['pseBtn'].addEventListener('click', e => {
-    Model.togglePause();
+    const p = Model.togglePause();
+    if (p) ctrlButtons['pseBtn'].className += ' btnSet';
+    else ctrlButtons['pseBtn'].className = 'controlBtn';
 }, true);
 ctrlButtons['cstBtn'].addEventListener('click', e => {
-    mouse.toggleConstructor();
+    const c = mouse.toggleConstructor();
+    if (c) {
+        ctrlButtons['cstBtn'].className += ' btnSet';
+        ctrlButtons['delBtn'].className = 'controlBtn';
+        
+    }
+    else ctrlButtons['cstBtn'].className = 'controlBtn';
+    
 }, true);
 ctrlButtons['delBtn'].addEventListener('click', e => {
-    mouse.toggleDelete();
+    const d = mouse.toggleDelete();
+    if (d) {
+        ctrlButtons['delBtn'].className += ' btnSet';
+        ctrlButtons['cstBtn'].className = 'controlBtn';
+        
+    }
+    else ctrlButtons['delBtn'].className = 'controlBtn';
 }, true);
 ctrlButtons['clrBtn'].addEventListener('click', e => {
     if (window.confirm('You are about to clear the model. Continue?'))

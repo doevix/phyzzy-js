@@ -2,6 +2,7 @@
     --defaultColor: #1DB322;
     --highlightColor: #47DE4C;
     --selectedColor: #D7BC27;
+    --selectedColor-highlight: #f0da60;
     --clickedColor: #168119;
     --menuBarColor: #1F1F1F;
     --canvasBackground: #2C2C2C;
@@ -48,6 +49,13 @@ body {
 
 .ctrlItem:last-child {
     margin-left: auto;
+}
+
+.btnSet {
+    background-color: var(--selectedColor);
+}
+.btnSet:hover {
+    background-color: var(--selectedColor-highlight);
 }
 
 #appName {
