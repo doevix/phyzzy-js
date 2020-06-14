@@ -6,6 +6,8 @@
     --menuBarColor: #1F1F1F;
     --canvasBackground: #2C2C2C;
     --emptySpaceColor: black;
+    --btnTxt: white;
+    --barTxt: white;
 }
 
 body {
@@ -27,7 +29,7 @@ body {
 
 .controlBtn {
     background-color: var(--defaultColor);
-    color: white;
+    color: var(--btnTxt);
     font-size: large;
     border: none;
     border-radius: 5px;
@@ -49,7 +51,7 @@ body {
 }
 
 #appName {
-    color: white;
+    color: var(--barTxt);
     font-size: large;
     margin-right: 5px;
 }
@@ -71,7 +73,7 @@ body {
 
 .footer {
     background-color: var(--menuBarColor);
-    color: white;
+    color: var(--barTxt);
     position: fixed;
     height: 20px;
     width: 100vw;
