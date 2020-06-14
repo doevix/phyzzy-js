@@ -382,11 +382,7 @@ const MouseHandler = (cv) => {
 
 let envMenu = undefined;
 document.addEventListener('keypress', e =>  {
-    if (e.key === ' ')
-        Model.togglePause();
-    else if (e.key === 'z') mouse.toggleMenus();
-    else if (e.key === 'c') mouse.toggleConstructor();
-    else if (e.key === 'd') mouse.toggleDelete();
+    if (e.key === 'z') mouse.toggleMenus();
     else if (e.key === 'e') {
         if (envMenu) {
             document.body.removeChild(envMenu);
