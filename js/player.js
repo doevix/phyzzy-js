@@ -30,7 +30,7 @@ const theme_dark = {
     btnDefault: "#1DB322",
     btnHighlight: "#47DE4C",
     btnSelected: "#D7BC27",
-    btnSelected_h: "f0da60",
+    btnSelected_h: "#F0DA60",
     btnClicked: "#168119",
     canvasNegative: "#000000",
     // Canvas space colors.
@@ -54,8 +54,8 @@ const theme_nostalgic = {
     btnTxt: "#FFFFFF",
     btnDefault: "#1B8CD2",
     btnHighlight: "#65AEDC",
-    btnSelected: "#D7BC27",
-    btnSelected_h: "#D7BC27",
+    btnSelected: "#FF584B",
+    btnSelected_h: "#FE776D",
     btnClicked: "#1872A9",
     canvasNegative: "#F0F0F0",
     // Canvas space colors.
@@ -82,6 +82,7 @@ const setRootTheme = theme => {
     root.style.setProperty('--defaultColor', theme.btnDefault);
     root.style.setProperty('--highlightColor', theme.btnHighlight);
     root.style.setProperty('--selectedColor', theme.btnSelected);
+    root.style.setProperty('--selectedColor-highlight', theme.btnSelected_h);
     root.style.setProperty('--clickedColor', theme.btnClicked);
     root.style.setProperty('--menuBarColor', theme.menuBar);
     root.style.setProperty('--canvasBackground', theme.background);
