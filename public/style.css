@@ -1,0 +1,108 @@
+:root {
+    --defaultColor: #1DB322;
+    --highlightColor: #47DE4C;
+    --selectedColor: #D7BC27;
+    --selectedColor-highlight: #f0da60;
+    --clickedColor: #168119;
+    --menuBarColor: #1F1F1F;
+    --canvasBackground: #2C2C2C;
+    --emptySpaceColor: black;
+    --btnTxt: white;
+    --barTxt: white;
+}
+
+body {
+    background-color: var(--emptySpaceColor);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin: 0px;
+    padding: 0;
+}
+
+.ctrlBar {
+    background-color: var(--menuBarColor);
+    width: 100vw;
+    height: 50px;
+    position: fixed;
+    display: flex;
+    align-items: center;
+    z-index: 5;
+}
+
+.controlBtn {
+    background-color: var(--defaultColor);
+    color: var(--btnTxt);
+    font-size: large;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    display: inline-block;
+    margin: 4px 2px;
+}
+
+.controlBtn:hover {
+    background-color: var(--highlightColor);
+}
+
+.controlBtn:active { 
+    background-color: var(--clickedColor);
+}
+
+.ctrlItem:last-child {
+    margin-left: auto;
+}
+
+.btnSet {
+    background-color: var(--selectedColor);
+}
+.btnSet:hover {
+    background-color: var(--selectedColor-highlight);
+}
+
+#appName {
+    color: var(--barTxt);
+    font-size: large;
+    margin-right: 5px;
+}
+
+.toolBar {
+    background-color: var(--menuBarColor);
+    position: fixed;
+    height: 100vh;
+    width: 50px;
+    right: 0px;
+    z-index: 4;
+}
+
+.canvasContainer {
+    position: relative;
+    top: 50px;
+    text-align: center;
+}
+
+.footer {
+    background-color: var(--menuBarColor);
+    color: var(--barTxt);
+    position: fixed;
+    height: 20px;
+    width: 100vw;
+    bottom: 0;
+}
+
+canvas {
+    /* touch-action: none; */
+    background-color: var(--canvasBackground);
+    vertical-align: bottom;
+}
+
+.menuContainer {
+    background-color: white;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+.envMenuContainer {
+    background-color: white;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
