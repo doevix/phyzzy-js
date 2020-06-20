@@ -94,36 +94,6 @@ class Mass {
         console.log(fk);
         this.F_sum.mAdd(fk);
     }
-    m_collide(masses, preserve) {
-        for (let i = 0; i < masses.length; ++i) {
-            const c = masses[i];
-            // Check groups.
-            if (this !== c && ((this.c_group === c.c_group && this.c_group !== 0 && c.c_group !== 0) || this.c_group === -1 || c.c_group === -1)) {
-                // Check overlap.
-                if (this.pos.isInRad(c.pos, this.radius + c.radius)) {
-                    const seg = this.pos.sub(c.pos);
-                    const D = seg.nrm().mul(this.radius + c.radius).sub(seg);
-
-                    const v_memA = {va: this.d_p(), vb: c.d_p()}
-                    const v_memB = {va: c.d_p(), vb: this.d_p()}
-                    
-                    if (!this.isFixed && !c.isFixed) {
-                        this.pos.mAdd(D.div(2));
-                        c.pos.mSub(D.div(2));
-                    } else if(this.isFixed && !c.isFixed) {
-                        c.pos.mSub(D);
-                    } else if(!this.isFixed && c.isFixed) {
-                        this.pos.mAdd(D);
-                    }
-
-                    if (preserve) {
-                        if (!this.isFixed) this.deflect(c, v_memA);
-                        if (!c.isFixed) c.deflect(this, v_memB);
-                    }
-                }
-            }
-        }
-    }
     // Reflect mass's velocity according to a tangent direction.
     reflect(tan) {
         this.set_d_p(this.d_p().pjt(tan).add(this.d_p().pjt(tan.prp()).inv().mul(this.refl)));
@@ -414,6 +384,38 @@ const Model = (() => {
     let drag = undefined;
     let pause = false;
 
+    // Mass-mass collisions
+    const mm_collide = (m, preserve) => {
+        for (let i = 0; i < masses.length; ++i) {
+            const c = masses[i];
+            // Check groups.
+            if (m !== c && ((m.c_group === c.c_group && m.c_group !== 0 && c.c_group !== 0) || m.c_group === -1 || c.c_group === -1)) {
+                // Check overlap.
+                if (m.pos.isInRad(c.pos, m.radius + c.radius)) {
+                    const seg = m.pos.sub(c.pos);
+                    const D = seg.nrm().mul(m.radius + c.radius).sub(seg);
+
+                    const v_memA = {va: m.d_p(), vb: c.d_p()}
+                    const v_memB = {va: c.d_p(), vb: m.d_p()}
+                    
+                    if (!m.isFixed && !c.isFixed) {
+                        m.pos.mAdd(D.div(2));
+                        c.pos.mSub(D.div(2));
+                    } else if(m.isFixed && !c.isFixed) {
+                        c.pos.mSub(D);
+                    } else if(!m.isFixed && c.isFixed) {
+                        m.pos.mAdd(D);
+                    }
+
+                    if (preserve) {
+                        if (!m.isFixed) this.deflect(c, v_memA);
+                        if (!c.isFixed) c.deflect(m, v_memB);
+                    }
+                }
+            }
+        }
+    }
+
     // Mass-spring collisions.
     const ms_collide = m => {
         for (let i = 0; i < springs.length; ++i) {
@@ -547,8 +549,8 @@ const Model = (() => {
                 if (collisions_enabled)
                 {
                     ms_collide(m);
-                    // mm_collide(m, false);
-                    m.m_collide(masses, false);
+                    mm_collide(m, false);
+                    // m.m_collide(masses, false);
                 }
                 env.boundCollide(m, false);
                 const LR = env.s_boundHit(m, false);
@@ -559,8 +561,8 @@ const Model = (() => {
                 
                 // Collision deflections.
                 if (collisions_enabled)
-                    m.m_collide(masses, true);
-                    // mm_collide(m, true);
+                    // m.m_collide(masses, true);
+                    mm_collide(m, true);
 
                 env.s_boundHit(m, true);
                 env.boundCollide(m, true);
