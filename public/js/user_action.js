@@ -340,6 +340,30 @@ const MouseHandler = (cv) => {
         cv.addEventListener('mouseup', () => Model.clearDrag(), false);
         cv.addEventListener('mouseleave', () => Model.clearDrag(), false);
         cv.addEventListener('contextmenu', e => e.preventDefault(), false);
+
+        const tPosCapt = e => {
+            const pos = new v2d(
+                e.touches[0].clientX - cv.offsetLeft + window.scrollX,
+                e.touches[0].clientY - cv.offsetTop + window.scrollY - 50);
+            return pos;
+        }
+
+        cv.addEventListener('touchstart', e => {
+            const p = tPosCapt(e);
+            pos.mEqu(p);
+            prv.mEqu(p);
+            selected = Model.setSelect();
+        }, false);
+        cv.addEventListener('touchmove', e => {
+            const p = tPosCapt(e);
+            prv.mEqu(pos);
+            pos.mEqu(p);
+            const D = pos.sub(prv);
+            Model.dragAction(D.x, D.y);
+        }, false);
+        cv.addEventListener('touchend', () => {
+            Model.clearDrag();
+        }, false);
     }
 
     return {
