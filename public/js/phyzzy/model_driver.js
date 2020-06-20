@@ -408,7 +408,7 @@ const Model = (() => {
                     }
 
                     if (preserve) {
-                        if (!m.isFixed) this.deflect(c, v_memA);
+                        if (!m.isFixed) m.deflect(c, v_memA);
                         if (!c.isFixed) c.deflect(m, v_memB);
                     }
                 }
