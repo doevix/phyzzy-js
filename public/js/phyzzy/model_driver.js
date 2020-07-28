@@ -1,6 +1,24 @@
 // model_driver.js
 'use strict';
 
+// Contains collection of springs & masses that make up a model.
+class Mesh {
+    constructor(nodes = [], edges = []) {
+        this.nodes = nodes;
+        this.edges = edges;
+    }
+    addNode(n) {
+        // Prevent repetitions before adding.
+        if (!this.nodes.some(x => x === n))
+            this.nodes.push(n);
+    }
+    addEdge(e) {
+        // Prevent overlapping springs.
+        if (!this.edges.some(x => e.mA === x.mB || e.mB === x.mA || e.mA === x.mA || e.mB === x.mB))
+            this.edges.push(e);
+    }
+};
+
 // Model driver singleton. Manages all movement, dynamics and user input.
 const Model = (() => {
     const env = new Environment(new v2d(0, 0), 0);
