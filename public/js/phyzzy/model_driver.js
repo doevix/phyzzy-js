@@ -13,9 +13,19 @@ class Mesh {
             this.nodes.push(n);
     }
     addEdge(e) {
-        // Prevent overlapping springs.
+        // Prevent overlapping and self-connecting springs.
         if (!this.edges.some(x => e.mA === x.mB || e.mB === x.mA || e.mA === x.mA || e.mB === x.mB))
             this.edges.push(e);
+    }
+    remEdge(e) {
+        // Removes by creating new array excluding the given edge.
+        this.edges.filter(x => x !== e);
+    }
+    remNode(n) {
+        // Find any connected edges and remove them first.
+        const adj = this.edges.filter(e => n === e.mA || n === e.mB);
+        adj.forEach(x => this.remEdge(x));
+        this.nodes.filter(x => x !== n);
     }
 };
 
